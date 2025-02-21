@@ -4,6 +4,8 @@
 #include <vector>
 #include "Shape.hpp"
 #include "Tile.hpp"
+#include "..\include\matrix.hpp"
+#include "..\include\tile.hpp"
 
 
 constexpr size_t ScreenWidth = 800;
@@ -64,10 +66,10 @@ int main()
 
     while (!WindowShouldClose())
     {
-        if (IsKeyDown(KEY_D)) boardOffset.x += 2;
-        else if (IsKeyDown(KEY_A)) boardOffset.x -= 2;
-        if (IsKeyDown(KEY_W)) boardOffset.y -= 2;
-        else if (IsKeyDown(KEY_S)) boardOffset.y += 2;
+        if (IsKeyDown(KEY_D)) camera.target.x += 2;
+        else if (IsKeyDown(KEY_A)) camera.target.x -= 2;
+        if (IsKeyDown(KEY_W)) camera.target.y -= 2;
+        else if (IsKeyDown(KEY_S)) camera.target.y += 2;
 
         // camera.target = boardOffset;
 
@@ -79,6 +81,8 @@ int main()
         // Camera zoom controls
         if (IsKeyDown(KEY_MINUS)) camera.zoom += 0.005f;
         else if (IsKeyDown(KEY_EQUAL)) camera.zoom -= 0.005f;
+
+        camera.zoom += ((float)GetMouseWheelMove()*-0.05f);
 
         // if (camera.zoom > 3.0f) camera.zoom = 3.0f;
         // else if (camera.zoom < 0.1f) camera.zoom = 0.1f;
