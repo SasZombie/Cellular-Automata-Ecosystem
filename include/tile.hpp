@@ -2,6 +2,9 @@
 #include <optional>
 #include <random>
 #include <memory>
+#include <variant>
+
+#include "Enviroment.hpp"
 #include "Plant.hpp"
 
 namespace sas
@@ -16,6 +19,6 @@ namespace sas
     struct Tile
     {
         TileType type;
-        std::unique_ptr<Plant> plant;
+        std::variant<std::unique_ptr<Plant>, std::unique_ptr<Enviroment>> occupant;
     };
 } // namespace sas

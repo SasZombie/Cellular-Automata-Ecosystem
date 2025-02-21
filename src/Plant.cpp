@@ -1,5 +1,6 @@
-#include "..\include\Plant.hpp"
+#include "../include/Plant.hpp"
 #include <random>
+#include <iostream>
 
 static constexpr float TreeReproductionChance = 0.02f;
 static constexpr float FlowerReproductionChance = 0.2f;
@@ -30,15 +31,20 @@ bool sas::Flower::reproduce() const noexcept
 
 size_t sas::Flower::waterConsumption() const noexcept
 {
+    std::cout << "Flower";
     return 0;
 }
 
 size_t sas::Tree::waterConsumption() const noexcept
 {
+    std::cout << "Tree";
+
     return 0;
 }
 
 size_t sas::Weed::waterConsumption() const noexcept
 {
+    std::cout << "Weed";
+
     return 0;
 }

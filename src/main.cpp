@@ -3,10 +3,8 @@
 #include "raymath.h"
 #include <vector>
 #include "Shape.hpp"
-#include "Tile.hpp"
-#include "..\include\matrix.hpp"
-#include "..\include\tile.hpp"
-
+#include "../include/matrix.hpp"
+#include "../include/tile.hpp"
 
 constexpr size_t ScreenWidth = 800;
 constexpr size_t ScreenHeight = 800;
@@ -20,29 +18,46 @@ constexpr size_t boardWidth = 30;
 constexpr size_t boardHeight = 20;
 constexpr size_t boardSize = boardWidth * boardHeight;
 
-void DrawBoard(Tiles board[], Vector2 offset);
-void SetUpBoard(Tiles board[]);
+void DrawBoard(sas::Tile board[], Vector2 offset);
+void SetUpBoard(sas::Tile board[]);
 
-void SetUpBoard(Tiles board[]) {
-    for(size_t i = 0; i < boardSize / boardWidth; ++i)
-        for(size_t j = 0; j < boardWidth; ++j) {
-            if     (j <= 1.f * boardWidth / 6 || j > 5.f * boardWidth / 6)
-                board[i * boardWidth + j] = Snow;
-            else if(j <= 5.f * boardWidth / 12 || j > 7.f * boardWidth / 12)
-                board[i * boardWidth + j] = Grass;
+void SetUpBoard(sas::Tile board[])
+{
+    for (size_t i = 0; i < boardSize / boardWidth; ++i)
+        for (size_t j = 0; j < boardWidth; ++j)
+        {
+            if (j <= 1.f * boardWidth / 6 || j > 5.f * boardWidth / 6)
+            {
+                board[i * boardWidth + j] = {sas::TileType::SNOW};
+            }
+            else if (j <= 5.f * boardWidth / 12 || j > 7.f * boardWidth / 12)
+            {
+                board[i * boardWidth + j] = {sas::TileType::GRASS};
+            }
             else
-                board[i * boardWidth + j] = Sand;
+            {
+                board[i * boardWidth + j] = {sas::TileType::DESERT};
+            }
         }
 }
 
-void DrawBoard(Tiles board[], Vector2 offset) {
-    for(size_t i = 0; i < boardSize / boardWidth; ++i)
-        for(size_t j = 0; j < boardWidth; ++j) {
+void DrawBoard(sas::Tile board[], Vector2 offset)
+{
+    for (size_t i = 0; i < boardSize / boardWidth; ++i)
+        for (size_t j = 0; j < boardWidth; ++j)
+        {
             Color color;
-            switch(board[i * boardWidth + j]) {
-                case Tiles::Snow:  color = Color{ 200, 200, 200, 255 }; break;
-                case Tiles::Grass: color = Color{  0 , 128,  0 , 255 }; break;
-                case Tiles::Sand:  color = Color{ 170, 170,  0 , 255 }; break;
+            switch (board[i * boardWidth + j].type)
+            {
+            case sas::TileType::SNOW:
+                color = Color{200, 200, 200, 255};
+                break;
+            case sas::TileType::GRASS:
+                color = Color{0, 128, 0, 255};
+                break;
+            case sas::TileType::DESERT:
+                color = Color{170, 170, 0, 255};
+                break;
             }
             DrawRectangle(j * 1.1f * cellSize + offset.x, i * 1.1f * cellSize + offset.y, cellSize, cellSize, color);
         }
@@ -50,14 +65,34 @@ void DrawBoard(Tiles board[], Vector2 offset) {
 
 int main()
 {
-    Tiles board[boardWidth * boardHeight];
+
+    // De citit
+    sas::Tile t;
+    t.occupant = std::make_unique<sas::Flower>();
+
+    std::visit([](const auto &ptr)
+               {
+                    //Asta este Automatic Dispatch
+                   if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
+                   {
+                       ptr->waterConsumption();
+                   }
+                   else
+                   {
+                       ptr->info();
+                   } },
+               t.occupant);
+
+    // De citit
+
+    sas::Tile board[boardWidth * boardHeight];
     SetUpBoard(board);
 
-    Vector2 boardOffset{ 0.f, 0.f };
+    Vector2 boardOffset{0.f, 0.f};
 
-    Camera2D camera = { 0 };
-    camera.target = (Vector2) { 300.f, 300.f };
-    camera.offset = (Vector2) { ScreenWidth/2.0f, ScreenHeight/2.0f };
+    Camera2D camera = {0, 0};
+    camera.target = (Vector2){300.f, 300.f};
+    camera.offset = (Vector2){ScreenWidth / 2.0f, ScreenHeight / 2.0f};
     camera.zoom = -1.0f;
     camera.rotation = 180.0f;
 
@@ -66,10 +101,14 @@ int main()
 
     while (!WindowShouldClose())
     {
-        if (IsKeyDown(KEY_D)) camera.target.x += 2;
-        else if (IsKeyDown(KEY_A)) camera.target.x -= 2;
-        if (IsKeyDown(KEY_W)) camera.target.y -= 2;
-        else if (IsKeyDown(KEY_S)) camera.target.y += 2;
+        if (IsKeyDown(KEY_D))
+            camera.target.x += 2;
+        else if (IsKeyDown(KEY_A))
+            camera.target.x -= 2;
+        if (IsKeyDown(KEY_W))
+            camera.target.y -= 2;
+        else if (IsKeyDown(KEY_S))
+            camera.target.y += 2;
 
         // camera.target = boardOffset;
 
@@ -79,10 +118,12 @@ int main()
         // else if (camera.rotation < -40) camera.rotation = -40;
 
         // Camera zoom controls
-        if (IsKeyDown(KEY_MINUS)) camera.zoom += 0.005f;
-        else if (IsKeyDown(KEY_EQUAL)) camera.zoom -= 0.005f;
+        if (IsKeyDown(KEY_MINUS))
+            camera.zoom += 0.005f;
+        else if (IsKeyDown(KEY_EQUAL))
+            camera.zoom -= 0.005f;
 
-        camera.zoom += ((float)GetMouseWheelMove()*-0.05f);
+        camera.zoom += ((float)GetMouseWheelMove() * -0.05f);
 
         // if (camera.zoom > 3.0f) camera.zoom = 3.0f;
         // else if (camera.zoom < 0.1f) camera.zoom = 0.1f;
@@ -93,7 +134,6 @@ int main()
             camera.zoom = 1.0f;
             camera.rotation = 0.0f;
         }
-
 
         BeginDrawing();
         BeginMode2D(camera);
