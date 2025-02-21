@@ -73,6 +73,9 @@ int main()
     std::visit([](const auto &ptr)
                {
                     //Asta este Automatic Dispatch
+                    //decltype = Actual type of ptr
+                    //std::decay_t = Removes any modifiers(const, &, etc)
+                    //is_base_of_v = Checks if elem is of type elem2
                    if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
                    {
                        ptr->waterConsumption();

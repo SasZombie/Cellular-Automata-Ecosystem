@@ -8,6 +8,8 @@ namespace sas
     public:
         virtual bool reproduce() const noexcept = 0;
         virtual size_t waterConsumption() const noexcept = 0; 
+        virtual ~Plant() = default;
+
     };
 
     class Tree: public Plant
