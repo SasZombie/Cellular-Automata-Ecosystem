@@ -101,7 +101,7 @@ int main()
     camera.rotation = 180.0f;
 
 
-    InitWindow(ScreenWidth, ScreenHeight, "Langhton's Ant");
+    InitWindow(ScreenWidth, ScreenHeight, "Celular Automata Ecosystem");
     SetTargetFPS(60);
 
     while (!WindowShouldClose())
