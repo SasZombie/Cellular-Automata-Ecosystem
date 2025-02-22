@@ -20,6 +20,6 @@ namespace sas
     struct Tile
     {
         TileType type;
-        std::variant<std::unique_ptr<Plant>, std::unique_ptr<Enviroment>> occupant;
+        std::variant<std::monostate, std::unique_ptr<Plant>, std::unique_ptr<Enviroment>> occupant;
     };
 } // namespace sas

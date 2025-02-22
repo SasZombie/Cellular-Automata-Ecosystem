@@ -6,6 +6,6 @@ build
 CMakeFiles/*
 cmake_install.cmake
 CMakeCache.txt
-src/mainMatrixTest.src
-src/maintile.cpp
+src/mainMatrixTest.cpp
+src/mainTile.cpp
 src/Plant.cpp
