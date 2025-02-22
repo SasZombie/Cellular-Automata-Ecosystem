@@ -21,33 +21,33 @@ constexpr size_t boardSize = boardWidth * boardHeight;
 void DrawBoard(sas::Tile board[], Vector2 offset);
 void SetUpBoard(sas::Tile board[]);
 
-void SetUpBoard(sas::Tile board[])
+void SetUpBoard(sas::Matrix<sas::Tile> &board)
 {
-    for (size_t i = 0; i < boardSize / boardWidth; ++i)
+    for (size_t i = 0; i < boardHeight; ++i)
         for (size_t j = 0; j < boardWidth; ++j)
         {
             if (j <= 1.f * boardWidth / 6 || j > 5.f * boardWidth / 6)
             {
-                board[i * boardWidth + j] = {sas::TileType::SNOW};
+                board(i, j) = {sas::TileType::SNOW};
             }
             else if (j <= 5.f * boardWidth / 12 || j > 7.f * boardWidth / 12)
             {
-                board[i * boardWidth + j] = {sas::TileType::GRASS};
+                board(i, j) = {sas::TileType::GRASS};
             }
             else
             {
-                board[i * boardWidth + j] = {sas::TileType::DESERT};
+                board(i, j) = {sas::TileType::DESERT};
             }
         }
 }
 
-void DrawBoard(sas::Tile board[], Vector2 offset)
+void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
 {
     for (size_t i = 0; i < boardSize / boardWidth; ++i)
         for (size_t j = 0; j < boardWidth; ++j)
         {
             Color color;
-            switch (board[i * boardWidth + j].type)
+            switch (board(i, j).type)
             {
             case sas::TileType::SNOW:
                 color = Color{200, 200, 200, 255};
@@ -66,31 +66,36 @@ void DrawBoard(sas::Tile board[], Vector2 offset)
 int main()
 {
 
-    // De citit
+    // // De citit
     sas::Tile t;
     t.occupant = std::make_unique<sas::Flower>();
 
-    std::visit([](const auto &ptr)
-               {
-                    //Asta este Automatic Dispatch
-                    //decltype = Actual type of ptr
-                    //std::decay_t = Removes any modifiers(const, &, etc)
-                    //is_base_of_v = Checks if elem is of type elem2
-                   if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
-                   {
-                       ptr->waterConsumption();
-                   }
-                   else
-                   {
-                       ptr->info();
-                   } },
-               t.occupant);
+    // std::visit([](const auto &ptr)
+    //            {
+    //                 //Asta este Automatic Dispatch
+    //                 //decltype = Actual type of ptr
+    //                 //std::decay_t = Removes any modifiers(const, &, etc)
+    //                 //is_base_of_v = Checks if elem is of type elem2
+    //                if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
+    //                {
+    //                    ptr->waterConsumption();
+    //                }
+    //                else
+    //                {
+    //                    ptr->info();
+    //                } },
+    //            t.occupant);
 
-    // De citit
+    // // De 
     
-    sas::Matrix<sas::Tile> board(boardWidth, boardHeight);
+
+    
+    sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
+
 
     SetUpBoard(board);
+
+    std::cout << "Hello\n";
 
     Vector2 boardOffset{0.f, 0.f};
 
