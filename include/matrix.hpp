@@ -41,7 +41,7 @@ namespace sas
         }
 
     public:
-        Matrix(size_t n_rows, size_t n_cols, T n_init = T()) noexcept
+        Matrix(size_t n_rows, size_t n_cols) noexcept
             : rows(n_rows), cols(n_cols), data(rows * cols)
         {
         }
