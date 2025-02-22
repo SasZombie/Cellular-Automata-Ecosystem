@@ -86,16 +86,11 @@ int main()
     //                } },
     //            t.occupant);
 
-    // // De 
-    
+    // // De
 
-    
     sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
 
-
     SetUpBoard(board);
-
-    std::cout << "Hello\n";
 
     Vector2 boardOffset{0.f, 0.f};
 
@@ -104,7 +99,6 @@ int main()
     camera.offset = {ScreenWidth / 2.0f, ScreenHeight / 2.0f};
     camera.zoom = -1.0f;
     camera.rotation = 180.0f;
-
 
     InitWindow(ScreenWidth, ScreenHeight, "Celular Automata Ecosystem");
     SetTargetFPS(60);
