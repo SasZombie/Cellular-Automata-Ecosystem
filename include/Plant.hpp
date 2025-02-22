@@ -8,31 +8,37 @@ namespace sas
     public:
         virtual bool reproduce() const noexcept = 0;
         virtual size_t waterConsumption() const noexcept = 0; 
+        virtual void draw(int x, int y) const noexcept = 0;
         virtual ~Plant() = default;
-
     };
 
     class Tree: public Plant
     {
     public:
-        virtual bool reproduce() const noexcept;
+        bool reproduce() const noexcept;
 
-        virtual size_t waterConsumption() const noexcept;
+        size_t waterConsumption() const noexcept;
+
+        void draw(int x, int y) const noexcept;
     };
 
     class Flower: public Plant
     {
     public:
-        virtual bool reproduce() const noexcept;
+        bool reproduce() const noexcept;
 
-        virtual size_t waterConsumption() const noexcept;
+        size_t waterConsumption() const noexcept;
+
+        void draw(int x, int y) const noexcept;
     };
 
     class Weed: public Plant
     {
     public:
-        virtual bool reproduce() const noexcept;
+        bool reproduce() const noexcept;
 
-        virtual size_t waterConsumption() const noexcept;
+        size_t waterConsumption() const noexcept;
+
+        void draw(int x, int y) const noexcept;
     };
 }

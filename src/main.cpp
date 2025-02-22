@@ -43,7 +43,7 @@ void SetUpBoard(sas::Matrix<sas::Tile> &board)
 
 void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
 {
-    for (size_t i = 0; i < boardSize / boardWidth; ++i)
+    for (size_t i = 0; i < boardHeight; ++i)
         for (size_t j = 0; j < boardWidth; ++j)
         {
             Color color;
@@ -99,6 +99,7 @@ int main()
     SetUpBoard(board);
 
     Vector2 boardOffset{0.f, 0.f};
+    
 
     Camera2D camera;
     camera.target = {300.f, 300.f};
