@@ -1,5 +1,9 @@
 #pragma once
 
+namespace sas
+{
+    
+
 class Enviroment
 {
 public:
@@ -13,3 +17,5 @@ public:
     void info();
 };
 
+
+} // namespace sas

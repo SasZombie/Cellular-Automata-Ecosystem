@@ -9,5 +9,5 @@ include_directories(include)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wformat-nonliteral -Wcast-align -Wpointer-arith -Wmissing-declarations -Winline -Wundef -Wcast-qual -Wshadow -Wwrite-strings -Wno-unused-parameter -Wfloat-equal -pedantic -ansi -fsanitize=undefined -fsanitize=address -fsanitize=leak")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
-add_executable(main src/main.cpp src/Plant.cpp)
+add_executable(main src/main.cpp src/Plant.cpp src/Tile.cpp)
 target_link_libraries(main raylib m pthread X11 GL dl)

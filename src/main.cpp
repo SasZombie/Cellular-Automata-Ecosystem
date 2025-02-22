@@ -4,7 +4,7 @@
 #include <vector>
 #include "Shape.hpp"
 #include "../include/matrix.hpp"
-#include "../include/tile.hpp"
+#include "../include/Tile.hpp"
 
 constexpr size_t ScreenWidth = 800;
 constexpr size_t ScreenHeight = 800;
@@ -24,26 +24,30 @@ void SetUpBoard(sas::Tile board[]);
 void SetUpBoard(sas::Matrix<sas::Tile> &board)
 {
     for (size_t i = 0; i < boardHeight; ++i)
+    {
         for (size_t j = 0; j < boardWidth; ++j)
         {
             if (j <= 1.f * boardWidth / 6 || j > 5.f * boardWidth / 6)
             {
-                board(i, j) = {sas::TileType::SNOW};
+                board(i, j).type = sas::TileType::SNOW;
             }
             else if (j <= 5.f * boardWidth / 12 || j > 7.f * boardWidth / 12)
             {
-                board(i, j) = {sas::TileType::GRASS};
+                board(i, j).type = sas::TileType::GRASS;
             }
             else
             {
-                board(i, j) = {sas::TileType::DESERT};
+                board(i, j).type = sas::TileType::DESERT;
             }
         }
+    }
 }
 
 void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
 {
     for (size_t i = 0; i < boardHeight; ++i)
+    {
+
         for (size_t j = 0; j < boardWidth; ++j)
         {
             Color color;
@@ -60,12 +64,23 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
                 break;
             }
             DrawRectangle(j * 1.1f * cellSize + offset.x, i * 1.1f * cellSize + offset.y, cellSize, cellSize, color);
-        }
-}
 
-void addToTile(sas::Tile& tile)
-{
-    
+            std::visit([](const auto &ptr)
+            {
+                if constexpr (!std::is_same_v<std::monostate, std::decay_t<decltype(ptr)>>)
+                {
+                    if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
+                    {
+                        ptr->draw(30, 30);
+                    }
+                    else
+                    {
+                        ptr->info();
+                    } 
+                } 
+            }, board(i, j).occupant);
+        }
+    }
 }
 
 int main()
@@ -96,10 +111,12 @@ int main()
 
     sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
 
-    SetUpBoard(board);
-
     Vector2 boardOffset{0.f, 0.f};
-    
+
+    board(0, 0).addPlant(std::make_unique<sas::Flower>());
+    board(10, 10).addPlant(std::make_unique<sas::Flower>());
+
+    SetUpBoard(board);
 
     Camera2D camera;
     camera.target = {300.f, 300.f};
