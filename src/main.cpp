@@ -87,17 +87,19 @@ int main()
                t.occupant);
 
     // De citit
+    
+    sas::Matrix<sas::Tile> board(boardWidth, boardHeight);
 
-    sas::Tile board[boardWidth * boardHeight];
     SetUpBoard(board);
 
     Vector2 boardOffset{0.f, 0.f};
 
-    Camera2D camera = {0, 0};
-    camera.target = (Vector2){300.f, 300.f};
-    camera.offset = (Vector2){ScreenWidth / 2.0f, ScreenHeight / 2.0f};
+    Camera2D camera;
+    camera.target = {300.f, 300.f};
+    camera.offset = {ScreenWidth / 2.0f, ScreenHeight / 2.0f};
     camera.zoom = -1.0f;
     camera.rotation = 180.0f;
+
 
     InitWindow(ScreenWidth, ScreenHeight, "Langhton's Ant");
     SetTargetFPS(60);
