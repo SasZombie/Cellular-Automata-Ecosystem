@@ -4,18 +4,18 @@
 
 struct Shape
 {
-    Vector2 *vertices;
     unsigned numberOfVertices;
-    Vector2 center;
     float angle;
+    Vector2 center;
+    Vector2 *vertices;
 };
 
-void VectorPrint(Vector2 a)
+void VectorPrint(const Vector2& a)
 {
     std::cout << a.x << ' ' << a.y << '\n';
 }
 
-void ShapeFirstOperation(Shape p)
+void ShapeFirstOperation(const Shape& p)
 {
     for (unsigned i = 0; i < p.numberOfVertices; ++i)
     {
@@ -23,7 +23,7 @@ void ShapeFirstOperation(Shape p)
         p.vertices[i].y -= 0.5f;
     }
 }
-void ShapeScale(Shape p, float scalingFactor)
+void ShapeScale(Shape& p, float scalingFactor)
 {
     for (unsigned i = 0; i < p.numberOfVertices; ++i)
     {
@@ -43,13 +43,13 @@ void ShapeRotateTo(Shape &p, float angle)
         p.vertices[i] = Vector2Add(p.center, Vector2Rotate(Vector2Subtract(p.vertices[i], p.center), (angle - p.angle) * DEG2RAD));
     p.angle = angle;
 }
-void ShapeMoveBy(Shape &p, Vector2 move)
+void ShapeMoveBy(Shape &p, const Vector2& move)
 {
     for (unsigned i = 0; i < p.numberOfVertices; ++i)
         p.vertices[i] = Vector2Add(p.vertices[i], move);
     p.center = Vector2Add(p.center, move);
 }
-void ShapeMoveTo(Shape &p, Vector2 newPos)
+void ShapeMoveTo(Shape &p, const Vector2& newPos)
 {
     for (unsigned i = 0; i < p.numberOfVertices; ++i)
         p.vertices[i] = Vector2Add(Vector2Subtract(p.vertices[i], p.center), newPos);
@@ -63,7 +63,7 @@ void ShapeTranslate(Shape &p, Vector2 move)
     p.center = Vector2Add(p.center, move);
 }
 
-void ShapeProjectOn(Shape p, Shape projection)
+void ShapeProjectOn(const Shape& p, Shape& projection)
 {
     float minValue = p.vertices[0].x, maxValue = p.vertices[0].x;
     for (unsigned i = 1; i < p.numberOfVertices; ++i)

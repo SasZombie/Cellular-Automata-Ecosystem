@@ -63,26 +63,32 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
         }
 }
 
+void addToTile(sas::Tile& tile)
+{
+    
+}
+
 int main()
 {
 
     // // De citit
-    sas::Tile t;
-    t.occupant = std::make_unique<sas::Flower>();
+    // sas::Tile t;
+    // t.occupant = std::make_unique<sas::Flower>();
 
     // std::visit([](const auto &ptr)
     //            {
-    //                 //Asta este Automatic Dispatch
-    //                 //decltype = Actual type of ptr
-    //                 //std::decay_t = Removes any modifiers(const, &, etc)
-    //                 //is_base_of_v = Checks if elem is of type elem2
+    //                 if constexpr (std::is_base_of_v<std::monostate, std::decay_t<decltype(*ptr)>>)
+    //                 {
+    //                     gol;
+    //                 }
+    //                 else
+    //                 {
+
+    //                 }
+
     //                if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
     //                {
-    //                    ptr->waterConsumption();
-    //                }
-    //                else
-    //                {
-    //                    ptr->info();
+    //                    ptr->draw();
     //                } },
     //            t.occupant);
 
