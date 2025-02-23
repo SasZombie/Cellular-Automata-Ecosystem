@@ -12,7 +12,8 @@ namespace sas
 {
     static std::mt19937 gen;
     static std::uniform_real_distribution<float> dist;
-    size_t reproducingGeneratedSeed;
+
+    
     
     void generateSeed();
     

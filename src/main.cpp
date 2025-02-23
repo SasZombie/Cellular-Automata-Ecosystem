@@ -84,13 +84,6 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
 }
 
 
-
-// //This will be moved to UTILS
-// void generateNumbers(sas::Matrix<sas::Tile> &board)
-// {
-
-// }
-
 template <typename T>
 void check(const sas::Matrix<sas::Tile> &board, T& elem)
 {
@@ -112,30 +105,8 @@ void check(const sas::Matrix<sas::Tile> &board, T& elem)
 
 int main()
 {
-
-    // // De citit
-    // sas::Tile t;
-    // t.occupant = std::make_unique<sas::Flower>();
-
-    // std::visit([](const auto &ptr)
-    //            {
-    //                 if constexpr (std::is_base_of_v<std::monostate, std::decay_t<decltype(*ptr)>>)
-    //                 {
-    //                     gol;
-    //                 }
-    //                 else
-    //                 {
-
-    //                 }
-
-    //                if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
-    //                {
-    //                    ptr->draw();
-    //                } },
-    //            t.occupant);
-
-    // // De
     sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
+
 
     Vector2 boardOffset{0.f, 0.f};
 
@@ -143,16 +114,6 @@ int main()
     board(10, 10).addPlant(std::make_unique<sas::Flower>());
 
     board(12, 12).addEnviroment(std::make_unique<sas::Water>());
-
-    // check(board, sas::Water(), [&](const sas::Enviroment& env)
-    // {
-        // return true;
-    // });
-    sas::Water s;
-
-    check(board, s);
-
-    // How to see closest! ;D
     
 
     SetUpBoard(board);
