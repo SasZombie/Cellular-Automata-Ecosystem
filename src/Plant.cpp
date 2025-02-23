@@ -29,6 +29,21 @@ bool sas::Flower::reproduce() const noexcept
 {
     return dist(gen) <= FlowerReproductionChance;
 }
+
+size_t sas::Flower::range() const noexcept
+{
+    return 10;
+}
+
+size_t sas::Weed::range() const noexcept
+{
+    return 10;
+}
+
+size_t sas::Tree::range() const noexcept
+{
+    return 10;
+}
 // TODO: return value
 size_t sas::Flower::waterConsumption() const noexcept
 {
