@@ -19,6 +19,11 @@ namespace sas
     void generateSeed() {
         reproducingGeneratedSeed = static_cast<size_t>(dist(gen) * 21473);
     }
+    
+    float euclidianDistance2D(const size_t &x1, const size_t &y1, const size_t &x2, const size_t &y2) {
+        return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
+    }
+    
     // BFS
     template <typename Func = std::function<bool(const sas::Enviroment&)>>
     std::optional<std::pair<size_t, size_t>> getClosestTileIndexByOccupant(const sas::Matrix<sas::Tile> &board, size_t elemPozX, size_t elemPozY,

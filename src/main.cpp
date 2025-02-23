@@ -72,7 +72,11 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
                 {
                     if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
                     {
-                        ptr->draw(i * cellSize, j * cellSize);
+                        ptr->draw((i + .5f) * cellSize, (j + .5f) * cellSize);
+                    }
+                    else if constexpr (std::is_base_of_v<sas::Enviroment, std::decay_t<decltype(*ptr)>>)
+                    {
+                        DrawRectangle(j * cellSize + offset.x, i * cellSize + offset.y, cellSize, cellSize, BLUE);
                     }
                 } }, board(i, j).occupant);
         }
@@ -181,6 +185,8 @@ int main()
         // else if (camera.rotation < -40) camera.rotation = -40;
 
         // Camera zoom controls
+        if (IsKeyDown(KEY_ZERO))
+            camera.zoom = -1.f;
         if (IsKeyDown(KEY_MINUS))
             camera.zoom += 0.005f;
         else if (IsKeyDown(KEY_EQUAL))
