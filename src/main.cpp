@@ -48,7 +48,7 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
 {
     for (size_t i = 0; i < boardHeight; ++i)
     {
-
+        
         for (size_t j = 0; j < boardWidth; ++j)
         {
             Color color;
@@ -65,9 +65,16 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
                 break;
             }
             DrawRectangle(j * cellSize + offset.x, i * cellSize + offset.y, cellSize, cellSize, color);
+        }
+    }
+    
 
+    for (size_t i = 0; i < boardHeight; ++i)
+    {
+        for (size_t j = 0; j < boardWidth; ++j)
+        {
             std::visit([&](const auto &ptr)
-                       {
+            {
                 if constexpr (!std::is_same_v<std::monostate, std::decay_t<decltype(ptr)>>)
                 {
                     if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
@@ -78,7 +85,8 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
                     {
                         DrawRectangle(j * cellSize + offset.x, i * cellSize + offset.y, cellSize, cellSize, Color{0, 121, 241, 255});
                     }
-                } }, board(i, j).occupant);
+                } 
+            }, board(i, j).occupant);
         }
     }
 }
@@ -110,7 +118,8 @@ int main()
 
 
     board(0, 0).addPlant(std::make_unique<sas::Flower>());
-    board(10, 10).addPlant(std::make_unique<sas::Flower>());
+    board(10, 10).addPlant(std::make_unique<sas::Weed>());
+    board(15, 15).addPlant(std::make_unique<sas::Tree>());
 
     board(12, 12).addEnviroment(std::make_unique<sas::Water>());
     
@@ -127,7 +136,7 @@ int main()
     SetTargetFPS(60);
 
     float timeAcc = 0.f;
-    const float interval = 10.f / 60.f;
+    const float interval = 180.f / 60.f;
 
     while (!WindowShouldClose())
     {
