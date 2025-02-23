@@ -79,6 +79,14 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
     }
 }
 
+
+
+//This will be moved to UTILS
+void generateNumbers(sas::Matrix<sas::Tile> &board)
+{
+
+}
+
 // template <typename Func>
 // void check(const sas::Matrix<sas::Tile> &board, const sas::Enviroment &elem, Func&& condition)
 // {
@@ -97,7 +105,6 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
 //                 } }, each.occupant);
 //     }
 // }
-
 
 int main()
 {
@@ -138,18 +145,8 @@ int main()
     //     return true;
     // });
 
-    //How to see closest! ;D
-    std::optional<std::pair<size_t, size_t>> opt = sas::getClosestTileIndexByOccupant(board, 10, 10, sas::Water());
-
-
-    if (opt.has_value())
-    {
-        std::cout << opt.value().first << ' ' << opt.value().second << '\n';
-    }
-    else
-    {
-        std::cout << "Not found\n";
-    }
+    // How to see closest! ;D
+    
 
     SetUpBoard(board);
 
