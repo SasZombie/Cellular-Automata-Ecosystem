@@ -10,4 +10,5 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wformat-nonliteral -Wcast
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
 add_executable(main src/main.cpp src/Plant.cpp src/Tile.cpp src/Enviroment.cpp)
+add_executable(test src/test.cpp)
 target_link_libraries(main raylib m pthread X11 GL dl)
