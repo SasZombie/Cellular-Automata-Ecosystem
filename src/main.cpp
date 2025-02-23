@@ -109,12 +109,18 @@ int main()
 
     // // De
 
+    sas::Water w, l;
+
+    w = l;
+
     sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
 
     Vector2 boardOffset{0.f, 0.f};
 
     board(0, 0).addPlant(std::make_unique<sas::Flower>());
     board(10, 10).addPlant(std::make_unique<sas::Flower>());
+    
+    board(10, 10).addEnviroment(std::make_unique<sas::Water>());
 
     SetUpBoard(board);
 
