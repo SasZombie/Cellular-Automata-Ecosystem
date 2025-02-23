@@ -135,6 +135,7 @@ int main()
     //How to see closest! ;D
     std::optional<std::pair<size_t, size_t>> opt = sas::getClosestTileIndexByOccupant(board, 10, 10, sas::Water());
 
+
     if (opt.has_value())
     {
         std::cout << opt.value().first << ' ' << opt.value().second << '\n';
