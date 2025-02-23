@@ -79,23 +79,24 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
     }
 }
 
-// template <typename T>
-void check(const sas::Matrix<sas::Tile> &board, const sas::Enviroment &elem)
-{
-    for (const auto &each : board)
-    {
-        std::visit([](const auto &ptr)
-                   {
-                if constexpr (!std::is_same_v<std::monostate, std::decay_t<decltype(ptr)>>)
-                {
-                    if constexpr (std::is_same_v<std::decay_t<decltype(elem)>, std::decay_t<decltype(*ptr)>> ||
-                        std::is_same_v<std::decay_t<decltype(elem)>, std::decay_t<decltype(*ptr)>>)
-                    {
-                        std::cout << "Found\n";
-                    }
-                } }, each.occupant);
-    }
-}
+// template <typename Func>
+// void check(const sas::Matrix<sas::Tile> &board, const sas::Enviroment &elem, Func&& condition)
+// {
+//     for (const auto &each : board)
+//     {
+//         std::visit([&](const auto &ptr)
+//                    {
+//                 if constexpr (!std::is_same_v<std::monostate, std::decay_t<decltype(ptr)>>)
+//                 {
+//                     if constexpr (std::is_same_v<std::decay_t<decltype(elem)>, std::decay_t<decltype(*ptr)>> ||
+//                         std::is_same_v<std::decay_t<decltype(elem)>, std::decay_t<decltype(*ptr)>>)
+//                     {
+//                         if(condition(*ptr))
+//                             std::cout << "Found\n";
+//                     }
+//                 } }, each.occupant);
+//     }
+// }
 
 
 int main()
@@ -131,6 +132,11 @@ int main()
     board(10, 10).addPlant(std::make_unique<sas::Flower>());
 
     board(12, 12).addEnviroment(std::make_unique<sas::Water>());
+
+    // check(board, sas::Water(), [&](const sas::Enviroment& env)
+    // {
+    //     return true;
+    // });
 
     //How to see closest! ;D
     std::optional<std::pair<size_t, size_t>> opt = sas::getClosestTileIndexByOccupant(board, 10, 10, sas::Water());
