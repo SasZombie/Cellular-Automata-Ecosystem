@@ -6,8 +6,18 @@
 #include <type_traits>
 #include <queue>
 
+
 namespace sas
 {
+    static std::mt19937 gen;
+    static std::uniform_real_distribution<float> dist;
+    size_t reproducingGeneratedSeed;
+    
+    void generateSeed();
+    
+    void generateSeed() {
+        reproducingGeneratedSeed = static_cast<size_t>(dist(gen) * 21473);
+    }
     // BFS
     std::optional<std::pair<size_t, size_t>> getClosestTileIndexByOccupant(const sas::Matrix<sas::Tile> &board, size_t elemPozX, size_t elemPozY,
                                                                            const sas::Enviroment &env)

@@ -53,17 +53,18 @@ size_t sas::Weed::waterConsumption() const noexcept
 void sas::Tree::draw(int x, int y) const noexcept
 {
     size_t plantSize = 20; // Impartire la 2
-    DrawCircle(plantSize << 1, plantSize << 1, plantSize, LIME);
+    DrawCircle(x + plantSize << 1, y + plantSize << 1, plantSize, LIME);
 }
 
 void sas::Weed::draw(int x, int y) const noexcept
 {
     size_t plantSize = 8; // Impartire la 2
-    DrawCircle(plantSize << 1, plantSize << 1, plantSize, Color{80, 150, 80, 255});
+    DrawCircle(x + plantSize << 1, y + plantSize << 1, plantSize, Color{80, 150, 80, 255});
 }
 
 void sas::Flower::draw(int x, int y) const noexcept
 {
     size_t plantSize = 8; // Impartire la 2
-    DrawCircle(plantSize << 1, plantSize << 1, plantSize, PINK);
+    DrawCircle(x + (plantSize << 0), y + (plantSize << 0), plantSize, PINK);
+    std::cout << x + (plantSize << 0) << ' ' << (plantSize << 0) << '\n';
 }

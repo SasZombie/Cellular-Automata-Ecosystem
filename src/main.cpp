@@ -19,8 +19,8 @@ constexpr size_t boardWidth = 30;
 constexpr size_t boardHeight = 20;
 constexpr size_t boardSize = boardWidth * boardHeight;
 
-void DrawBoard(sas::Tile board[], Vector2 offset);
-void SetUpBoard(sas::Tile board[]);
+void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset);
+void SetUpBoard(sas::Matrix<sas::Tile> &board);
 
 void SetUpBoard(sas::Matrix<sas::Tile> &board)
 {
@@ -64,15 +64,15 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
                 color = Color{170, 170, 0, 255};
                 break;
             }
-            DrawRectangle(j * 1.1f * cellSize + offset.x, i * 1.1f * cellSize + offset.y, cellSize, cellSize, color);
+            DrawRectangle(j * cellSize + offset.x, i * cellSize + offset.y, cellSize, cellSize, color);
 
-            std::visit([](const auto &ptr)
+            std::visit([&](const auto &ptr)
                        {
                 if constexpr (!std::is_same_v<std::monostate, std::decay_t<decltype(ptr)>>)
                 {
                     if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
                     {
-                        ptr->draw(30, 30);
+                        ptr->draw(i * cellSize, j * cellSize);
                     }
                 } }, board(i, j).occupant);
         }
@@ -81,11 +81,11 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
 
 
 
-//This will be moved to UTILS
-void generateNumbers(sas::Matrix<sas::Tile> &board)
-{
+// //This will be moved to UTILS
+// void generateNumbers(sas::Matrix<sas::Tile> &board)
+// {
 
-}
+// }
 
 // template <typename Func>
 // void check(const sas::Matrix<sas::Tile> &board, const sas::Enviroment &elem, Func&& condition)
@@ -201,6 +201,8 @@ int main()
         ClearBackground(Color{18, 18, 18, 255});
         DrawBoard(board, boardOffset);
         DrawText("Plus si minus pt zoom\nWASD pentru movement", -20, -60, 20, WHITE);
+
+        sas::generateSeed();
         EndDrawing();
     }
 
