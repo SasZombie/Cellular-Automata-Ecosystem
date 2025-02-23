@@ -72,11 +72,11 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
                 {
                     if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
                     {
-                        ptr->draw((i + .5f) * cellSize, (j + .5f) * cellSize);
+                        ptr->draw((j + .5f) * cellSize, (i + .5f) * cellSize);
                     }
                     else if constexpr (std::is_base_of_v<sas::Enviroment, std::decay_t<decltype(*ptr)>>)
                     {
-                        DrawRectangle(j * cellSize + offset.x, i * cellSize + offset.y, cellSize, cellSize, BLUE);
+                        DrawRectangle(j * cellSize + offset.x, i * cellSize + offset.y, cellSize, cellSize, Color{0, 121, 241, 255});
                     }
                 } }, board(i, j).occupant);
         }
@@ -106,9 +106,8 @@ void check(const sas::Matrix<sas::Tile> &board, T& elem)
 int main()
 {
     sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
-
-
     Vector2 boardOffset{0.f, 0.f};
+
 
     board(0, 0).addPlant(std::make_unique<sas::Flower>());
     board(10, 10).addPlant(std::make_unique<sas::Flower>());
@@ -127,8 +126,28 @@ int main()
     InitWindow(ScreenWidth, ScreenHeight, "Celular Automata Ecosystem");
     SetTargetFPS(60);
 
+    float timeAcc = 0.f;
+    const float interval = 10.f / 60.f;
+
     while (!WindowShouldClose())
     {
+
+        float dt = GetFrameTime();
+
+        timeAcc = timeAcc + dt;
+
+        if(timeAcc >= interval)
+        {
+            timeAcc = 0;
+
+            const auto [y, x] = sas::generateSeed();
+            // Cate plante adugam, unde le adugam
+            // sas::getClosestTileIndexByOccupant();
+            
+            board(x, y).addPlant(std::make_unique<sas::Flower>());
+
+        }
+
         if (IsKeyDown(KEY_D))
             camera.target.x += 2;
         else if (IsKeyDown(KEY_A))
@@ -137,13 +156,6 @@ int main()
             camera.target.y -= 2;
         else if (IsKeyDown(KEY_S))
             camera.target.y += 2;
-
-        // camera.target = boardOffset;
-
-        // if (IsKeyDown(KEY_A)) camera.rotation--;
-        // else if (IsKeyDown(KEY_S)) camera.rotation++;
-        // if (camera.rotation > 40) camera.rotation = 40;
-        // else if (camera.rotation < -40) camera.rotation = -40;
 
         // Camera zoom controls
         if (IsKeyDown(KEY_ZERO))
@@ -154,9 +166,6 @@ int main()
             camera.zoom -= 0.005f;
 
         camera.zoom += ((float)GetMouseWheelMove() * -0.05f);
-
-        // if (camera.zoom > 3.0f) camera.zoom = 3.0f;
-        // else if (camera.zoom < 0.1f) camera.zoom = 0.1f;
 
         // Camera reset (zoom and rotation)
         if (IsKeyPressed(KEY_R))
