@@ -9,3 +9,4 @@ CMakeCache.txt
 src/mainMatrixTest.cpp
 src/mainTile.cpp
 src/Plant.cpp
+src/test.cpp

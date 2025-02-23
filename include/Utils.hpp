@@ -3,6 +3,7 @@
 #include "Tile.hpp"
 #include "matrix.hpp"
 
+#include <functional>
 #include <type_traits>
 #include <queue>
 
@@ -19,8 +20,9 @@ namespace sas
         reproducingGeneratedSeed = static_cast<size_t>(dist(gen) * 21473);
     }
     // BFS
+    template <typename Func = std::function<bool(const sas::Enviroment&)>>
     std::optional<std::pair<size_t, size_t>> getClosestTileIndexByOccupant(const sas::Matrix<sas::Tile> &board, size_t elemPozX, size_t elemPozY,
-                                                                           const sas::Enviroment &env)
+                                                                           const sas::Enviroment &env, Func&& condition = [](const sas::Enviroment&) { return true; })
     {
 
         struct QueueNode
@@ -54,7 +56,7 @@ namespace sas
                     if constexpr ((std::is_same_v<std::decay_t<decltype(env)>, std::decay_t<decltype(*ptr)>> ||
                         std::is_same_v<std::decay_t<decltype(env)>, std::decay_t<decltype(*ptr)>>))
                     {
-                        if(env.hasCapacity(1))
+                        if(condition(*ptr))
                             result = std::make_pair(current.x, current.y);
                     }
                 } }, board(current.x, current.y).occupant);
