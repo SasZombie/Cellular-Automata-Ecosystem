@@ -110,16 +110,6 @@ int main()
     board(10, 10).addPlant(std::make_unique<sas::Flower>());
 
     board(12, 12).addEnviroment(std::make_unique<sas::Water>());
-
-    std::optional<std::pair<size_t, size_t>> opt =  sas::getClosestTileIndexByOccupant(board, 0, 0, sas::Water(), [](const sas::Enviroment &env)
-    {
-        return env.hasCapacity(10);
-    });    
-
-    if(opt.has_value())
-    {
-
-    }
     
 
     SetUpBoard(board);
