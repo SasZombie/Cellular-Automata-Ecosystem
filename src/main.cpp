@@ -5,6 +5,7 @@
 #include "Shape.hpp"
 #include "../include/matrix.hpp"
 #include "../include/Tile.hpp"
+#include "../include/Utils.hpp"
 
 constexpr size_t ScreenWidth = 800;
 constexpr size_t ScreenHeight = 800;
@@ -66,22 +67,36 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
             DrawRectangle(j * 1.1f * cellSize + offset.x, i * 1.1f * cellSize + offset.y, cellSize, cellSize, color);
 
             std::visit([](const auto &ptr)
-            {
+                       {
                 if constexpr (!std::is_same_v<std::monostate, std::decay_t<decltype(ptr)>>)
                 {
                     if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
                     {
                         ptr->draw(30, 30);
                     }
-                    else
-                    {
-                        ptr->info();
-                    } 
-                } 
-            }, board(i, j).occupant);
+                } }, board(i, j).occupant);
         }
     }
 }
+
+// template <typename T>
+void check(const sas::Matrix<sas::Tile> &board, const sas::Enviroment &elem)
+{
+    for (const auto &each : board)
+    {
+        std::visit([](const auto &ptr)
+                   {
+                if constexpr (!std::is_same_v<std::monostate, std::decay_t<decltype(ptr)>>)
+                {
+                    if constexpr (std::is_same_v<std::decay_t<decltype(elem)>, std::decay_t<decltype(*ptr)>> ||
+                        std::is_same_v<std::decay_t<decltype(elem)>, std::decay_t<decltype(*ptr)>>)
+                    {
+                        std::cout << "Found\n";
+                    }
+                } }, each.occupant);
+    }
+}
+
 
 int main()
 {
@@ -108,19 +123,26 @@ int main()
     //            t.occupant);
 
     // // De
-
-    sas::Water w, l;
-
-    w = l;
-
     sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
 
     Vector2 boardOffset{0.f, 0.f};
 
     board(0, 0).addPlant(std::make_unique<sas::Flower>());
     board(10, 10).addPlant(std::make_unique<sas::Flower>());
-    
-    board(10, 10).addEnviroment(std::make_unique<sas::Water>());
+
+    board(12, 12).addEnviroment(std::make_unique<sas::Water>());
+
+    //How to see closest! ;D
+    std::optional<std::pair<size_t, size_t>> opt = sas::getClosestTileIndexByOccupant(board, 10, 10, sas::Water());
+
+    if (opt.has_value())
+    {
+        std::cout << opt.value().first << ' ' << opt.value().second << '\n';
+    }
+    else
+    {
+        std::cout << "Not found\n";
+    }
 
     SetUpBoard(board);
 
