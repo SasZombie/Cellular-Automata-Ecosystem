@@ -113,6 +113,7 @@ int main()
     board(10, 10).addPlant(std::make_unique<sas::Flower>());
 
     board(12, 12).addEnviroment(std::make_unique<sas::Water>());
+    board(11, 11).addEnviroment(std::make_unique<sas::Water>());
     
 
     SetUpBoard(board);
@@ -142,8 +143,17 @@ int main()
 
             const auto [y, x] = sas::generateSeed();
             // Cate plante adugam, unde le adugam
-            // sas::getClosestTileIndexByOccupant();
             
+            const auto& allIndexes = sas::getClosestTileIndexByOccupant(board, 0, 0, sas::Water());
+            
+            for(const auto& elem : allIndexes)
+            {
+                std::cout << elem.first << ' ' << elem.second << '|';
+            }
+
+            std::cout << '\n';
+            
+
             board(x, y).addPlant(std::make_unique<sas::Flower>());
 
         }
