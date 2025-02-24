@@ -1,6 +1,7 @@
 #pragma once
 #include <cstddef>
 #include "Entity.hpp"
+#include <vector>
 
 namespace sas
 {
@@ -15,7 +16,11 @@ namespace sas
     class Plant : public Entity
     {
     public:
-        virtual bool reproduce() const noexcept = 0;
+        size_t size = 10;
+        size_t rangeWater, rangeSpreadingSeeds = 10;
+        size_t nrOfSeeds = 10;
+
+        std::vector<std::pair<size_t, size_t>> reproduce() const noexcept;
         virtual size_t waterConsumption() const noexcept = 0; 
         virtual size_t range() const noexcept = 0; 
         virtual void draw() const noexcept = 0;
@@ -26,7 +31,6 @@ namespace sas
     class Tree: public Plant
     {
     public:
-        bool reproduce() const noexcept;
 
         size_t waterConsumption() const noexcept;
 
@@ -39,7 +43,7 @@ namespace sas
     class Flower: public Plant
     {
     public:
-        bool reproduce() const noexcept;
+
         size_t range() const noexcept;
 
         size_t waterConsumption() const noexcept;
@@ -50,7 +54,6 @@ namespace sas
     class Weed: public Plant
     {
     public:
-        bool reproduce() const noexcept;
         size_t range() const noexcept;
 
         size_t waterConsumption() const noexcept;

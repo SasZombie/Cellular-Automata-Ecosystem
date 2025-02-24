@@ -76,6 +76,7 @@ int main()
 {
     sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
     
+    size_t seed = sas::generateSeed();
 
     sas::Grid grid;
     std::vector<std::unique_ptr<sas::Plant>> plants;
@@ -119,14 +120,6 @@ int main()
 
     
     Vector2 boardOffset{0.f, 0.f};
-
-
-    board(0, 0).addPlant(std::make_unique<sas::Flower>());
-    board(10, 10).addPlant(std::make_unique<sas::Weed>());
-    board(15, 15).addPlant(std::make_unique<sas::Tree>());
-
-    board(12, 12).addEnviroment(std::make_unique<sas::Water>());
-    board(11, 11).addEnviroment(std::make_unique<sas::Water>());
     
 
     SetUpBoard(board);
@@ -143,6 +136,7 @@ int main()
 
     float timeAcc = 0.f;
     constexpr float interval = 10.f / FPS;
+    std::string text = "Plus si minus pt zoom\nWASD pentru movement Seed = " + std::to_string(seed);
 
     while (!WindowShouldClose())
     {
@@ -155,10 +149,23 @@ int main()
         {
             timeAcc = 0;
 
-            const auto [x, y] = sas::generateSeed();
+            const auto [x, y] = sas::generateNextPos();
             // Cate plante adugam, unde le 
+            for(const auto& plt : plants)
+            {
+                const auto& ghinde = plt->reproduce();
 
-            plants.push_back(sas::plantFactory(grid, x * cellSize, y * cellSize, sas::PlatType::FLOWER));
+                for(const auto& elem : ghinde)
+                {
+                    //Elem = (x, y);
+                    // TODO: remove Animals or whatever
+                    const auto& neighboutrs = sas::findNearbyEntities<sas::Entity>(grid, elem.first, elem.second, plt->rangeSpreadingSeeds);
+
+                    // if(sas::checkBoundaries(elem, plt->size(), ))
+                }
+            }
+
+            plants.push_back(sas::plantFactory(grid, (x + 0.5f) * cellSize, (y + 0.5f) * cellSize, sas::PlatType::FLOWER));
         }
 
         if (IsKeyDown(KEY_D))
@@ -198,7 +205,7 @@ int main()
             plt->draw();
         }
 
-        DrawText("Plus si minus pt zoom\nWASD pentru movement", -20, -60, 20, WHITE);
+        DrawText(text.c_str(), -20, -60, 20, WHITE);
 
         EndDrawing();
     }
