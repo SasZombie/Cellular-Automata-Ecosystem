@@ -78,11 +78,8 @@ int main()
 
     sas::Grid grid;
     std::vector<std::unique_ptr<sas::Plant>> plants;
-    std::vector<std::unique_ptr<sas::Plant>> plantsCosnt;
 
     plants.push_back(sas::plantFactory(grid, 0, 0, sas::PlatType::FLOWER));
-    plantsCosnt.push_back(sas::plantFactory(grid, 0, 0, sas::PlatType::FLOWER));
-
 
     Vector2 boardOffset{0.f, 0.f};
 
