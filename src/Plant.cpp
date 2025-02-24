@@ -65,21 +65,24 @@ size_t sas::Weed::waterConsumption() const noexcept
     return 0;
 }
 
-void sas::Tree::draw(int x, int y) const noexcept
+void sas::Tree::draw() const noexcept
 {
     size_t plantSize = 10; // Impartire la 2
-    DrawCircle(x - plantSize, y - plantSize, plantSize, LIME);
+    DrawCircle(this->pos.first - plantSize, this->pos.second - plantSize, plantSize, LIME);
 }
 
-void sas::Weed::draw(int x, int y) const noexcept
+void sas::Weed::draw() const noexcept
 {
     size_t plantSize = 4; // Impartire la 2
-    DrawCircle(x - plantSize, y - plantSize, plantSize, Color{80, 150, 80, 255});
+    DrawCircle(this->pos.first - plantSize, this->pos.second - plantSize, plantSize, Color{80, 150, 80, 255});
 }
 
-void sas::Flower::draw(int x, int y) const noexcept
+void sas::Flower::draw() const noexcept
 {
     size_t plantSize = 6;
+    size_t x = this->pos.first;
+    size_t y = this->pos.second;
+
     DrawCircle(x, y, plantSize, PINK);
     DrawLine(x - plantSize, y            , x + plantSize, y            , Color{150, 0, 100, 255});
     DrawLine(x            , y - plantSize, x            , y + plantSize, Color{150, 0, 100, 255});

@@ -1,10 +1,11 @@
 #pragma once
 #include <cstddef>
+#include "Entity.hpp"
 
 namespace sas
 {
 
-    class Enviroment
+    class Enviroment : public Entity
     {
     public:
         size_t capacity = 0;

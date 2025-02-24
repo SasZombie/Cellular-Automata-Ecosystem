@@ -1,15 +1,25 @@
 #pragma once
 #include <cstddef>
+#include "Entity.hpp"
 
 namespace sas
 {
-    class Plant
+    //This is bad if we want to have more than 10 plants btw
+    enum struct PlatType
+    {
+        TREE,
+        FLOWER,
+        WEED
+    };
+
+    class Plant : public Entity
     {
     public:
         virtual bool reproduce() const noexcept = 0;
         virtual size_t waterConsumption() const noexcept = 0; 
         virtual size_t range() const noexcept = 0; 
-        virtual void draw(int x, int y) const noexcept = 0;
+        virtual void draw() const noexcept = 0;
+
         virtual ~Plant() = default;
     };
 
@@ -20,7 +30,9 @@ namespace sas
 
         size_t waterConsumption() const noexcept;
 
-        void draw(int x, int y) const noexcept;
+        void draw() const noexcept;
+        std::pair<size_t, size_t> getPosition() const;
+
         size_t range() const noexcept;
     };
 
@@ -32,7 +44,7 @@ namespace sas
 
         size_t waterConsumption() const noexcept;
 
-        void draw(int x, int y) const noexcept;
+        void draw() const noexcept;
     };
 
     class Weed: public Plant
@@ -43,6 +55,6 @@ namespace sas
 
         size_t waterConsumption() const noexcept;
 
-        void draw(int x, int y) const noexcept;
+        void draw() const noexcept;
     };
 }

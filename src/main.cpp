@@ -5,6 +5,7 @@
 #include "Shape.hpp"
 #include "../include/matrix.hpp"
 #include "../include/Tile.hpp"
+#include "../include/Grid.hpp"
 #include "../include/Utils.hpp"
 
 constexpr size_t ScreenWidth = 800;
@@ -65,56 +66,60 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
                 break;
             }
             DrawRectangle(j * cellSize + offset.x, i * cellSize + offset.y, cellSize, cellSize, color);
-
-            std::visit([&](const auto &ptr)
-                       {
-                if constexpr (!std::is_same_v<std::monostate, std::decay_t<decltype(ptr)>>)
-                {
-                    if constexpr (std::is_base_of_v<sas::Plant, std::decay_t<decltype(*ptr)>>)
-                    {
-                        ptr->draw((j + .5f) * cellSize, (i + .5f) * cellSize);
-                    }
-                    else if constexpr (std::is_base_of_v<sas::Enviroment, std::decay_t<decltype(*ptr)>>)
-                    {
-                        DrawRectangle(j * cellSize + offset.x, i * cellSize + offset.y, cellSize, cellSize, Color{0, 121, 241, 255});
-                    }
-                } }, board(i, j).occupant);
         }
     }
 }
 
 
-template <typename T>
-void check(const sas::Matrix<sas::Tile> &board, T& elem)
-{
-    for (const auto &each : board)
-    {
-        std::visit([&](const auto &ptr)
-                   {
-                if constexpr (!std::is_same_v<std::monostate, std::decay_t<decltype(ptr)>>)
-                {
-                    if constexpr (std::is_same_v<std::decay_t<decltype(elem)>, std::decay_t<decltype(*ptr)>> ||
-                        std::is_same_v<std::decay_t<decltype(elem)>, std::decay_t<decltype(*ptr)>>)
-                    {
-                        // if(condition(*ptr))
-                            std::cout << "Found\n";
-                    }
-                } }, each.occupant);
-    }
-}
 
 int main()
 {
     sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
+    
+
+    sas::Grid grid;
+    std::vector<std::unique_ptr<sas::Plant>> plants;
+
+    plants.push_back(sas::plantFactory(grid, 0, 0, sas::PlatType::FLOWER));
+    plants.push_back(sas::plantFactory(grid, 10, 10, sas::PlatType::FLOWER));
+    plants.push_back(sas::plantFactory(grid, 0, 10, sas::PlatType::WEED));
+
+
+    //EXAMPLES =========================================================================
+
+    const auto& elems = sas::findNearbyEntities<sas::Entity>(grid, 0, 0, 10);
+
+    for(const auto& elem : elems)
+    {
+        std::cout <<elem->pos.first << ' ' << elem->pos.second << '\n' ;
+    }
+
+    const auto &elems2 = sas::findNearbyEntities<sas::Flower>(grid, 0, 0, 10);
+
+    for(const auto& elem : elems2)    
+    {
+        std::cout <<elem->pos.first << ' ' << elem->pos.second << '\n' ;
+    }
+
+
+    const auto &elems3 = sas::findNearbyEntities<sas::Entity>(grid, 0, 0, 10, [](const sas::Entity& ent)
+    {
+        if(ent.pos.first == 20)
+            return true;
+        return false;
+    });
+
+    for(const auto& elem : elems3)    
+    {
+        std::cout <<elem->pos.first << ' ' << elem->pos.second << '\n' ;
+    }
+    std::cout << "Nothing as expected\n";
+
+    //EXAMPLES =========================================================================
+
+    
     Vector2 boardOffset{0.f, 0.f};
 
-
-    board(0, 0).addPlant(std::make_unique<sas::Flower>());
-    board(10, 10).addPlant(std::make_unique<sas::Flower>());
-
-    board(12, 12).addEnviroment(std::make_unique<sas::Water>());
-    board(11, 11).addEnviroment(std::make_unique<sas::Water>());
-    
 
     SetUpBoard(board);
 
@@ -124,11 +129,12 @@ int main()
     camera.zoom = -1.0f;
     camera.rotation = 180.0f;
 
+    constexpr size_t FPS = 60;
     InitWindow(ScreenWidth, ScreenHeight, "Celular Automata Ecosystem");
-    SetTargetFPS(60);
+    SetTargetFPS(FPS);
 
     float timeAcc = 0.f;
-    const float interval = 10.f / 60.f;
+    constexpr float interval = 10.f / FPS;
 
     while (!WindowShouldClose())
     {
@@ -141,21 +147,10 @@ int main()
         {
             timeAcc = 0;
 
-            const auto [y, x] = sas::generateSeed();
-            // Cate plante adugam, unde le adugam
-            
-            const auto& allIndexes = sas::getClosestTileIndexByOccupant(board, 0, 0, sas::Water());
-            
-            for(const auto& elem : allIndexes)
-            {
-                std::cout << elem.first << ' ' << elem.second << '|';
-            }
+            const auto [x, y] = sas::generateSeed();
+            // Cate plante adugam, unde le 
 
-            std::cout << '\n';
-            
-
-            board(x, y).addPlant(std::make_unique<sas::Flower>());
-
+            plants.push_back(sas::plantFactory(grid, x * cellSize, y * cellSize, sas::PlatType::FLOWER));
         }
 
         if (IsKeyDown(KEY_D))
@@ -189,9 +184,14 @@ int main()
 
         ClearBackground(Color{18, 18, 18, 255});
         DrawBoard(board, boardOffset);
+
+        for(const auto& plt : plants)
+        {
+            plt->draw();
+        }
+
         DrawText("Plus si minus pt zoom\nWASD pentru movement", -20, -60, 20, WHITE);
 
-        sas::generateSeed();
         EndDrawing();
     }
 
