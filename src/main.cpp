@@ -49,7 +49,7 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
 {
     for (size_t i = 0; i < boardHeight; ++i)
     {
-
+        
         for (size_t j = 0; j < boardWidth; ++j)
         {
             Color color;
@@ -120,6 +120,14 @@ int main()
     
     Vector2 boardOffset{0.f, 0.f};
 
+
+    board(0, 0).addPlant(std::make_unique<sas::Flower>());
+    board(10, 10).addPlant(std::make_unique<sas::Weed>());
+    board(15, 15).addPlant(std::make_unique<sas::Tree>());
+
+    board(12, 12).addEnviroment(std::make_unique<sas::Water>());
+    board(11, 11).addEnviroment(std::make_unique<sas::Water>());
+    
 
     SetUpBoard(board);
 
