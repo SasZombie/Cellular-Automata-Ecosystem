@@ -54,14 +54,28 @@ bool sas::areAlmostEqual(float a, float b, float epsilon) noexcept
     return std::fabs(a - b) < epsilon;
 }
 
-bool sas::checkBoundaries(const std::pair<size_t, size_t>& p1, const std::pair<size_t, size_t>& p2, size_t distance) noexcept
-{
-    return euclidianDistance2D(p1.first, p1.second, p2.first, p2.second) > distance;
+// bool sas::checkBoundaries(const std::pair<size_t, size_t>& p1, const std::pair<size_t, size_t>& p2, size_t distance) noexcept
+// {
+//     return euclidianDistance2D(p1.first, p1.second, p2.first, p2.second) > distance;
+// }
+bool sas::checkBoundaries(const std::pair<size_t, size_t>& p1, size_t p1Size, const std::pair<size_t, size_t>& p2, size_t p2Size) {
+    return euclidianDistance2D(p1.first, p1.second, p2.first, p2.second) > p1Size + p2Size;
 }
 
 float sas::euclidianDistance2D(size_t x1, size_t y1, size_t x2, size_t y2) noexcept
 {
-    return std::sqrt(std::pow((x2 - x1), 2) + std::pow((y2 - y1), 2));
+    size_t distX;
+    if(x2 > x1)
+        distX = x2 - x1;
+    else
+        distX = x1 - x2;
+
+    size_t distY;
+    if(y2 > y1)
+        distY = y2 - y1;
+    else
+        distY = y1 - y2;
+    return std::sqrt(std::pow(distX, 2) + std::pow(distY, 2));
 }
 
 std::unique_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, size_t x, size_t y, sas::PlatType type) noexcept
