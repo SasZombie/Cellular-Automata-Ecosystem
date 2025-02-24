@@ -123,6 +123,7 @@ int main()
                 for (const auto &sp : spawnPoints)
                 {
                     // Elem = (x, y);
+                    //All are 20 isntead of 40. TO CHEK!
                     if (sas::checkBoundaries(sp, plt->pos, plt->size + plt->size))
                     {
 
