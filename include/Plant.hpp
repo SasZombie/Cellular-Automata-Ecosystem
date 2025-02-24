@@ -16,9 +16,9 @@ namespace sas
     class Plant : public Entity
     {
     public:
-        size_t size = 10;
-        size_t rangeWater, rangeSpreadingSeeds = 10;
-        size_t nrOfSeeds = 10;
+        size_t size = 20;
+        size_t rangeWater, rangeSpreadingSeeds = 100;
+        size_t nrOfSeeds = 1;
 
         std::vector<std::pair<size_t, size_t>> reproduce() const noexcept;
         virtual size_t waterConsumption() const noexcept = 0; 

@@ -49,7 +49,7 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
 {
     for (size_t i = 0; i < boardHeight; ++i)
     {
-        
+
         for (size_t j = 0; j < boardWidth; ++j)
         {
             Color color;
@@ -70,57 +70,21 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
     }
 }
 
-
-
 int main()
 {
     sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
-    
+
     size_t seed = sas::generateSeed();
 
     sas::Grid grid;
     std::vector<std::unique_ptr<sas::Plant>> plants;
+    std::vector<std::unique_ptr<sas::Plant>> plantsCosnt;
 
     plants.push_back(sas::plantFactory(grid, 0, 0, sas::PlatType::FLOWER));
-    plants.push_back(sas::plantFactory(grid, 10, 10, sas::PlatType::FLOWER));
-    plants.push_back(sas::plantFactory(grid, 0, 10, sas::PlatType::WEED));
+    plantsCosnt.push_back(sas::plantFactory(grid, 0, 0, sas::PlatType::FLOWER));
 
 
-    //EXAMPLES =========================================================================
-
-    const auto& elems = sas::findNearbyEntities<sas::Entity>(grid, 0, 0, 10);
-
-    for(const auto& elem : elems)
-    {
-        std::cout <<elem->pos.first << ' ' << elem->pos.second << '\n' ;
-    }
-
-    const auto &elems2 = sas::findNearbyEntities<sas::Flower>(grid, 0, 0, 10);
-
-    for(const auto& elem : elems2)    
-    {
-        std::cout <<elem->pos.first << ' ' << elem->pos.second << '\n' ;
-    }
-
-
-    const auto &elems3 = sas::findNearbyEntities<sas::Entity>(grid, 0, 0, 10, [](const sas::Entity& ent)
-    {
-        if(ent.pos.first == 20)
-            return true;
-        return false;
-    });
-
-    for(const auto& elem : elems3)    
-    {
-        std::cout <<elem->pos.first << ' ' << elem->pos.second << '\n' ;
-    }
-    std::cout << "Nothing as expected\n";
-
-    //EXAMPLES =========================================================================
-
-    
     Vector2 boardOffset{0.f, 0.f};
-    
 
     SetUpBoard(board);
 
@@ -145,27 +109,57 @@ int main()
 
         timeAcc = timeAcc + dt;
 
-        if(timeAcc >= interval)
+        if (timeAcc >= interval)
         {
             timeAcc = 0;
+        }
 
-            const auto [x, y] = sas::generateNextPos();
-            // Cate plante adugam, unde le 
-            for(const auto& plt : plants)
+        // Cate plante adugam, unde le
+
+        if (IsKeyPressed(KEY_SPACE))
+        {
+            std::vector<std::unique_ptr<sas::Plant>> newPlants;
+
+            for (const auto &plt : plants)
             {
-                const auto& ghinde = plt->reproduce();
-
-                for(const auto& elem : ghinde)
+                const auto &spawnPoints = plt->reproduce();
+                for (const auto &sp : spawnPoints)
                 {
-                    //Elem = (x, y);
-                    // TODO: remove Animals or whatever
-                    const auto& neighboutrs = sas::findNearbyEntities<sas::Entity>(grid, elem.first, elem.second, plt->rangeSpreadingSeeds);
+                    // Elem = (x, y);
+                    if (sas::checkBoundaries(sp, plt->pos, plt->size + plt->size))
+                    {
 
-                    // if(sas::checkBoundaries(elem, plt->size(), ))
+                        bool canPlant = true;
+                        //  TODO: remove Animals or whatever
+                        // So far this finds only plants!!!
+                        const auto &neighbours = sas::findNearbyEntities<sas::Entity>(grid, sp.first, sp.second, plt->rangeSpreadingSeeds);
+                        for (const auto &neighbour : neighbours)
+                        {
+                            // This should be changed if we want to also track something else
+                            if (!sas::checkBoundaries(neighbour->pos, plt->pos, plt->size + plt->size))
+                            {
+                                canPlant = false;
+                                break;
+                            }
+                        }
+
+                        if (canPlant)
+                        {
+                            std::cout << "Added at: " << sp.first << ' ' << sp.second << " from initial: " << plt->pos.first << ' ' << plt->pos.second << '\n';
+                            newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlatType::FLOWER));
+                        }
+                    }
                 }
             }
 
-            plants.push_back(sas::plantFactory(grid, (x + 0.5f) * cellSize, (y + 0.5f) * cellSize, sas::PlatType::FLOWER));
+            std::move(newPlants.begin(), newPlants.end(), std::back_inserter(plants));
+        }
+
+        if(IsKeyPressed(KEY_R))
+        {
+            plants.clear();
+            grid.clear();
+            plants.push_back(sas::plantFactory(grid, 0, 0, sas::PlatType::FLOWER));
         }
 
         if (IsKeyDown(KEY_D))
@@ -200,7 +194,7 @@ int main()
         ClearBackground(Color{18, 18, 18, 255});
         DrawBoard(board, boardOffset);
 
-        for(const auto& plt : plants)
+        for (const auto &plt : plants)
         {
             plt->draw();
         }
