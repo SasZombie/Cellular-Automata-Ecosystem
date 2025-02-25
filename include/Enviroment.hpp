@@ -4,6 +4,11 @@
 
 namespace sas
 {
+    
+    enum struct EnviromentType
+    {
+        WATER
+    };
 
     class Enviroment : public Entity
     {

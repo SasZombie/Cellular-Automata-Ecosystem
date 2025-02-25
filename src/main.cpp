@@ -1,7 +1,7 @@
-#include <iostream>
 #include "raylib.h"
 #include "raymath.h"
 #include <vector>
+#include <print>
 #include "Shape.hpp"
 #include "../include/matrix.hpp"
 #include "../include/Tile.hpp"
@@ -45,6 +45,15 @@ void SetUpBoard(sas::Matrix<sas::Tile> &board)
     }
 }
 
+void SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>>& waters, sas::Grid &grid)
+{   
+    //Random ahh value for wata
+    for(size_t i = 0; i < 10; ++i)
+    {
+        waters.push_back(sas::enviromentFactory(grid, sas::generateNextPos(), sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
+    }
+}
+
 void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
 {
     for (size_t i = 0; i < boardHeight; ++i)
@@ -74,16 +83,21 @@ int main()
 {
     sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
 
+    //If this isnt called we are doing UB!!
     size_t seed = sas::generateSeed();
 
     sas::Grid grid;
     std::vector<std::unique_ptr<sas::Plant>> plants;
+    std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
 
-    plants.push_back(sas::plantFactory(grid, 0, 0, sas::PlatType::FLOWER));
+    plants.push_back(sas::plantFactory(grid, 0, 0, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
+    plants.push_back(sas::plantFactory(grid, 5, 5, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
+    enviroment.push_back(sas::enviromentFactory(grid, 7, 7, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
 
     Vector2 boardOffset{0.f, 0.f};
 
     SetUpBoard(board);
+    SetUpWater(enviroment, grid);
 
     Camera2D camera;
     camera.target = {300.f, 300.f};
@@ -111,54 +125,52 @@ int main()
             timeAcc = 0;
         }
 
-        // Cate plante adugam, unde le
-
         if (IsKeyPressed(KEY_SPACE))
         {
             std::vector<std::unique_ptr<sas::Plant>> newPlants;
+            newPlants.reserve(plants.size());
 
+            //Idea: Do this with threads!
             for (const auto &plt : plants)
             {
                 const auto &spawnPoints = plt->reproduce();
                 for (const auto &sp : spawnPoints)
                 {
                     // Elem = (x, y);
-                    //All are 20 isntead of 40. TO CHEK!
-                    if (sas::checkBoundaries(sp, plt->pos, plt->size, plt->size))
+                    // All are 20 isntead of 40. TO CHEK!
+                    // This here is usesess. If original plant is too close, it will be cought by nearbyEntities!
+                    // if (sas::checkBoundaries(sp, plt->size, plt->pos, plt->size))
+
+                    bool canPlant = true;
+
+                    const auto &waterSource = sas::findNearestEntity<sas::Water>(grid, sp.first, sp.second, plt->rangeWater, 
+                    [&](sas::Water& wat)
                     {
+                        return (wat.capacity >= plt->waterConsumption());
+                    });
 
-                        bool canPlant = true;
-                        //  TODO: remove Animals or whatever
-                        // So far this finds only plants!!!
-                        const auto &neighbours = sas::findNearbyEntities<sas::Enviroment>(grid, sp.first, sp.second, plt->rangeSpreadingSeeds);
-                        for (const auto &neighbour : neighbours)
-                        {
-                            // This should be changed if we want to also track something else
-                            // if (!sas::checkBoundaries(neighbour->pos, plt->pos, plt->size + plt->size))
-                            if (!sas::checkBoundaries(sp, neighbour->pos, plt->size, 17)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
-                            {                                                             // not proud of this one tbh
-                                canPlant = false;
-                                break;
-                            }
-                        }
+                    if(waterSource == nullptr)
+                    {
+                        continue;
+                    }
 
-                        const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, plt->rangeSpreadingSeeds);
-                        for (const sas::Plant &neighbour : neighbours)
-                        {
-                            // This should be changed if we want to also track something else
-                            // if (!sas::checkBoundaries(neighbour->pos, plt->pos, plt->size + plt->size))
-                            if (!sas::checkBoundaries(sp, neighbour->pos, plt->size, neighbour->size);
-                            {
-                                canPlant = false;
-                                break;
-                            }
-                        }
+                    const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, plt->rangeWater);
 
-                        if (canPlant)
-                        {
-                            std::cout << "Added at: " << sp.first << ' ' << sp.second << " from initial: " << plt->pos.first << ' ' << plt->pos.second << '\n';
-                            newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlatType::FLOWER));
+                    for (const auto &neighbour : neighbours)
+                    {
+                        // This should be changed if we want to also track something else
+                        // if (!sas::checkBoundaries(neighbour->pos, plt->pos, plt->size + plt->size))
+                        if (!sas::checkBoundaries(sp, 17, neighbour->getPosition(), 17)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
+                        {                                                      // not proud of this one tbh
+                            canPlant = false;
+                            break;
                         }
+                    }
+
+                    if (canPlant)
+                    {
+                        // std::cout << "Added at: " << sp.first << ' ' << sp.second << " from initial: " << plt->pos.first << ' ' << plt->pos.second << '\n';
+                        newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
                     }
                 }
             }
@@ -166,7 +178,7 @@ int main()
             std::move(newPlants.begin(), newPlants.end(), std::back_inserter(plants));
         }
 
-        if(IsKeyPressed(KEY_R))
+        if (IsKeyPressed(KEY_R))
         {
             plants.clear();
             grid.clear();
@@ -209,12 +221,15 @@ int main()
         {
             plt->draw();
         }
+        
+        for (const auto &env : enviroment)
+        {
+            env->draw();
+        }
 
         DrawText(text.c_str(), -20, -60, 20, WHITE);
 
         EndDrawing();
     }
-
     CloseWindow();
-    return 0;
 }

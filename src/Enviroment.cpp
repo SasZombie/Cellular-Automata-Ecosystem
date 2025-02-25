@@ -1,5 +1,4 @@
 #include "../include/Enviroment.hpp"
-#include <iostream>
 
 bool sas::Water::hasCapacity(size_t consumption) const noexcept
 {
@@ -7,5 +6,5 @@ bool sas::Water::hasCapacity(size_t consumption) const noexcept
 }
 void sas::Water::info() const noexcept
 {
-    std::cout << "info\n";
+    std::printf("info\n");
 }
