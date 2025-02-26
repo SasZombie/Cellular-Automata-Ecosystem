@@ -1,15 +1,27 @@
 #pragma once
 #include <tuple>
 #include <string>
+#include <memory>
+#include "DrawStrategy.hpp"
 
 namespace sas
 {
+   
     class Entity
     {
     public:
-        std::pair<size_t, size_t> pos;
+        
+        Position pos;
         std::pair<size_t, size_t> getPosition() const noexcept;
-        // virtual std::string getType() const = 0;
+
+    private:
+        //This is private because we call move in the setter
+        std::unique_ptr<DrawStrategy> drawStrat;
+    public:   
+        void setDrawStrategy(std::unique_ptr<DrawStrategy> strat) noexcept;
+
+        void draw() const noexcept;
+
         virtual ~Entity() = default;
     };
 } // namespace sas
