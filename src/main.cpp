@@ -124,30 +124,30 @@ int main()
                 {
                     // Elem = (x, y);
                     //All are 20 isntead of 40. TO CHEK!
-                    if (sas::checkBoundaries(sp, plt->pos, plt->size, plt->size))
+                    if (sas::checkBoundaries(sp, plt->size, plt->pos, plt->size))
                     {
 
                         bool canPlant = true;
                         //  TODO: remove Animals or whatever
                         // So far this finds only plants!!!
-                        const auto &neighbours = sas::findNearbyEntities<sas::Enviroment>(grid, sp.first, sp.second, plt->rangeSpreadingSeeds);
-                        for (const auto &neighbour : neighbours)
+                        const auto &neighbouringEnviroments = sas::findNearbyEntities<sas::Enviroment>(grid, sp.first, sp.second, plt->rangeSpreadingSeeds);
+                        for (const auto &neighbour : neighbouringEnviroments)
                         {
                             // This should be changed if we want to also track something else
                             // if (!sas::checkBoundaries(neighbour->pos, plt->pos, plt->size + plt->size))
-                            if (!sas::checkBoundaries(sp, neighbour->pos, plt->size, 17)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
+                            if (!sas::checkBoundaries(sp, plt->size, neighbour->pos, 17)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
                             {                                                             // not proud of this one tbh
                                 canPlant = false;
                                 break;
                             }
                         }
 
-                        const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, plt->rangeSpreadingSeeds);
-                        for (const sas::Plant &neighbour : neighbours)
+                        const auto &neighbouringPlants = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, plt->rangeSpreadingSeeds);
+                        for (const auto &neighbour : neighbouringPlants)
                         {
                             // This should be changed if we want to also track something else
                             // if (!sas::checkBoundaries(neighbour->pos, plt->pos, plt->size + plt->size))
-                            if (!sas::checkBoundaries(sp, neighbour->pos, plt->size, neighbour->size);
+                            if (!sas::checkBoundaries(sp, plt->size, neighbour->pos, neighbour->size))
                             {
                                 canPlant = false;
                                 break;

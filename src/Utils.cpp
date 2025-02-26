@@ -58,7 +58,7 @@ bool sas::areAlmostEqual(float a, float b, float epsilon) noexcept
 // {
 //     return euclidianDistance2D(p1.first, p1.second, p2.first, p2.second) > distance;
 // }
-bool sas::checkBoundaries(const std::pair<size_t, size_t>& p1, size_t p1Size, const std::pair<size_t, size_t>& p2, size_t p2Size) {
+bool sas::checkBoundaries(const std::pair<size_t, size_t>& p1, size_t p1Size, const std::pair<size_t, size_t>& p2, size_t p2Size) noexcept {
     return euclidianDistance2D(p1.first, p1.second, p2.first, p2.second) > p1Size + p2Size;
 }
 

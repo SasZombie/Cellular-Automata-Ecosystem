@@ -21,7 +21,7 @@ namespace sas
     std::pair<size_t, size_t> generateNextPos(size_t x, size_t y, size_t range) noexcept;
 
     // bool checkBoundaries(const std::pair<size_t, size_t>& p1, const std::pair<size_t, size_t>& p2, size_t distance) noexcept;
-    bool checkBoundaries(const std::pair<size_t, size_t>& p1, const std::pair<size_t, size_t>& p2, size_t p1Size, size_t p2Size) noexcept;
+    bool checkBoundaries(const std::pair<size_t, size_t>& p1, size_t p1Size, const std::pair<size_t, size_t>& p2, size_t p2Size) noexcept;
     
 
 } // namespace sas

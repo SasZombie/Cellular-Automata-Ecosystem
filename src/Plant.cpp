@@ -1,7 +1,7 @@
 #include "../include/Plant.hpp"
 #include <random>
 #include <iostream>
-#include "Utils.hpp"
+#include "../include/Utils.hpp"
 #include "raylib.h"
 
 static constexpr float TreeReproductionChance = 0.02f;
