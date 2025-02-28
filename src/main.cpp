@@ -136,11 +136,6 @@ int main()
                 const auto &spawnPoints = plt->reproduce();
                 for (const auto &sp : spawnPoints)
                 {
-                    // Elem = (x, y);
-                    // All are 20 isntead of 40. TO CHEK!
-                    // This here is usesess. If original plant is too close, it will be cought by nearbyEntities!
-                    // if (sas::checkBoundaries(sp, plt->size, plt->pos, plt->size))
-
                     bool canPlant = true;
 
                     const auto &waterSource = sas::findNearestEntity<sas::Water>(grid, sp.first, sp.second, plt->rangeWater, 
@@ -158,8 +153,6 @@ int main()
 
                     for (const auto &neighbour : neighbours)
                     {
-                        // This should be changed if we want to also track something else
-                        // if (!sas::checkBoundaries(neighbour->pos, plt->pos, plt->size + plt->size))
                         if (!sas::checkBoundaries(sp, 17, neighbour->getPosition(), 17)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
                         {                                                      // not proud of this one tbh
                             canPlant = false;
@@ -169,7 +162,6 @@ int main()
 
                     if (canPlant)
                     {
-                        // std::cout << "Added at: " << sp.first << ' ' << sp.second << " from initial: " << plt->pos.first << ' ' << plt->pos.second << '\n';
                         newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
                     }
                 }
