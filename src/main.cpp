@@ -111,7 +111,7 @@ int main()
 
     float timeAcc = 0.f;
     constexpr float interval = 10.f / FPS;
-    std::string text = "Plus si minus pt zoom\nWASD pentru movement Seed = " + std::to_string(seed);
+    const std::string text = "Plus si minus pt zoom\nWASD pentru movement Seed = " + std::to_string(seed);
 
     while (!WindowShouldClose())
     {
