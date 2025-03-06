@@ -4,7 +4,7 @@
 
 
 //I am not including the whole ahh string header just for this
-using size_t = std::size_t;
+using std::size_t;
 
 
 //Only god knows what all these comments are...
@@ -80,4 +80,19 @@ void sas::PlaceholderDrawStrategy::draw(const sas::Position &pos) const noexcept
 void sas::WaterDrawStrategy::draw(const sas::Position &pos) const noexcept
 {
     DrawRectangle(pos.x, pos.y, 10, 10, BLUE);
+}
+
+void sas::DesertDrawStrategy::draw(const sas::Position &pos) const noexcept
+{
+    DrawRectangle(pos.x, pos.y, 10, 10, {170, 170, 0, 255});
+}
+
+void sas::SnowDrawStrategy::draw(const sas::Position &pos) const noexcept
+{
+    DrawRectangle(pos.x, pos.y, 10, 10, {200, 200, 200, 255});
+}
+
+void sas::GrassDrawStrategy::draw(const sas::Position &pos) const noexcept
+{
+    DrawRectangle(pos.x, pos.y, 10, 10, {0, 128, 0, 255});
 }

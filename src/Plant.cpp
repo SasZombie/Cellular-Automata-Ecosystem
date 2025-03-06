@@ -46,15 +46,15 @@ size_t sas::Tree::range() const noexcept
 // TODO: return value
 size_t sas::Flower::waterConsumption() const noexcept
 {
-    return 0;
+    return 1;
 }
 // TODO: return value
 size_t sas::Tree::waterConsumption() const noexcept
 {
-    return 0;
+    return 1;
 }
 // TODO: return value
 size_t sas::Weed::waterConsumption() const noexcept
 {
-    return 0;
+    return 1;
 }

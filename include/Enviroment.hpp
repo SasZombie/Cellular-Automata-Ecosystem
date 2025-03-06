@@ -13,7 +13,7 @@ namespace sas
     class Enviroment : public Entity
     {
     public:
-        size_t capacity = 0;
+        size_t capacity = 10;
         virtual void info() const noexcept = 0;
         virtual bool hasCapacity(size_t consumption) const noexcept = 0;
         virtual ~Enviroment() = default;

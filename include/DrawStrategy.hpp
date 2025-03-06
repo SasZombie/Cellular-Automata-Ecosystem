@@ -43,4 +43,22 @@ namespace sas
         void draw(const sas::Position &pos) const noexcept override;
     };
 
+    class DesertDrawStrategy : public DrawStrategy
+    {
+    public:
+        void draw(const sas::Position &pos) const noexcept override;
+    };
+
+    class GrassDrawStrategy : public DrawStrategy
+    {
+    public:
+        void draw(const sas::Position &pos) const noexcept override;
+    };
+
+    class SnowDrawStrategy : public DrawStrategy
+    {
+    public:
+        void draw(const sas::Position &pos) const noexcept override;
+    };
+
 } // namespace sas

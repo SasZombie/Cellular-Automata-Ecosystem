@@ -20,8 +20,8 @@ constexpr size_t boardWidth = 30;
 constexpr size_t boardHeight = 20;
 constexpr size_t boardSize = boardWidth * boardHeight;
 
-void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset);
-void SetUpBoard(sas::Matrix<sas::Tile> &board);
+// void DrawBoard(const sas::Matrix<sas::Tile> &board);
+// void SetUpBoard(sas::Matrix<sas::Enviroment> &board);
 
 void SetUpBoard(sas::Matrix<sas::Tile> &board)
 {
@@ -45,16 +45,18 @@ void SetUpBoard(sas::Matrix<sas::Tile> &board)
     }
 }
 
+
 void SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>>& waters, sas::Grid &grid)
 {   
     //Random ahh value for wata
     for(size_t i = 0; i < 10; ++i)
     {
-        waters.push_back(sas::enviromentFactory(grid, sas::generateNextPos(), sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
+        const auto[x, y] = sas::generateNextPos();
+        waters.push_back(sas::enviromentFactory(grid, {x, y}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
     }
 }
 
-void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
+void DrawBoard(const sas::Matrix<sas::Tile> &board)
 {
     for (size_t i = 0; i < boardHeight; ++i)
     {
@@ -74,30 +76,30 @@ void DrawBoard(const sas::Matrix<sas::Tile> &board, Vector2 offset)
                 color = Color{170, 170, 0, 255};
                 break;
             }
-            DrawRectangle(j * cellSize + offset.x, i * cellSize + offset.y, cellSize, cellSize, color);
+            DrawRectangle(j, i, cellSize, cellSize, color);
+            DrawRectangleLines(j * cellSize, i * cellSize, cellSize, cellSize, BLACK);
         }
     }
 }
 
 int main()
 {
-    sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
 
-    //If this isnt called we are doing UB!!
     size_t seed = sas::generateSeed();
 
     sas::Grid grid;
     std::vector<std::unique_ptr<sas::Plant>> plants;
     std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
+    sas::Matrix<sas::Tile> board(boardHeight, boardWidth);
 
     plants.push_back(sas::plantFactory(grid, 0, 0, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
     plants.push_back(sas::plantFactory(grid, 5, 5, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
     enviroment.push_back(sas::enviromentFactory(grid, 7, 7, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
 
-    Vector2 boardOffset{0.f, 0.f};
 
     SetUpBoard(board);
     SetUpWater(enviroment, grid);
+
 
     Camera2D camera;
     camera.target = {300.f, 300.f};
@@ -138,7 +140,7 @@ int main()
                 {
                     bool canPlant = true;
 
-                    const auto &waterSource = sas::findNearestEntity<sas::Water>(grid, sp.first, sp.second, plt->rangeWater, 
+                    auto waterSource = sas::findNearestEntity<sas::Water>(grid, sp.first, sp.second, plt->rangeWater, 
                     [&](sas::Water& wat)
                     {
                         return (wat.capacity >= plt->waterConsumption());
@@ -153,7 +155,7 @@ int main()
 
                     for (const auto &neighbour : neighbours)
                     {
-                        if (!sas::checkBoundaries(sp, 17, neighbour->getPosition(), 17)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
+                        if (!sas::checkBoundaries(sp, 50, neighbour->getPosition(), 50)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
                         {                                                      // not proud of this one tbh
                             canPlant = false;
                             break;
@@ -163,6 +165,7 @@ int main()
                     if (canPlant)
                     {
                         newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
+                        waterSource->capacity = waterSource->capacity - plt->waterConsumption();
                     }
                 }
             }
@@ -203,11 +206,22 @@ int main()
             camera.rotation = 0.0f;
         }
 
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            const auto[x, y] = GetMousePosition();
+            const auto& elems = sas::findNearbyEntities<sas::Entity>(grid, static_cast<size_t>(x), static_cast<size_t>(y), 50);
+
+            for(const auto& elem : elems)
+            {
+                std::cout << elem->pos.x << ' ' << elem->pos.y << '\n';
+            }
+        }
+
         BeginDrawing();
         BeginMode2D(camera);
 
         ClearBackground(Color{18, 18, 18, 255});
-        DrawBoard(board, boardOffset);
+        DrawBoard(board);
 
         for (const auto &plt : plants)
         {
