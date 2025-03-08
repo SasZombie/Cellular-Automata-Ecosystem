@@ -1,7 +1,6 @@
 #include "../include/Grid.hpp"
 #include <algorithm>
 
-
 void sas::addToGrid(Grid &grid, Entity *entity)
 {
     grid[{entity->getPosition()}].push_back(entity);

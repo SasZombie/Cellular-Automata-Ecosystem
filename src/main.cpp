@@ -1,8 +1,8 @@
 #include "raylib.h"
 #include "raymath.h"
 #include <vector>
+#include <iostream>
 #include <print>
-#include "Shape.hpp"
 #include "../include/matrix.hpp"
 #include "../include/Tile.hpp"
 #include "../include/Grid.hpp"
@@ -22,13 +22,14 @@ constexpr size_t boardHeight = 600;
 // void DrawBoard(const sas::Matrix<sas::Tile> &board);
 // void SetUpBoard(sas::Matrix<sas::Enviroment> &board);
 
+// The grid DOES NOT know about the TILES!!
 void SetUpBoard(sas::Matrix<sas::Tile> &board)
 {
     size_t tilePerWidth = ScreenWidth / cellSize, tilePerHeight = ScreenHeight / cellSize;
 
-    for (size_t i = 0; i < ScreenWidth; i+= cellSize)
+    for (size_t i = 0; i < ScreenWidth; i += cellSize)
     {
-        for (size_t j = 0; j < ScreenHeight; j+=cellSize)
+        for (size_t j = 0; j < ScreenHeight; j += cellSize)
         {
             if (j <= 1.f * ScreenWidth / 6 || j > 5.f * ScreenWidth / 6)
             {
@@ -47,7 +48,6 @@ void SetUpBoard(sas::Matrix<sas::Tile> &board)
             }
 
             board(i, j).pos = {i, j, static_cast<size_t>(cellSize), static_cast<size_t>(cellSize)};
-            // board(i, j).pos = {i, j, cellSize, 100};
         }
     }
 }
@@ -101,10 +101,22 @@ int main()
     std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
     sas::Matrix<sas::Tile> board(ScreenWidth, ScreenHeight);
 
-    plants.push_back(sas::plantFactory(grid, 0, 0, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
-    plants.push_back(sas::plantFactory(grid, 5, 5, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
+    plants.push_back(sas::plantFactory(grid, 100, 100, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
     enviroment.push_back(sas::enviromentFactory(grid, 7, 7, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
 
+    for (const auto &elem : grid)
+    {
+        std::print("Element in grid at pos{{{}, {}}}\n", elem.first.first, elem.first.second);
+    }
+
+    const auto &elems = sas::findNearbyEntities<sas::Flower>(grid, 100, 100, 200);
+
+    for (const auto &elem : elems)
+    {
+        std::print("Found element at pos {{{}, {}}}", elem->pos.x, elem->pos.y);
+    }
+
+    return 1;
     SetUpBoard(board);
     SetUpWater(enviroment, grid);
 
@@ -148,16 +160,16 @@ int main()
                 {
                     bool canPlant = true;
 
-                    auto waterSource = sas::findNearestEntity<sas::Water>(grid, sp.first, sp.second, plt->rangeWater,
-                                                                          [&](sas::Water &wat)
-                                                                          {
-                                                                              return (wat.capacity >= plt->waterConsumption());
-                                                                          });
+                    // auto waterSource = sas::findNearestEntity<sas::Water>(grid, sp.first, sp.second, plt->rangeWater,
+                    //                                                       [&](sas::Water &wat)
+                    //                                                       {
+                    //                                                           return (wat.capacity >= plt->waterConsumption());
+                    //                                                       });
 
-                    if (waterSource == nullptr)
-                    {
-                        continue;
-                    }
+                    // if (waterSource == nullptr)
+                    // {
+                    //     continue;
+                    // }
 
                     const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, plt->rangeWater);
 
@@ -173,7 +185,8 @@ int main()
                     if (canPlant)
                     {
                         newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
-                        waterSource->capacity = waterSource->capacity - plt->waterConsumption();
+                        std::cout << "New plant added at (" << sp.first << ',' << sp.second << ")\n";
+                        // waterSource->capacity = waterSource->capacity - plt->waterConsumption();
                     }
                 }
             }
@@ -186,12 +199,23 @@ int main()
             const auto [x, y] = GetMousePosition();
 
             const float cx = camera.target.x, cy = camera.target.y;
-            const auto& elems = sas::findNearbyEntities<sas::Entity>(grid, static_cast<size_t>(x - cx), static_cast<size_t>(y - cy), 50);
-            // std::cout << camera.target.x << ' ' << camera.target.y << '\n';
-            // std::cout << x + camera.target.x << ' ' << y + camera.target.y << '\n';
-            for(const auto& elem : elems)
+
+            std::cout << "Mouse Pos is: " << static_cast<size_t>(x) << ',' << static_cast<size_t>(y) << '\n';
+            // TODO: Make zoom work...
+            const float cz = camera.zoom;
+            const auto &elems = sas::findNearbyEntities<sas::Flower>(grid, static_cast<size_t>(x), static_cast<size_t>(y), 50);
+
+            for (const auto &elem : elems)
             {
-                std::cout << elem->pos.x << ' ' << elem->pos.y << '\n';
+                std::print("Found element at pos {{{}, {}}}", elem->pos.x, elem->pos.y);
+            }
+        }
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+        {
+            for (const auto &elem : grid)
+            {
+                std::print("Element in grid at pos{{{}, {}}}\n", elem.first.first, elem.first.second);
             }
         }
 
@@ -201,7 +225,6 @@ int main()
 
         BeginMode2D(camera);
 
-
         handleCameraControlls(camera);
 
         for (const auto &tile : board)
@@ -209,15 +232,15 @@ int main()
             tile.draw();
         }
 
+        for (const auto &env : enviroment)
+        {
+            env->draw();
+        }
+
         for (const auto &plt : plants)
         {
             plt->draw();
         }
-
-        // for (const auto &env : enviroment)
-        // {
-        //     env->draw();
-        // }
 
         DrawText(text.c_str(), -20, -60, 20, WHITE);
 

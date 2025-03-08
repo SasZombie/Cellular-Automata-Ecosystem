@@ -102,7 +102,7 @@ std::unique_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, size_t x, size_t 
         plant->setDrawStrategy(std::make_unique<PlaceholderDrawStrategy>());
     }
     plant->pos = {x, y};
-    sas::addToGrid(grid, plant.get());
+    addToGrid(grid, plant.get());
 
     return plant;
 }
