@@ -17,9 +17,9 @@ namespace sas
         GRASS
     };
 
-    struct Tile
+    class Tile : public Entity
     {
+    public:
         TileType type;
-        std::unique_ptr<Enviroment> env;
     };
 } // namespace sas

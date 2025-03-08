@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include <iostream>
 
+//Leaks!!!
 struct Shape
 {
     unsigned numberOfVertices;
