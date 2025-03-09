@@ -7,7 +7,7 @@ namespace sas
 {
     struct Position
     {
-        size_t x, y;
-        size_t width, height;
+        size_t x = 0, y = 0;
+        size_t width = 0, height = 0;
     };
 } // namespace sas

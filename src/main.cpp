@@ -55,11 +55,58 @@ void SetUpBoard(sas::Matrix<sas::Tile> &board)
 void SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::Grid &grid)
 {
     // Random ahh value for wata
-    for (size_t i = 0; i < 10; ++i)
+    for (size_t i = 0; i < 100; ++i)
     {
         const auto [x, y] = sas::generateNextPos();
         waters.push_back(sas::enviromentFactory(grid, {x, y}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
     }
+}
+
+void multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>>& plants)
+{
+    std::vector<std::unique_ptr<sas::Plant>> newPlants;
+    // Assume all plants reproduce
+    newPlants.reserve(plants.size());
+
+    // Idea: Do this with threads!
+    for (const auto &plt : plants)
+    {
+        const auto &spawnPoints = plt->reproduce();
+        for (const auto &sp : spawnPoints)
+        {
+            bool canPlant = true;
+
+            auto waterSource = sas::findNearestEntity<sas::Water>(grid, sp.first, sp.second, plt->rangeWater,
+                                                                  [&](sas::Water &wat)
+                                                                  {
+                                                                      return (wat.capacity >= plt->waterConsumption());
+                                                                  });
+
+            if (waterSource == nullptr)
+            {
+                continue;
+            }
+
+            const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, plt->rangeWater);
+
+            for (const auto &neighbour : neighbours)
+            {
+                if (!sas::checkBoundaries(sp, 17, neighbour->getPosition(), 17)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
+                {                                                                // not proud of this one tbh
+                    canPlant = false;
+                    break;
+                }
+            }
+
+            if (canPlant)
+            {
+                newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
+                waterSource->capacity = waterSource->capacity - plt->waterConsumption();
+            }
+        }
+    }
+
+    std::move(newPlants.begin(), newPlants.end(), std::back_inserter(plants));
 }
 
 void handleCameraControlls(Camera2D &camera)
@@ -101,29 +148,15 @@ int main()
     std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
     sas::Matrix<sas::Tile> board(ScreenWidth, ScreenHeight);
 
-    plants.push_back(sas::plantFactory(grid, 100, 100, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
+    plants.push_back(sas::plantFactory(grid, 5, 5, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
     enviroment.push_back(sas::enviromentFactory(grid, 7, 7, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
 
-    for (const auto &elem : grid)
-    {
-        std::print("Element in grid at pos{{{}, {}}}\n", elem.first.first, elem.first.second);
-    }
-
-    const auto &elems = sas::findNearbyEntities<sas::Flower>(grid, 100, 100, 200);
-
-    for (const auto &elem : elems)
-    {
-        std::print("Found element at pos {{{}, {}}}", elem->pos.x, elem->pos.y);
-    }
-
-    return 1;
     SetUpBoard(board);
     SetUpWater(enviroment, grid);
 
     Camera2D camera;
     camera.target = {0.f, 0.f};
     camera.offset = {0.f, 0.f};
-    // camera.offset = {ScreenWidth / 2.0f, ScreenHeight / 2.0f};
     camera.zoom = -1.0f;
     camera.rotation = 180.0f;
 
@@ -149,49 +182,7 @@ int main()
 
         if (IsKeyPressed(KEY_SPACE))
         {
-            std::vector<std::unique_ptr<sas::Plant>> newPlants;
-            newPlants.reserve(plants.size());
-
-            // Idea: Do this with threads!
-            for (const auto &plt : plants)
-            {
-                const auto &spawnPoints = plt->reproduce();
-                for (const auto &sp : spawnPoints)
-                {
-                    bool canPlant = true;
-
-                    // auto waterSource = sas::findNearestEntity<sas::Water>(grid, sp.first, sp.second, plt->rangeWater,
-                    //                                                       [&](sas::Water &wat)
-                    //                                                       {
-                    //                                                           return (wat.capacity >= plt->waterConsumption());
-                    //                                                       });
-
-                    // if (waterSource == nullptr)
-                    // {
-                    //     continue;
-                    // }
-
-                    const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, plt->rangeWater);
-
-                    for (const auto &neighbour : neighbours)
-                    {
-                        if (!sas::checkBoundaries(sp, 50, neighbour->getPosition(), 50)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
-                        {                                                                // not proud of this one tbh
-                            canPlant = false;
-                            break;
-                        }
-                    }
-
-                    if (canPlant)
-                    {
-                        newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
-                        std::cout << "New plant added at (" << sp.first << ',' << sp.second << ")\n";
-                        // waterSource->capacity = waterSource->capacity - plt->waterConsumption();
-                    }
-                }
-            }
-
-            std::move(newPlants.begin(), newPlants.end(), std::back_inserter(plants));
+            multiply(grid, plants);
         }
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
@@ -200,22 +191,13 @@ int main()
 
             const float cx = camera.target.x, cy = camera.target.y;
 
-            std::cout << "Mouse Pos is: " << static_cast<size_t>(x) << ',' << static_cast<size_t>(y) << '\n';
             // TODO: Make zoom work...
             const float cz = camera.zoom;
             const auto &elems = sas::findNearbyEntities<sas::Flower>(grid, static_cast<size_t>(x), static_cast<size_t>(y), 50);
 
             for (const auto &elem : elems)
             {
-                std::print("Found element at pos {{{}, {}}}", elem->pos.x, elem->pos.y);
-            }
-        }
-
-        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
-        {
-            for (const auto &elem : grid)
-            {
-                std::print("Element in grid at pos{{{}, {}}}\n", elem.first.first, elem.first.second);
+                std::print("Found element at pos {{{}, {}}}\n", elem->pos.x, elem->pos.y);
             }
         }
 

@@ -31,7 +31,6 @@ namespace sas
         int stopPointX = x + range;
         int stopPointY = y + range;
 
-        std::print("Start point({},{}), end point({},{})", startingPointX, startingPointY, stopPointX, stopPointY);
         std::vector<T *> results;
         results.reserve(16); // We need to come up with soemthing
         //We should find the average and use that number
@@ -41,9 +40,8 @@ namespace sas
         {
             for (int dy = startingPointY; dy <= stopPointY; ++dy)
             {
-                if(dx == 100)
-                std::print("Current position we are checking: {}, {}\n", x+dx, y+dy);
-                auto it = grid.find({x + dx, y + dy});
+                
+                auto it = grid.find({dx, dy});
                 if (it != grid.end())
                 {
                     //Need cosmin pentru mate

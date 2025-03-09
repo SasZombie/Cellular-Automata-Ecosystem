@@ -7,8 +7,8 @@ static std::mt19937 genForSeed(rd());
 static std::uniform_int_distribution<size_t> seedDist(0, 501);
 
 static std::mt19937 genWithSeed;
-static std::uniform_int_distribution<size_t> dist(0, 29);
-static std::uniform_int_distribution<size_t> dist2(0, 19);
+static std::uniform_int_distribution<size_t> dist(0, 600);
+static std::uniform_int_distribution<size_t> dist2(0, 600);
 
 size_t sas::generateSeed() noexcept
 {
@@ -30,25 +30,6 @@ std::pair<size_t, size_t> sas::generateNextPos(size_t x, size_t y, size_t range)
 
     return {distX(genWithSeed), distY(genWithSeed)};
 }
-
-// std::pair<size_t, size_t> sas::generateNextPos(size_t x, size_t y, size_t range, size_t minDidst) noexcept
-// {
-//     const auto validCoord = [&](size_t center) -> size_t{
-//         size_t total = 2 * range + 1 - (2 * minDidst + 1);
-//         std::uniform_int_distribution<size_t> dist(0, total);
-
-//         size_t randomValue = dist(genWithSeed);
-
-//         if(randomValue >= range - minDidst)
-//         {
-//             randomValue = randomValue + 2 * minDidst + 1;
-//         }
-
-//         return center - range + randomValue;
-//     };
-
-//     return {validCoord(x), validCoord(y)};
-// }
 
 bool sas::areAlmostEqual(float a, float b, float epsilon) noexcept
 {

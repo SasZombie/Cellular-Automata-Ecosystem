@@ -17,7 +17,7 @@ namespace sas
     {
     public:
         size_t size = 20;
-        size_t rangeWater = 100, rangeSpreadingSeeds = 100;
+        size_t rangeWater = 100, rangeSpreadingSeeds = 50;
         size_t nrOfSeeds = 1;
 
         std::vector<std::pair<size_t, size_t>> reproduce() const noexcept;
