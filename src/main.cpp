@@ -7,10 +7,8 @@
 #include "../include/Tile.hpp"
 #include "../include/Grid.hpp"
 #include "../include/Utils.hpp"
+#include "../include/Common.hpp"
 
-constexpr size_t ScreenWidth = 800;
-constexpr size_t ScreenHeight = 800;
-constexpr float cellSize = 100;
 
 
 //The grid DOES NOT know about the TILES!!

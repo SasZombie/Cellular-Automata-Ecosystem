@@ -1,4 +1,5 @@
 #include "../include/Utils.hpp"
+#include "../include/Common.hpp"
 #include <print>
 #include <iostream>
 
@@ -7,8 +8,8 @@ static std::mt19937 genForSeed(rd());
 static std::uniform_int_distribution<size_t> seedDist(0, 501);
 
 static std::mt19937 genWithSeed;
-static std::uniform_int_distribution<size_t> dist(0, 600);
-static std::uniform_int_distribution<size_t> dist2(0, 600);
+static std::uniform_int_distribution<size_t> dist(0, ScreenWidth);
+static std::uniform_int_distribution<size_t> dist2(0, ScreenHeight);
 
 size_t sas::generateSeed() noexcept
 {
@@ -63,11 +64,14 @@ std::shared_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, size_t x, size_t 
 
     switch (type)
     {
-    case sas::PlantType::FLOWER:    
+    case PlantType::FLOWER:    
         plant = std::make_unique<sas::Flower>();
         break;
-    case sas::PlantType::WEED:
+    case PlantType::WEED:
         plant = std::make_unique<sas::Weed>();
+        break;
+    case PlantType::TREE:
+        plant = std::make_unique<sas::Tree>();
         break;
     default:
         plant = std::make_unique<sas::Flower>();
