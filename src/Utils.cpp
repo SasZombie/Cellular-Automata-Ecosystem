@@ -57,19 +57,20 @@ float sas::euclidianDistance2D(size_t x1, size_t y1, size_t x2, size_t y2) noexc
     return std::sqrt(std::pow(distX, 2) + std::pow(distY, 2));
 }
 
-std::unique_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, size_t x, size_t y, sas::PlatType type, std::unique_ptr<DrawStrategy> strat) noexcept
+std::shared_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, size_t x, size_t y, sas::PlantType type, std::shared_ptr<DrawStrategy> strat) noexcept
 {
-    std::unique_ptr<sas::Plant> plant;
+    std::shared_ptr<sas::Plant> plant;
 
     switch (type)
     {
-    case sas::PlatType::FLOWER:    
+    case sas::PlantType::FLOWER:    
         plant = std::make_unique<sas::Flower>();
         break;
-    case sas::PlatType::WEED:
+    case sas::PlantType::WEED:
         plant = std::make_unique<sas::Weed>();
         break;
     default:
+        plant = std::make_unique<sas::Flower>();
         std::cerr << "Unimplemented! Returning a flower instead!\n";
         break;
     }
@@ -88,14 +89,14 @@ std::unique_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, size_t x, size_t 
     return plant;
 }
 
-std::unique_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::PlatType type, std::unique_ptr<DrawStrategy> strat) noexcept
+std::shared_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::PlantType type, std::shared_ptr<DrawStrategy> strat) noexcept
 {
     return plantFactory(grid, n_pos.first, n_pos.second, type, std::move(strat));
 }
 
-std::unique_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, size_t x, size_t y, sas::EnviromentType type, std::unique_ptr<DrawStrategy> strat) noexcept
+std::shared_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, size_t x, size_t y, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat) noexcept
 {
-    std::unique_ptr<sas::Enviroment> env;
+    std::shared_ptr<sas::Enviroment> env;
 
     switch (type)
     {
@@ -123,7 +124,7 @@ std::unique_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, size_t x, si
 }
 
 
-std::unique_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::EnviromentType type, std::unique_ptr<DrawStrategy> strat) noexcept
+std::shared_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat) noexcept
 {
     return enviromentFactory(grid, n_pos.first, n_pos.second, type, std::move(strat));
 }

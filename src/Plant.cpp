@@ -29,6 +29,21 @@ std::vector<std::pair<size_t, size_t>> sas::Plant::reproduce() const noexcept
     return vecs;
 }
 
+sas::PlantType sas::Flower::getPlantType() const noexcept
+{
+    return PlantType::FLOWER;
+}
+
+sas::PlantType sas::Tree::getPlantType() const noexcept
+{
+    return PlantType::TREE;
+}
+
+sas::PlantType sas::Weed::getPlantType() const noexcept
+{
+    return PlantType::WEED;
+}
+
 size_t sas::Flower::range() const noexcept
 {
     return 10;

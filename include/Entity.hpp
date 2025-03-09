@@ -16,9 +16,12 @@ namespace sas
 
     private:
         //This is private because we call move in the setter
-        std::unique_ptr<DrawStrategy> drawStrat;
+        std::shared_ptr<DrawStrategy> drawStrat;
     public:   
-        void setDrawStrategy(std::unique_ptr<DrawStrategy> strat) noexcept;
+        void setDrawStrategy(std::shared_ptr<DrawStrategy> strat) noexcept;
+
+        std::shared_ptr<DrawStrategy> getDrawStartegy() const noexcept;
+
 
         void draw() const noexcept;
 

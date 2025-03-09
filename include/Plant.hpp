@@ -6,7 +6,7 @@
 namespace sas
 {
     //This is bad if we want to have more than 10 plants btw
-    enum struct PlatType
+    enum struct PlantType
     {
         TREE,
         FLOWER,
@@ -24,12 +24,16 @@ namespace sas
         virtual size_t waterConsumption() const noexcept = 0; 
         virtual size_t range() const noexcept = 0; 
 
+        virtual PlantType getPlantType() const noexcept = 0;
+
         virtual ~Plant() = default;
     };
 
     class Tree: public Plant
     {
     public:
+        
+        PlantType getPlantType() const noexcept;
 
         size_t waterConsumption() const noexcept;
         size_t range() const noexcept;
@@ -39,6 +43,9 @@ namespace sas
     {
     public:
 
+        PlantType getPlantType() const noexcept;
+
+
         size_t range() const noexcept;
         size_t waterConsumption() const noexcept;
 
@@ -47,6 +54,8 @@ namespace sas
     class Weed: public Plant
     {
     public:
+        PlantType getPlantType() const noexcept;
+
         size_t range() const noexcept;
         size_t waterConsumption() const noexcept;
 

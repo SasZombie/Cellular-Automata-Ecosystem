@@ -12,17 +12,9 @@ constexpr size_t ScreenWidth = 800;
 constexpr size_t ScreenHeight = 800;
 constexpr float cellSize = 100;
 
-constexpr size_t boardWidth = 600;
-constexpr size_t boardHeight = 600;
-// constexpr float boardPartSize = 8;
-// constexpr size_t boardSideLength = boardPartSize * cellSize;
-// constexpr size_t boardPartsHorizontally = ScreenWidth / boardSideLength;
-// constexpr size_t boardPartsVertically = ScreenHeight / boardSideLength;
 
-// void DrawBoard(const sas::Matrix<sas::Tile> &board);
-// void SetUpBoard(sas::Matrix<sas::Enviroment> &board);
-
-// The grid DOES NOT know about the TILES!!
+//The grid DOES NOT know about the TILES!!
+//Not necesarry a bad thing
 void SetUpBoard(sas::Matrix<sas::Tile> &board)
 {
     size_t tilePerWidth = ScreenWidth / cellSize, tilePerHeight = ScreenHeight / cellSize;
@@ -52,7 +44,7 @@ void SetUpBoard(sas::Matrix<sas::Tile> &board)
     }
 }
 
-void SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::Grid &grid)
+void SetUpWater(std::vector<std::shared_ptr<sas::Enviroment>> &waters, sas::Grid &grid)
 {
     // Random ahh value for wata
     for (size_t i = 0; i < 100; ++i)
@@ -62,9 +54,9 @@ void SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::Grid
     }
 }
 
-void multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>>& plants)
+void multiply(sas::Grid &grid, std::vector<std::shared_ptr<sas::Plant>>& plants)
 {
-    std::vector<std::unique_ptr<sas::Plant>> newPlants;
+    std::vector<std::shared_ptr<sas::Plant>> newPlants;
     // Assume all plants reproduce
     newPlants.reserve(plants.size());
 
@@ -100,7 +92,7 @@ void multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>>& plants)
 
             if (canPlant)
             {
-                newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
+                newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, plt->getPlantType(), plt->getDrawStartegy()));
                 waterSource->capacity = waterSource->capacity - plt->waterConsumption();
             }
         }
@@ -144,11 +136,14 @@ int main()
     size_t seed = sas::generateSeed();
 
     sas::Grid grid;
-    std::vector<std::unique_ptr<sas::Plant>> plants;
-    std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
+    std::vector<std::shared_ptr<sas::Plant>> plants;
+    std::vector<std::shared_ptr<sas::Enviroment>> enviroment;
+    //This uses std::vector underneath but when talking about tiles
+    //It is easier to think about them based on a matrix
     sas::Matrix<sas::Tile> board(ScreenWidth, ScreenHeight);
 
-    plants.push_back(sas::plantFactory(grid, 5, 5, sas::PlatType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
+    plants.push_back(sas::plantFactory(grid, 5, 5, sas::PlantType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
+    plants.push_back(sas::plantFactory(grid, 100, 100, sas::PlantType::TREE, std::make_unique<sas::TreeDrawStrategy>()));
     enviroment.push_back(sas::enviromentFactory(grid, 7, 7, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
 
     SetUpBoard(board);
