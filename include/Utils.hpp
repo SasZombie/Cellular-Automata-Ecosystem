@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tile.hpp"
-#include "matrix.hpp"
+#include "Matrix.hpp"
 #include "Grid.hpp"
 
 namespace sas
@@ -18,8 +18,9 @@ namespace sas
     std::pair<size_t, size_t> generateNextPos() noexcept;
     std::pair<size_t, size_t> generateNextPos(size_t x, size_t y, size_t range) noexcept;
 
+    std::vector<std::pair<size_t, size_t>> chooseWeedCoords(const sas::Matrix<sas::Tile>& board);
 
-    //If we add another parameter to the facory, I am chaning it to a abstract factory
+    //If we add another parameter to the facory, I am chaning it
     //Enviroment
     std::shared_ptr<sas::Enviroment> enviromentFactory(Grid &grid, size_t x, size_t y, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
     std::shared_ptr<sas::Enviroment> enviromentFactory(Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;

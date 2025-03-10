@@ -3,7 +3,7 @@
 #include <raylib.h>
 
 
-//I am not including the whole ahh string header just for this
+//I am not including the whole ahh header just for this
 using std::size_t;
 
 

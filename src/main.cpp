@@ -3,30 +3,27 @@
 #include <vector>
 #include <iostream>
 #include <print>
-#include "../include/matrix.hpp"
+#include "../include/Matrix.hpp"
 #include "../include/Tile.hpp"
 #include "../include/Grid.hpp"
 #include "../include/Utils.hpp"
 #include "../include/Common.hpp"
 
-
-
-//The grid DOES NOT know about the TILES!!
-//Not necesarry a bad thing
+// The grid DOES NOT know about the TILES!!
+// Not necesarry a bad thing
 void SetUpBoard(sas::Matrix<sas::Tile> &board)
 {
-    size_t tilePerWidth = ScreenWidth / cellSize, tilePerHeight = ScreenHeight / cellSize;
 
-    for (size_t i = 0; i < ScreenWidth; i += cellSize)
+    for (size_t i = 0; i < WidthCells; ++i)
     {
-        for (size_t j = 0; j < ScreenHeight; j += cellSize)
+        for (size_t j = 0; j < WidthCells; ++j)
         {
-            if (j <= 1.f * ScreenWidth / 6 || j > 5.f * ScreenWidth / 6)
+            if (j <= 1.f * WidthCells / 6 || j > 5.f * WidthCells / 6)
             {
                 board(i, j).type = sas::TileType::SNOW;
                 board(i, j).setDrawStrategy(std::make_unique<sas::SnowDrawStrategy>());
             }
-            else if (j <= 5.f * ScreenWidth / 12 || j > 7.f * ScreenWidth / 12)
+            else if (j <= 5.f * WidthCells / 12 || j > 7.f * WidthCells / 12)
             {
                 board(i, j).type = sas::TileType::GRASS;
                 board(i, j).setDrawStrategy(std::make_unique<sas::GrassDrawStrategy>());
@@ -37,7 +34,7 @@ void SetUpBoard(sas::Matrix<sas::Tile> &board)
                 board(i, j).setDrawStrategy(std::make_unique<sas::DesertDrawStrategy>());
             }
 
-            board(i, j).pos = {i, j, static_cast<size_t>(cellSize), static_cast<size_t>(cellSize)};
+            board(i, j).pos = {i * cellSize, j * cellSize, static_cast<size_t>(cellSize), static_cast<size_t>(cellSize)};
         }
     }
 }
@@ -52,7 +49,41 @@ void SetUpWater(std::vector<std::shared_ptr<sas::Enviroment>> &waters, sas::Grid
     }
 }
 
-void multiply(sas::Grid &grid, std::vector<std::shared_ptr<sas::Plant>>& plants)
+void spawnWeed(sas::Grid &grid, const sas::Matrix<sas::Tile> &board, std::vector<std::shared_ptr<sas::Plant>> &plants)
+{
+    const auto &elems = sas::chooseWeedCoords(board);
+
+    std::vector<std::shared_ptr<sas::Plant>> newPlants;
+    // Assume all plants reproduce
+    newPlants.reserve(plants.size());
+
+    for (const auto &sp : elems)
+    {
+        bool canPlant = true;
+
+
+        //HardCoded...
+        const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, 10);
+
+        for (const auto &neighbour : neighbours)
+        {
+            if (!sas::checkBoundaries(sp, 17, neighbour->getPosition(), 17)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
+            {                                                                // not proud of this one tbh
+                canPlant = false;
+                break;
+            }
+        }
+
+        if (canPlant)
+        {
+            newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlantType::WEED, std::make_shared<sas::WeedDrawStrategy>()));
+        }
+    }
+
+    std::move(newPlants.begin(), newPlants.end(), std::back_inserter(plants));
+}
+
+void multiply(sas::Grid &grid, std::vector<std::shared_ptr<sas::Plant>> &plants)
 {
     std::vector<std::shared_ptr<sas::Plant>> newPlants;
     // Assume all plants reproduce
@@ -77,7 +108,7 @@ void multiply(sas::Grid &grid, std::vector<std::shared_ptr<sas::Plant>>& plants)
                 continue;
             }
 
-            const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, plt->rangeWater);
+            const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, plt->size);
 
             for (const auto &neighbour : neighbours)
             {
@@ -136,9 +167,9 @@ int main()
     sas::Grid grid;
     std::vector<std::shared_ptr<sas::Plant>> plants;
     std::vector<std::shared_ptr<sas::Enviroment>> enviroment;
-    //This uses std::vector underneath but when talking about tiles
-    //It is easier to think about them based on a matrix
-    sas::Matrix<sas::Tile> board(ScreenWidth, ScreenHeight);
+    // This uses std::vector underneath but when talking about tiles
+    // It is easier to think about them based on a matrix
+    sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
 
     plants.push_back(sas::plantFactory(grid, 5, 5, sas::PlantType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
     plants.push_back(sas::plantFactory(grid, 100, 100, sas::PlantType::TREE, std::make_unique<sas::TreeDrawStrategy>()));
@@ -176,6 +207,7 @@ int main()
         if (IsKeyPressed(KEY_SPACE))
         {
             multiply(grid, plants);
+            spawnWeed(grid, board, plants);
         }
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))

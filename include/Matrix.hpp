@@ -84,6 +84,18 @@ namespace sas
             return data[getIndex(row, col)];
         }
 
+        T &operator()(size_t index)
+        {
+            checkInsideBoundry(index);
+            return data[index];
+        }
+
+        const T &operator()(size_t index) const
+        {
+            checkInsideBoundry(index);
+            return data[index];
+        }
+
         void setRows(size_t n_rows) noexcept
         {
             this->data.resize(this->cols * n_rows);

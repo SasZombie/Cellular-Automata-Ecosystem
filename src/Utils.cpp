@@ -8,8 +8,12 @@ static std::mt19937 genForSeed(rd());
 static std::uniform_int_distribution<size_t> seedDist(0, 501);
 
 static std::mt19937 genWithSeed;
-static std::uniform_int_distribution<size_t> dist(0, ScreenWidth);
-static std::uniform_int_distribution<size_t> dist2(0, ScreenHeight);
+static std::uniform_int_distribution<size_t> distWidth(0, ScreenWidth);
+static std::uniform_int_distribution<size_t> distHeight(0, ScreenHeight);
+
+//0.06f = chance to spawn a random plant
+static constexpr float weedChance = 0.06f;
+static std::binomial_distribution<size_t> distTiles(WidthHeightCells, weedChance); 
 
 size_t sas::generateSeed() noexcept
 {
@@ -21,7 +25,7 @@ size_t sas::generateSeed() noexcept
 
 std::pair<size_t, size_t> sas::generateNextPos() noexcept
 {
-    return std::make_pair(dist(genWithSeed), dist2(genWithSeed));
+    return std::make_pair(distWidth(genWithSeed), distHeight(genWithSeed));
 }
 
 std::pair<size_t, size_t> sas::generateNextPos(size_t x, size_t y, size_t range) noexcept
@@ -131,4 +135,24 @@ std::shared_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, size_t x, si
 std::shared_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat) noexcept
 {
     return enviromentFactory(grid, n_pos.first, n_pos.second, type, std::move(strat));
+}
+
+std::vector<std::pair<size_t, size_t>> sas::chooseWeedCoords(const sas::Matrix<sas::Tile>& board)
+{
+
+    std::vector<std::pair<size_t, size_t>> elements;
+    elements.reserve(static_cast<size_t>(WidthHeightCells * weedChance));
+
+    size_t numSelected = distTiles(genWithSeed);
+    std::print("Num selected: {}\n", numSelected);
+    std::uniform_int_distribution<size_t> selectedDist(0, WidthHeightCells - 1);
+    
+    for(size_t i = 0; i < numSelected; ++i)
+    {
+        size_t index = selectedDist(genWithSeed);
+        std::print("Elem at pos: {}", index);
+        elements.push_back(board(index).getPosition());
+    }
+    
+    return elements;
 }
