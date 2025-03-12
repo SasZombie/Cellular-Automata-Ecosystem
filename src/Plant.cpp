@@ -7,14 +7,6 @@
 #include "raylib.h"
 #include "Common.hpp"
 
-static constexpr float TreeReproductionChance = 0.02f;
-static constexpr float FlowerReproductionChance = 0.2f;
-static constexpr float WeedReproductionChance = 0.06f;
-
-static constexpr size_t WaterConsumptionTree = 10;
-static constexpr size_t WaterConsumptionFlower = 5;
-static constexpr size_t WaterConsumptionWeed = 30;
-
 
 std::vector<std::pair<size_t, size_t>> sas::Plant::reproduce() const noexcept
 {

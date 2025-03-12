@@ -44,7 +44,6 @@ namespace sas
                 auto it = grid.find({dx, dy});
                 if (it != grid.end())
                 {
-                    //Need cosmin pentru mate
                     for (Entity *entity : it->second)
                     {
                         if (T *specificEntity = dynamic_cast<T *>(entity))
@@ -76,7 +75,7 @@ namespace sas
         {
             for (int dy = startingPointY; dy <= stopPointY; ++dy)
             {
-                auto it = grid.find({x + dx, y + dy});
+                auto it = grid.find({dx, dy});
                 if (it != grid.end())
                 {
                     for (Entity *entity : it->second)
@@ -106,7 +105,7 @@ namespace sas
         {
             for (int dy = startingPointY; dy <= stopPointY; ++dy)
             {
-                auto it = grid.find({x + dx, y + dy});
+                auto it = grid.find({dx, dy});
                 if (it != grid.end())
                 {
                     for (Entity *entity : it->second)
@@ -141,7 +140,7 @@ namespace sas
         {
             for (int dy = startingPointY; dy <= stopPointY; ++dy)
             {
-                auto it = grid.find({x + dx, y + dy});
+                auto it = grid.find({dx, dy});
                 if (it != grid.end())
                 {
                     for (Entity *entity : it->second)
