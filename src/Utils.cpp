@@ -62,9 +62,9 @@ float sas::euclidianDistance2D(size_t x1, size_t y1, size_t x2, size_t y2) noexc
     return std::sqrt(std::pow(distX, 2) + std::pow(distY, 2));
 }
 
-std::shared_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, size_t x, size_t y, sas::PlantType type, std::shared_ptr<DrawStrategy> strat) noexcept
+std::unique_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, size_t x, size_t y, sas::PlantType type, std::shared_ptr<DrawStrategy> strat) noexcept
 {
-    std::shared_ptr<sas::Plant> plant;
+    std::unique_ptr<sas::Plant> plant;
 
     switch (type)
     {
@@ -97,14 +97,14 @@ std::shared_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, size_t x, size_t 
     return plant;
 }
 
-std::shared_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::PlantType type, std::shared_ptr<DrawStrategy> strat) noexcept
+std::unique_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::PlantType type, std::shared_ptr<DrawStrategy> strat) noexcept
 {
     return plantFactory(grid, n_pos.first, n_pos.second, type, std::move(strat));
 }
 
-std::shared_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, size_t x, size_t y, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat) noexcept
+std::unique_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, size_t x, size_t y, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat) noexcept
 {
-    std::shared_ptr<sas::Enviroment> env;
+    std::unique_ptr<sas::Enviroment> env;
 
     switch (type)
     {
@@ -132,7 +132,7 @@ std::shared_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, size_t x, si
 }
 
 
-std::shared_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat) noexcept
+std::unique_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat) noexcept
 {
     return enviromentFactory(grid, n_pos.first, n_pos.second, type, std::move(strat));
 }
@@ -144,13 +144,11 @@ std::vector<std::pair<size_t, size_t>> sas::chooseWeedCoords(const sas::Matrix<s
     elements.reserve(static_cast<size_t>(WidthHeightCells * weedChance));
 
     size_t numSelected = distTiles(genWithSeed);
-    std::print("Num selected: {}\n", numSelected);
     std::uniform_int_distribution<size_t> selectedDist(0, WidthHeightCells - 1);
     
     for(size_t i = 0; i < numSelected; ++i)
     {
         size_t index = selectedDist(genWithSeed);
-        std::print("Elem at pos: {}", index);
         elements.push_back(board(index).getPosition());
     }
     

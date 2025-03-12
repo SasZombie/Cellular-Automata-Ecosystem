@@ -5,6 +5,7 @@
 #include <iostream>
 #include "../include/Utils.hpp"
 #include "raylib.h"
+#include "Common.hpp"
 
 static constexpr float TreeReproductionChance = 0.02f;
 static constexpr float FlowerReproductionChance = 0.2f;
@@ -72,4 +73,19 @@ size_t sas::Tree::waterConsumption() const noexcept
 size_t sas::Weed::waterConsumption() const noexcept
 {
     return 1;
+}
+
+bool sas::Flower::willWither() const noexcept
+{
+    return daysAlive >= FlowerDaysAlive;
+}
+
+bool sas::Tree::willWither() const noexcept
+{
+    return daysAlive >= TreeDaysAlive;
+}
+
+bool sas::Weed::willWither() const noexcept
+{
+    return daysAlive >= WeedDaysAlive;
 }

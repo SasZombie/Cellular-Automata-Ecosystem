@@ -9,7 +9,7 @@
 #include "../include/Utils.hpp"
 #include "../include/Common.hpp"
 
-// The grid DOES NOT know about the TILES!!
+// The grid does NOT know about the TILES!!
 // Not necesarry a bad thing
 void SetUpBoard(sas::Matrix<sas::Tile> &board)
 {
@@ -39,7 +39,7 @@ void SetUpBoard(sas::Matrix<sas::Tile> &board)
     }
 }
 
-void SetUpWater(std::vector<std::shared_ptr<sas::Enviroment>> &waters, sas::Grid &grid)
+void SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::Grid &grid)
 {
     // Random ahh value for wata
     for (size_t i = 0; i < 100; ++i)
@@ -49,26 +49,27 @@ void SetUpWater(std::vector<std::shared_ptr<sas::Enviroment>> &waters, sas::Grid
     }
 }
 
-void spawnWeed(sas::Grid &grid, const sas::Matrix<sas::Tile> &board, std::vector<std::shared_ptr<sas::Plant>> &plants)
+void spawnWeed(sas::Grid &grid, const sas::Matrix<sas::Tile> &board, std::vector<std::unique_ptr<sas::Plant>> &plants)
 {
     const auto &elems = sas::chooseWeedCoords(board);
 
-    std::vector<std::shared_ptr<sas::Plant>> newPlants;
-    // Assume all plants reproduce
-    newPlants.reserve(plants.size());
+    std::vector<std::unique_ptr<sas::Plant>> newPlants;
+    // Assume all elements have place
+    newPlants.reserve(elems.size());
+
+    // static to initialize only once
+    static sas::Weed defaultWeed;
 
     for (const auto &sp : elems)
     {
         bool canPlant = true;
 
-
-        //HardCoded...
-        const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, 10);
+        const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, defaultWeed.size);
 
         for (const auto &neighbour : neighbours)
         {
-            if (!sas::checkBoundaries(sp, 17, neighbour->getPosition(), 17)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
-            {                                                                // not proud of this one tbh
+            if (!sas::checkBoundaries(sp, defaultWeed.size, neighbour->getPosition(), defaultWeed.size)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
+            {                                                                                            // not proud of this one tbh
                 canPlant = false;
                 break;
             }
@@ -83,9 +84,9 @@ void spawnWeed(sas::Grid &grid, const sas::Matrix<sas::Tile> &board, std::vector
     std::move(newPlants.begin(), newPlants.end(), std::back_inserter(plants));
 }
 
-void multiply(sas::Grid &grid, std::vector<std::shared_ptr<sas::Plant>> &plants)
+void multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants)
 {
-    std::vector<std::shared_ptr<sas::Plant>> newPlants;
+    std::vector<std::unique_ptr<sas::Plant>> newPlants;
     // Assume all plants reproduce
     newPlants.reserve(plants.size());
 
@@ -130,6 +131,23 @@ void multiply(sas::Grid &grid, std::vector<std::shared_ptr<sas::Plant>> &plants)
     std::move(newPlants.begin(), newPlants.end(), std::back_inserter(plants));
 }
 
+void killPlants(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants)
+{
+    for (size_t i = 0; i < plants.size();)
+    {
+        if (plants[i]->willWither())
+        {
+            sas::removeFromGrid(grid, plants.at(i).get()); 
+            std::swap(plants[i], plants.back());
+            plants.pop_back();      
+        }
+        else
+        {
+            ++i;
+        }
+    }
+}
+
 void handleCameraControlls(Camera2D &camera)
 {
     if (IsKeyDown(KEY_D))
@@ -165,15 +183,14 @@ int main()
     size_t seed = sas::generateSeed();
 
     sas::Grid grid;
-    std::vector<std::shared_ptr<sas::Plant>> plants;
-    std::vector<std::shared_ptr<sas::Enviroment>> enviroment;
+    std::vector<std::unique_ptr<sas::Plant>> plants;
+    std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
     // This uses std::vector underneath but when talking about tiles
     // It is easier to think about them based on a matrix
     sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
 
-    plants.push_back(sas::plantFactory(grid, 5, 5, sas::PlantType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
-    plants.push_back(sas::plantFactory(grid, 100, 100, sas::PlantType::TREE, std::make_unique<sas::TreeDrawStrategy>()));
-    enviroment.push_back(sas::enviromentFactory(grid, 7, 7, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
+    plants.push_back(sas::plantFactory(grid, 100, 100, sas::PlantType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
+    plants.push_back(sas::plantFactory(grid, 150, 150, sas::PlantType::TREE, std::make_unique<sas::TreeDrawStrategy>()));
 
     SetUpBoard(board);
     SetUpWater(enviroment, grid);
@@ -188,8 +205,12 @@ int main()
     InitWindow(ScreenWidth, ScreenHeight, "Celular Automata Ecosystem");
     SetTargetFPS(FPS);
 
-    float timeAcc = 0.f;
-    constexpr float interval = 10.f / FPS;
+    // Tick = day
+    // Season =
+    float tickAcc = 0.f;
+    float seasonAcc = 0.f;
+    constexpr float intervalTick = 10.f / FPS;
+    constexpr float intervalSeason = 16 * intervalTick;
     const std::string text = "Plus si minus pt zoom\nWASD pentru movement Seed = " + std::to_string(seed);
 
     while (!WindowShouldClose())
@@ -197,34 +218,40 @@ int main()
 
         float dt = GetFrameTime();
 
-        timeAcc = timeAcc + dt;
+        tickAcc = tickAcc + dt;
 
-        if (timeAcc >= interval)
+        if (tickAcc >= intervalTick)
         {
-            timeAcc = 0;
+            tickAcc = 0;
         }
 
         if (IsKeyPressed(KEY_SPACE))
         {
             multiply(grid, plants);
             spawnWeed(grid, board, plants);
+
+            std::for_each(plants.begin(), plants.end(), [](std::unique_ptr<sas::Plant> &plt)
+                          { plt->daysAlive++; });
+
+            killPlants(grid, plants);
         }
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            const auto [x, y] = GetMousePosition();
 
-            const float cx = camera.target.x, cy = camera.target.y;
+        // if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        // {
+        //     const auto [x, y] = GetMousePosition();
 
-            // TODO: Make zoom work...
-            const float cz = camera.zoom;
-            const auto &elems = sas::findNearbyEntities<sas::Flower>(grid, static_cast<size_t>(x), static_cast<size_t>(y), 50);
+        //     const float cx = camera.target.x, cy = camera.target.y;
 
-            for (const auto &elem : elems)
-            {
-                std::print("Found element at pos {{{}, {}}}\n", elem->pos.x, elem->pos.y);
-            }
-        }
+        //     // TODO: Make zoom work...
+        //     const float cz = camera.zoom;
+        //     const auto &elems = sas::findNearbyEntities<sas::Flower>(grid, static_cast<size_t>(x), static_cast<size_t>(y), 50);
+
+        //     for (const auto &elem : elems)
+        //     {
+        //         std::print("Found element at pos {{{}, {}}}\n", elem->pos.x, elem->pos.y);
+        //     }
+        // }
 
         BeginDrawing();
 
