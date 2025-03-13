@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include <vector>
+#include <deque>
 #include <iostream>
 #include <print>
 #include "../include/Matrix.hpp"
@@ -86,11 +87,13 @@ void spawnWeed(sas::Grid &grid, const sas::Matrix<sas::Tile> &board, std::vector
 
 void multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants)
 {
-    std::vector<std::unique_ptr<sas::Plant>> newPlants;
-    // Assume all plants reproduce
-    newPlants.reserve(plants.size());
+    // std::vector<std::unique_ptr<sas::Plant>> newPlants;
+    // // Assume all plants reproduce
+    // newPlants.reserve(plants.size());
 
-    // Idea: Do this with threads!
+    static std::deque<std::unique_ptr<sas::Plant>> newPlants;
+    newPlants.clear();
+
     for (const auto &plt : plants)
     {
         const auto &spawnPoints = plt->reproduce();
