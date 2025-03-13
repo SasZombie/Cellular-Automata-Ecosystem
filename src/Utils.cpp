@@ -30,10 +30,10 @@ std::pair<size_t, size_t> sas::generateNextPos() noexcept
 
 std::pair<size_t, size_t> sas::generateNextPos(size_t x, size_t y, size_t range) noexcept
 {
-    std::uniform_int_distribution<size_t> distX(x, x + range);
-    std::uniform_int_distribution<size_t> distY(y, y + range);
+    std::uniform_int_distribution<size_t> distX(std::max(x, range) - range, x + range);
+    std::uniform_int_distribution<size_t> distY(std::max(y, range) - range, y + range);
 
-    return {distX(genWithSeed), distY(genWithSeed)};
+    return std::make_pair(distX(genWithSeed), distY(genWithSeed));
 }
 
 bool sas::areAlmostEqual(float a, float b, float epsilon) noexcept

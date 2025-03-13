@@ -101,7 +101,7 @@ void multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants)
             auto waterSource = sas::findNearestEntity<sas::Water>(grid, sp.first, sp.second, plt->rangeWater,
                                                                   [&](sas::Water &wat)
                                                                   {
-                                                                      return (wat.capacity >= plt->waterConsumption());
+                                                                      return (wat.capacity >= plt->getWaterConsumption());
                                                                   });
 
             if (waterSource == nullptr)
@@ -123,7 +123,7 @@ void multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants)
             if (canPlant)
             {
                 newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, plt->getPlantType(), plt->getDrawStartegy()));
-                waterSource->capacity = waterSource->capacity - plt->waterConsumption();
+                waterSource->capacity = waterSource->capacity - plt->getWaterConsumption();
             }
         }
     }

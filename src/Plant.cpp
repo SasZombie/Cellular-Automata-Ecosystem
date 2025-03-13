@@ -8,12 +8,35 @@
 #include "Common.hpp"
 #include "Plant.hpp"
 
-sas::Plant::Plant(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat, size_t n_nrOfSeeds, size_t n_rangeSpreadingSeeds, size_t n_rangeWater, size_t n_size) noexcept
+static constexpr std::size_t FlowerDaysAlive = 5;
+static constexpr std::size_t TreeDaysAlive   = 10;
+static constexpr std::size_t WeedDaysAlive   = 3;
+ 
+static constexpr std::size_t FlowerRangeSeeds = 50;
+static constexpr std::size_t FlowerWaterRange = 25;
+static constexpr std::size_t FlowerSize = 5;
+static constexpr std::size_t FlowerNumberOfSeeds = 3;
+static constexpr std::size_t FlowerWaterConsumption = 10;
+ 
+static constexpr std::size_t TreeRangeSeeds = 100;
+static constexpr std::size_t TreeWaterRange = 40;
+static constexpr std::size_t TreeSize = 50;
+static constexpr std::size_t TreeNumberOfSeeds = 1;
+static constexpr std::size_t TreeWaterConsumption = 25;
+
+static constexpr std::size_t WeedRangeSeeds = 20;
+static constexpr std::size_t WeedWaterRange = 15;
+static constexpr std::size_t WeedSize = 5;
+static constexpr std::size_t WeedNumberOfSeeds = 15;
+static constexpr std::size_t WeedWaterConsumption = 12;
+
+sas::Plant::Plant(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat, size_t n_nrOfSeeds, size_t n_rangeSpreadingSeeds, size_t n_rangeWater, size_t n_size, size_t n_waterConsumption) noexcept
     : Entity(x, y),
       nrOfSeeds(n_nrOfSeeds),
       rangeSpreadingSeeds(n_rangeSpreadingSeeds),
       rangeWater(n_rangeWater),
-      size(n_size)
+      size(n_size),
+      waterConsumption(n_waterConsumption)
 {
     this->setDrawStrategy(strat ? strat : std::make_shared<PlaceholderDrawStrategy>());
 }
@@ -42,17 +65,17 @@ sas::PlantType sas::Tree::getPlantType() const noexcept
 }
 
 sas::Flower::Flower(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat) noexcept
-    : Plant(x, y, strat, FlowerNumberOfSeeds, FlowerRangeSeeds, FlowerWaterRange, FlowerSize)
+    : Plant(x, y, strat, FlowerNumberOfSeeds, FlowerRangeSeeds, FlowerWaterRange, FlowerSize, FlowerWaterConsumption)
 {
 }
 
 sas::Tree::Tree(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat) noexcept
-    : Plant(x, y, strat, TreeNumberOfSeeds, TreeRangeSeeds, TreeWaterRange, TreeSize)
+    : Plant(x, y, strat, TreeNumberOfSeeds, TreeRangeSeeds, TreeWaterRange, TreeSize, TreeWaterConsumption)
 {
 }
 
 sas::Weed::Weed(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat) noexcept
-    : Plant(x, y, strat, WeedNumberOfSeeds, WeedRangeSeeds, WeedWaterRange, WeedSize)
+    : Plant(x, y, strat, WeedNumberOfSeeds, WeedRangeSeeds, WeedWaterRange, WeedSize, WeedWaterConsumption)
 {
 }
 sas::PlantType sas::Weed::getPlantType() const noexcept
@@ -74,20 +97,20 @@ size_t sas::Tree::range() const noexcept
 {
     return 10;
 }
-// TODO: return value
-size_t sas::Flower::waterConsumption() const noexcept
+
+size_t sas::Flower::getWaterConsumption() const noexcept
 {
-    return 1;
+    return waterConsumption;
 }
-// TODO: return value
-size_t sas::Tree::waterConsumption() const noexcept
+
+size_t sas::Tree::getWaterConsumption() const noexcept
 {
-    return 1;
+    return waterConsumption;
 }
-// TODO: return value
-size_t sas::Weed::waterConsumption() const noexcept
+
+size_t sas::Weed::getWaterConsumption() const noexcept
 {
-    return 1;
+    return waterConsumption;
 }
 
 bool sas::Flower::willWither() const noexcept
