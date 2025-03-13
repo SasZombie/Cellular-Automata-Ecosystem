@@ -134,8 +134,6 @@ namespace sas
         int stopPointX = x + range;
         int stopPointY = y + range;
 
-        std::vector<sas::Entity *> results;
-
         for (int dx = startingPointX; dx <= stopPointX; ++dx)
         {
             for (int dy = startingPointY; dy <= stopPointY; ++dy)

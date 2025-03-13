@@ -87,10 +87,6 @@ void spawnWeed(sas::Grid &grid, const sas::Matrix<sas::Tile> &board, std::vector
 
 void multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants)
 {
-    // std::vector<std::unique_ptr<sas::Plant>> newPlants;
-    // // Assume all plants reproduce
-    // newPlants.reserve(plants.size());
-
     static std::deque<std::unique_ptr<sas::Plant>> newPlants;
     newPlants.clear();
 
