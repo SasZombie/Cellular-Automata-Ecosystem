@@ -1,4 +1,5 @@
 #include "../include/Entity.hpp"
+#include "Entity.hpp"
 
 std::pair<size_t, size_t> sas::Entity::getPosition() const noexcept
 {
@@ -11,6 +12,13 @@ void sas::Entity::draw() const noexcept
     {
         drawStrat->draw(pos);
     }
+}
+
+
+sas::Entity::Entity(size_t x, size_t y) noexcept
+{
+    pos.x = x;
+    pos.y = y;
 }
 
 void sas::Entity::setDrawStrategy(std::shared_ptr<DrawStrategy> strat) noexcept

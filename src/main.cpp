@@ -58,7 +58,7 @@ void spawnWeed(sas::Grid &grid, const sas::Matrix<sas::Tile> &board, std::vector
     newPlants.reserve(elems.size());
 
     // static to initialize only once
-    static sas::Weed defaultWeed;
+    static sas::Weed defaultWeed(0, 0, nullptr);
 
     for (const auto &sp : elems)
     {

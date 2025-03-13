@@ -68,34 +68,24 @@ std::unique_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, size_t x, size_t 
 
     switch (type)
     {
-    case PlantType::FLOWER:    
-        plant = std::make_unique<sas::Flower>();
+    case PlantType::FLOWER:
+        plant = std::make_unique<sas::Flower>(x, y, strat);
         break;
     case PlantType::WEED:
-        plant = std::make_unique<sas::Weed>();
+        plant = std::make_unique<sas::Weed>(x, y, strat);
         break;
     case PlantType::TREE:
-        plant = std::make_unique<sas::Tree>();
+        plant = std::make_unique<sas::Tree>(x, y, strat);
         break;
     default:
-        plant = std::make_unique<sas::Flower>();
-        std::cerr << "Unimplemented! Returning a flower instead!\n";
-        break;
+        std::cerr << "Unimplemented PlantType! Returning nullptr.\n";
+        return nullptr;
     }
 
-    if(strat)
-    {
-        plant->setDrawStrategy(std::move(strat));
-    }
-    else
-    {
-        plant->setDrawStrategy(std::make_unique<PlaceholderDrawStrategy>());
-    }
-    plant->pos = {x, y};
     addToGrid(grid, plant.get());
-
     return plant;
 }
+
 
 std::unique_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::PlantType type, std::shared_ptr<DrawStrategy> strat) noexcept
 {
@@ -112,7 +102,7 @@ std::unique_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, size_t x, si
         env = std::make_unique<sas::Water>();
         break;
     default:
-        std::cerr << "Unimplemented! Returning a flower instead!\n";
+        std::cerr << "Unimplemented! Returning nothing instead!\n";
         break;
     }
 
@@ -126,7 +116,7 @@ std::unique_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, size_t x, si
     }
 
     env->pos = {x, y};
-    sas::addToGrid(grid, env.get());
+    addToGrid(grid, env.get());
 
     return env;
 }

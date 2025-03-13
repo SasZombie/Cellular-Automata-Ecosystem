@@ -18,6 +18,9 @@ namespace sas
         //This is private because we call move in the setter
         std::shared_ptr<DrawStrategy> drawStrat;
     public:   
+
+        Entity() noexcept = default;
+        Entity(size_t x, size_t y) noexcept;
         void setDrawStrategy(std::shared_ptr<DrawStrategy> strat) noexcept;
 
         std::shared_ptr<DrawStrategy> getDrawStartegy() const noexcept;
