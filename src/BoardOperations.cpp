@@ -173,9 +173,16 @@ void sas::killPlants(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &
         // O(1) removal
         if (plants[i]->willWither())
         {
+            //Remember this could return nullptr
+            auto closestWater = findNearestEntity<sas::Water>(grid, plants[i]->pos.x, plants[i]->pos.y, plants[i]->rangeWater);
+            if(closestWater)
+            {
+                closestWater->capacity = closestWater->capacity + plants[i]->waterConsumption;
+            }
             sas::removeFromGrid(grid, plants.at(i).get());
             std::swap(plants[i], plants.back());
             plants.pop_back();
+
         }
         else
         {

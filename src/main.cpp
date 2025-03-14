@@ -54,7 +54,7 @@ int main()
     sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
 
     plants.push_back(sas::plantFactory(grid, 100, 100, sas::PlantType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
-    plants.push_back(sas::plantFactory(grid, 150, 150, sas::PlantType::TREE, std::make_unique<sas::TreeDrawStrategy>()));
+    // plants.push_back(sas::plantFactory(grid, 150, 150, sas::PlantType::TREE, std::make_unique<sas::TreeDrawStrategy>()));
 
     // sas::SetUpBoard(board);
     sas::SetUpBoardPerlin(board);
@@ -93,7 +93,7 @@ int main()
         if (IsKeyPressed(KEY_SPACE))
         {
             sas::multiply(grid, plants);
-            sas::spawnWeed(grid, board, plants);
+            // sas::spawnWeed(grid, board, plants);
 
             std::for_each(plants.begin(), plants.end(), [](std::unique_ptr<sas::Plant> &plt)
                           { plt->daysAlive++; });
