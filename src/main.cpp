@@ -134,6 +134,7 @@ void killPlants(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &plant
 {
     for (size_t i = 0; i < plants.size();)
     {
+        //O(1) removal
         if (plants[i]->willWither())
         {
             sas::removeFromGrid(grid, plants.at(i).get()); 

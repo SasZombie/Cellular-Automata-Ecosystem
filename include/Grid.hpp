@@ -23,7 +23,7 @@ namespace sas
     // std::vector<sas::Entity *> findNearbyEntities(const Grid& grid, size_t x, size_t y);
 
     template <typename T, typename Func = auto (*)(const T &)->bool>
-    std::vector<T *> findNearbyEntities(const Grid &grid, size_t x, size_t y, size_t range, Func &&func = [](const T &)
+    std::vector<T *> findNearbyEntities(const Grid &grid, size_t x, size_t y, size_t range,  Func &&func = [](const T &)
                                                                                             { return true; })
     {
         int startingPointX = x - range;
