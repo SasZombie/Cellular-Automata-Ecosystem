@@ -22,8 +22,22 @@ namespace sas
     void removeFromGrid(Grid &grid, Entity *entity);
     // std::vector<sas::Entity *> findNearbyEntities(const Grid& grid, size_t x, size_t y);
 
+
+    //Storing the vectors in a Cashé, so we dont realocate each time 
+    template <typename T>
+    std::vector<T *> &getThreadLocalVector(size_t expectedSize = 32)
+    {
+        thread_local std::vector<T *> cache;
+        cache.clear();
+        if (cache.capacity() < expectedSize)
+        {
+            cache.reserve(expectedSize); // Avoid reallocations
+        }
+        return cache;
+    }
+
     template <typename T, typename Func = auto (*)(const T &)->bool>
-    std::vector<T *> findNearbyEntities(const Grid &grid, size_t x, size_t y, size_t range,  Func &&func = [](const T &)
+    std::vector<T *> findNearbyEntities(const Grid &grid, size_t x, size_t y, size_t range, Func &&func = [](const T &)
                                                                                             { return true; })
     {
         int startingPointX = x - range;
@@ -31,16 +45,13 @@ namespace sas
         int stopPointX = x + range;
         int stopPointY = y + range;
 
-        std::vector<T *> results;
-        results.reserve(16); // We need to come up with soemthing
-        //We should find the average and use that number
-        //So far this will suffice ^_^
+        auto& results = getThreadLocalVector<T>();
 
         for (int dx = startingPointX; dx <= stopPointX; ++dx)
         {
             for (int dy = startingPointY; dy <= stopPointY; ++dy)
             {
-                
+
                 auto it = grid.find({dx, dy});
                 if (it != grid.end())
                 {
@@ -69,7 +80,7 @@ namespace sas
         int stopPointX = x + range;
         int stopPointY = y + range;
 
-        std::vector<sas::Entity *> results;
+        auto& results = getThreadLocalVector<Entity>();
 
         for (int dx = startingPointX; dx <= stopPointX; ++dx)
         {
@@ -91,9 +102,9 @@ namespace sas
         return results;
     }
 
-    //Returns nullptr if not found
+    // Returns nullptr if not found
     template <typename T, typename Func = auto (*)(const T &)->bool>
-    T* findNearestEntity(const Grid &grid, size_t x, size_t y, size_t range, Func &&func = [](const T &)
+    T *findNearestEntity(const Grid &grid, size_t x, size_t y, size_t range, Func &&func = [](const T &)
                                                                              { return true; })
     {
         int startingPointX = x - range;
@@ -124,7 +135,7 @@ namespace sas
         return nullptr;
     }
 
-    //Returns nullptr if not found
+    // Returns nullptr if not found
     template <typename Func = auto (*)(const sas::Entity &)->bool>
     sas::Entity *findNearestEntity(const Grid &grid, size_t x, size_t y, size_t range, Func &&func)
     {

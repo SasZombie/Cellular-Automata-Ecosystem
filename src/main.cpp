@@ -4,6 +4,7 @@
 #include <deque>
 #include <iostream>
 #include <print>
+#include <chrono>
 #include "../include/Matrix.hpp"
 #include "../include/Tile.hpp"
 #include "../include/Grid.hpp"
@@ -65,7 +66,12 @@ void spawnWeed(sas::Grid &grid, const sas::Matrix<sas::Tile> &board, std::vector
     {
         bool canPlant = true;
 
+        auto start = std::chrono::high_resolution_clock::now();
+
         const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, defaultWeed.size);
+        auto end = std::chrono::high_resolution_clock::now();
+
+        std::print("Executed time: {} secconds\n", (end-start).count());
 
         for (const auto &neighbour : neighbours)
         {
