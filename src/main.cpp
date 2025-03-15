@@ -58,7 +58,9 @@ int main()
 
     // sas::SetUpBoard(board);
     sas::SetUpBoardPerlin(board);
-    sas::SetUpWater(enviroment, grid);
+    // sas::SetUpWater(enviroment, grid);
+    sas::SetUpWaterNoise(enviroment, grid, seed);
+
 
     Camera2D camera;
     camera.target = {0.f, 0.f};

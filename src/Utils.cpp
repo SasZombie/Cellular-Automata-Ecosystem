@@ -92,7 +92,7 @@ std::unique_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, const std::pair<s
     return plantFactory(grid, n_pos.first, n_pos.second, type, std::move(strat));
 }
 
-std::unique_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, size_t x, size_t y, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat) noexcept
+std::unique_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, const Position& n_pos, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat) noexcept
 {
     std::unique_ptr<sas::Enviroment> env;
 
@@ -115,17 +115,12 @@ std::unique_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, size_t x, si
         env->setDrawStrategy(std::make_unique<PlaceholderDrawStrategy>());
     }
 
-    env->pos = {x, y};
+    env->pos = n_pos;
     addToGrid(grid, env.get());
 
     return env;
 }
 
-
-std::unique_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat) noexcept
-{
-    return enviromentFactory(grid, n_pos.first, n_pos.second, type, std::move(strat));
-}
 
 std::vector<std::pair<size_t, size_t>> sas::chooseWeedCoords(const sas::Matrix<sas::Tile>& board)
 {

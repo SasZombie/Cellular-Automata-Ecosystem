@@ -54,7 +54,7 @@ void sas::SetUpBoardPerlin(Matrix<Tile> &board)
             float noiseValue = noise.GetNoise((float)i * scale, (float)j * scale);
             noiseValue = (noiseValue + 1) / 2.f;
 
-            std::print("Noise value for ({}, {}) is: {}\n", i,  j, noiseValue);
+            std::print("Noise value for ({}, {}) is: {}\n", i, j, noiseValue);
 
             if (noiseValue < 0.3f)
             {
@@ -83,6 +83,39 @@ void sas::SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas:
     {
         const auto [x, y] = sas::generateNextPos();
         waters.push_back(sas::enviromentFactory(grid, {x, y}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
+    }
+}
+
+void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::Grid &grid, size_t seed) noexcept
+{
+    FastNoiseLite perlin;
+    perlin.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    perlin.SetSeed(seed);
+
+    FastNoiseLite worley;
+    worley.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
+    worley.SetSeed(seed);
+
+    constexpr float scaleElevation = 8; // Controls biome size (lower = bigger biomes)
+    constexpr float scaleLakes = 8; // Controls biome size (lower = bigger biomes)
+    constexpr float scaleVally = 10; // Controls biome size (lower = bigger biomes)
+
+    for(size_t i = 0; i < WidthCells; ++i)
+    {
+        for(size_t j = 0; j < HeightCells; ++j)
+        {
+            float elevation = (perlin.GetNoise(i * scaleElevation, j * scaleElevation) + 1.f) * 0.5;
+            float lakes = (worley.GetNoise(i * scaleLakes, j * scaleLakes) + 1.0f) * 0.5f;
+            float valleys = 1.0f - abs(perlin.GetNoise(i  * scaleVally, j * scaleVally) + 1.f) * 0.5f;
+
+
+            std::print("Elevation = {}, lake = {}, vally = {}\n", elevation, lakes, valleys);
+
+            if (elevation < 0.3f || lakes < 0.25f /* || valleys > 0.6f */ )
+            {
+                waters.push_back(sas::enviromentFactory(grid, {i * cellSize, j * cellSize, cellSize, cellSize}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
+            }
+        }
     }
 }
 
@@ -173,16 +206,15 @@ void sas::killPlants(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &
         // O(1) removal
         if (plants[i]->willWither())
         {
-            //Remember this could return nullptr
+            // Remember this could return nullptr
             auto closestWater = findNearestEntity<sas::Water>(grid, plants[i]->pos.x, plants[i]->pos.y, plants[i]->rangeWater);
-            if(closestWater)
+            if (closestWater)
             {
                 closestWater->capacity = closestWater->capacity + plants[i]->waterConsumption;
             }
             sas::removeFromGrid(grid, plants.at(i).get());
             std::swap(plants[i], plants.back());
             plants.pop_back();
-
         }
         else
         {

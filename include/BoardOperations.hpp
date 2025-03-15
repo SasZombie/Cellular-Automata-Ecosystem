@@ -14,6 +14,7 @@ namespace sas
     void multiply(Grid &grid, std::vector<std::unique_ptr<Plant>> &plants) noexcept;
     void spawnWeed(Grid &grid, const Matrix<Tile> &board, std::vector<std::unique_ptr<Plant>> &plants) noexcept;
     void SetUpWater(std::vector<std::unique_ptr<Enviroment>> &waters, Grid &grid) noexcept;
+    void SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::Grid &grid, size_t seed) noexcept;
 
 
 }
