@@ -166,10 +166,10 @@ void sas::multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &pl
         {
             bool canPlant = true;
 
-            auto waterSource = sas::findNearestEntity<sas::Water>(grid, sp.first, sp.second, plt->rangeWater,
-                                                                  [&](sas::Water &wat)
+            auto waterSource = findNearestEntity<Water>(grid, sp.first, sp.second, plt->rangeWater,
+                                                                  [&](Water &wat)
                                                                   {
-                                                                      return (wat.capacity >= plt->getWaterConsumption());
+                                                                    return (wat.capacity >= plt->getWaterConsumption());
                                                                   });
 
             if (waterSource == nullptr)
@@ -177,7 +177,7 @@ void sas::multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &pl
                 continue;
             }
 
-            const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, plt->size);
+            const auto &neighbours = findNearbyEntities<Plant>(grid, sp.first, sp.second, plt->size);
 
             for (const auto &neighbour : neighbours)
             {
