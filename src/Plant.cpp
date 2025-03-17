@@ -24,7 +24,7 @@ static constexpr std::size_t TreeSize = 50;
 static constexpr std::size_t TreeNumberOfSeeds = 1;
 static constexpr std::size_t TreeWaterConsumption = 25;
 
-static constexpr std::size_t WeedRangeSeeds = 20;
+static constexpr std::size_t WeedRangeSeeds = 60;
 static constexpr std::size_t WeedWaterRange = 15;
 static constexpr std::size_t WeedSize = 5;
 static constexpr std::size_t WeedNumberOfSeeds = 15;
@@ -41,14 +41,15 @@ sas::Plant::Plant(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat, size_
     this->setDrawStrategy(strat ? strat : std::make_shared<PlaceholderDrawStrategy>());
 }
 
-std::vector<std::pair<size_t, size_t>> sas::Plant::reproduce() const noexcept
+std::vector<sas::Position> sas::Plant::reproduce() const noexcept
 {
 
-    std::vector<std::pair<size_t, size_t>> vecs;
+    std::vector<Position> vecs;
 
     for (size_t i = 0; i < this->nrOfSeeds; ++i)
     {
-        vecs.push_back(generateNextPos(pos.x, pos.y, this->rangeSpreadingSeeds));
+        const auto [x, y] = generateNextPos(pos.x, pos.y, this->rangeSpreadingSeeds);
+        vecs.push_back({x, y, this->pos.width, this->pos.height});
     }
 
     return vecs;
@@ -64,6 +65,11 @@ sas::PlantType sas::Tree::getPlantType() const noexcept
     return PlantType::TREE;
 }
 
+sas::PlantType sas::Weed::getPlantType() const noexcept
+{
+    return PlantType::WEED;
+}
+
 sas::Flower::Flower(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat) noexcept
     : Plant(x, y, strat, FlowerNumberOfSeeds, FlowerRangeSeeds, FlowerWaterRange, FlowerSize, FlowerWaterConsumption)
 {
@@ -77,10 +83,6 @@ sas::Tree::Tree(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat) noexcep
 sas::Weed::Weed(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat) noexcept
     : Plant(x, y, strat, WeedNumberOfSeeds, WeedRangeSeeds, WeedWaterRange, WeedSize, WeedWaterConsumption)
 {
-}
-sas::PlantType sas::Weed::getPlantType() const noexcept
-{
-    return PlantType::WEED;
 }
 
 size_t sas::Flower::range() const noexcept

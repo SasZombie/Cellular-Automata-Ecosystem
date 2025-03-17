@@ -8,7 +8,7 @@ namespace sas
 {
 
     void SetUpBoard(Matrix<Tile> &board);
-    void SetUpBoardPerlin(Matrix<Tile> &board);
+    void SetUpBoardPerlin(Matrix<Tile> &board, size_t seed);
 
     void killPlants(Grid &grid, std::vector<std::unique_ptr<Plant>> &plants) noexcept;
     void multiply(Grid &grid, std::vector<std::unique_ptr<Plant>> &plants) noexcept;

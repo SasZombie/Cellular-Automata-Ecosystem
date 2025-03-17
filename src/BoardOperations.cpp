@@ -4,7 +4,9 @@
 #include "Utils.hpp"
 #include <deque>
 #include <random>
+#include <iostream>
 #include "BoardOperations.hpp"
+#include <raylib.h>
 #include "Utils.hpp"
 
 #include "../Extern/FastNoiseLite.h"
@@ -39,11 +41,11 @@ void sas::SetUpBoard(sas::Matrix<sas::Tile> &board)
     }
 }
 
-void sas::SetUpBoardPerlin(Matrix<Tile> &board)
+void sas::SetUpBoardPerlin(Matrix<Tile> &board, size_t seed)
 {
     FastNoiseLite noise;
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    noise.SetSeed(std::random_device{}());
+    noise.SetSeed(seed);
 
     constexpr float scale = 10; // Controls biome size (lower = bigger biomes)
 
@@ -54,7 +56,7 @@ void sas::SetUpBoardPerlin(Matrix<Tile> &board)
             float noiseValue = noise.GetNoise((float)i * scale, (float)j * scale);
             noiseValue = (noiseValue + 1) / 2.f;
 
-            std::print("Noise value for ({}, {}) is: {}\n", i, j, noiseValue);
+            // std::print("Noise value for ({}, {}) is: {}\n", i, j, noiseValue);
 
             if (noiseValue < 0.3f)
             {
@@ -97,23 +99,22 @@ void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters,
     worley.SetSeed(seed);
 
     constexpr float scaleElevation = 8; // Controls biome size (lower = bigger biomes)
-    constexpr float scaleLakes = 8; // Controls biome size (lower = bigger biomes)
-    constexpr float scaleVally = 10; // Controls biome size (lower = bigger biomes)
+    constexpr float scaleLakes = 8;     // Controls biome size (lower = bigger biomes)
+    constexpr float scaleVally = 10;    // Controls biome size (lower = bigger biomes)
 
-    for(size_t i = 0; i < WidthCells; ++i)
+    for (size_t i = 0; i < WidthCells; ++i)
     {
-        for(size_t j = 0; j < HeightCells; ++j)
+        for (size_t j = 0; j < HeightCells; ++j)
         {
             float elevation = (perlin.GetNoise(i * scaleElevation, j * scaleElevation) + 1.f) * 0.5;
             float lakes = (worley.GetNoise(i * scaleLakes, j * scaleLakes) + 1.0f) * 0.5f;
-            float valleys = 1.0f - abs(perlin.GetNoise(i  * scaleVally, j * scaleVally) + 1.f) * 0.5f;
+            float valleys = 1.0f - abs(perlin.GetNoise(i * scaleVally, j * scaleVally) + 1.f) * 0.5f;
 
+            // std::print("Elevation = {}, lake = {}, vally = {}\n", elevation, lakes, valleys);
 
-            std::print("Elevation = {}, lake = {}, vally = {}\n", elevation, lakes, valleys);
-
-            if (elevation < 0.3f || lakes < 0.25f /* || valleys > 0.6f */ )
+            if (elevation < 0.3f || lakes < 0.25f /* || valleys > 0.6f */)
             {
-                waters.push_back(sas::enviromentFactory(grid, {i * cellSize, j * cellSize, cellSize, cellSize}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
+                waters.push_back(enviromentFactory(grid, {i * cellSize, j * cellSize, cellSize, cellSize}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
             }
         }
     }
@@ -123,9 +124,8 @@ void sas::spawnWeed(sas::Grid &grid, const sas::Matrix<sas::Tile> &board, std::v
 {
     const auto &elems = sas::chooseWeedCoords(board);
 
-    std::vector<std::unique_ptr<sas::Plant>> newPlants;
-    // Assume all elements have place
-    newPlants.reserve(elems.size());
+    static std::deque<std::unique_ptr<sas::Plant>> newPlants;
+    newPlants.clear();
 
     // static to initialize only once
     static sas::Weed defaultWeed(0, 0, nullptr);
@@ -134,7 +134,7 @@ void sas::spawnWeed(sas::Grid &grid, const sas::Matrix<sas::Tile> &board, std::v
     {
         bool canPlant = true;
 
-        const auto &neighbours = sas::findNearbyEntities<sas::Plant>(grid, sp.first, sp.second, defaultWeed.size);
+        const auto &neighbours = sas::findNearbyEntities<sas::Entity>(grid, sp.first, sp.second, cellSize - defaultWeed.size);
 
         for (const auto &neighbour : neighbours)
         {
@@ -164,25 +164,32 @@ void sas::multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &pl
         const auto &spawnPoints = plt->reproduce();
         for (const auto &sp : spawnPoints)
         {
+            // std::print("Spawnpoint chose at: {}, {}\n", sp.x, sp.y);
+
             bool canPlant = true;
 
-            auto waterSource = findNearestEntity<Water>(grid, sp.first, sp.second, plt->rangeWater,
-                                                                  [&](Water &wat)
-                                                                  {
-                                                                    return (wat.capacity >= plt->getWaterConsumption());
-                                                                  });
+            auto waterSource = findNearestEntity<Water>(grid, sp.x, sp.y, plt->rangeWater,
+                                                        [&](Water &wat)
+                                                        {
+                                                            return (wat.capacity >= plt->getWaterConsumption());
+                                                        });
 
             if (waterSource == nullptr)
             {
                 continue;
             }
 
-            const auto &neighbours = findNearbyEntities<Plant>(grid, sp.first, sp.second, plt->size);
+            //This is broken
+            //Size is too small to find it as neighbour
+            //Cell Size is too big
+            const auto &neighbours = findNearbyEntities<Water>(grid, sp.x, sp.y, cellSize);
 
             for (const auto &neighbour : neighbours)
             {
-                if (!sas::checkBoundaries(sp, 17, neighbour->getPosition(), 17)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
-                {                                                                // not proud of this one tbh
+                // std::print("Found water at: {}, {}\n", neighbour->pos.x, neighbour->pos.y);
+                // std::cout << "Found water at: " << neighbour->pos.x << ' ' << neighbour->pos.y << std::endl;
+                if (!sas::checkBoundaries(sp, neighbour->pos)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
+                {                                              // not proud of this one tbh
                     canPlant = false;
                     break;
                 }
@@ -190,8 +197,9 @@ void sas::multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &pl
 
             if (canPlant)
             {
-                newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, plt->getPlantType(), plt->getDrawStartegy()));
+                newPlants.push_back(sas::plantFactory(grid, sp.x, sp.y, plt->getPlantType(), plt->getDrawStartegy()));
                 waterSource->capacity = waterSource->capacity - plt->getWaterConsumption();
+                std::print("Planted at {}, {}\n", sp.x, sp.y);
             }
         }
     }

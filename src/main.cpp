@@ -55,10 +55,10 @@ int main()
     sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
 
     plants.push_back(sas::plantFactory(grid, 100, 100, sas::PlantType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
-    plants.push_back(sas::plantFactory(grid, 150, 150, sas::PlantType::TREE, std::make_unique<sas::TreeDrawStrategy>()));
+    // plants.push_back(sas::plantFactory(grid, 150, 150, sas::PlantType::TREE, std::make_unique<sas::TreeDrawStrategy>()));
 
     // sas::SetUpBoard(board);
-    sas::SetUpBoardPerlin(board);
+    sas::SetUpBoardPerlin(board, seed);
     // sas::SetUpWater(enviroment, grid);
     sas::SetUpWaterNoise(enviroment, grid, seed);
 
@@ -96,17 +96,17 @@ int main()
         if (IsKeyPressed(KEY_SPACE))
         {
             sas::multiply(grid, plants);
-            sas::spawnWeed(grid, board, plants);
+            // sas::spawnWeed(grid, board, plants);
 
-            std::for_each(plants.begin(), plants.end(), [](std::unique_ptr<sas::Plant> &plt)
-                          { plt->daysAlive++; });
+            // std::for_each(plants.begin(), plants.end(), [](std::unique_ptr<sas::Plant> &plt)
+            //               { plt->daysAlive++; });
 
-            sas::killPlants(grid, plants);
+            // sas::killPlants(grid, plants);
         }
 
         if(IsKeyPressed(KEY_R))
         {
-            sas::SetUpBoardPerlin(board);
+            sas::SetUpBoardPerlin(board, seed);
         }
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
@@ -117,14 +117,15 @@ int main()
 
             // TODO: Make zoom work...
             const float cz = camera.zoom;
-            const auto &elems = sas::findNearbyEntities<sas::Water>(grid, static_cast<size_t>(x), static_cast<size_t>(y), 50);
+            const auto &elems = sas::findNearbyEntities<sas::Water>(grid, static_cast<size_t>(x), static_cast<size_t>(y), cellSize);
 
             for (const auto &elem : elems)
             {
-                std::print("Found element at pos {{{}, {}}}\n", elem->pos.x, elem->pos.y);
+                std::print("Found element at pos {{{}, {}}}, mouse is at coords({}, {})\n", elem->pos.x, elem->pos.y, x, y);
             }
         }
 
+  
         BeginDrawing();
 
         ClearBackground(Color{18, 18, 18, 255});
@@ -136,11 +137,16 @@ int main()
         for (const auto &tile : board)
         {
             tile.draw();
+            // const auto [x, y, w, h] = tile.pos;
+            // DrawText((std::to_string(x) + ' ' + std::to_string(y)).c_str(), x, y, 10, RAYWHITE);
         }
 
         for (const auto &env : enviroment)
         {
             env->draw();
+            // const auto [x, y, w, h] = env->pos;
+            
+            // DrawText((std::to_string(x) + ' ' + std::to_string(y)).c_str(), x, y, 10, RAYWHITE);
         }
 
         for (const auto &plt : plants)

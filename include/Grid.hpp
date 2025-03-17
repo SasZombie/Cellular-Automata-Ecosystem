@@ -31,11 +31,12 @@ namespace sas
         cache.clear();
         if (cache.capacity() < expectedSize)
         {
-            cache.reserve(expectedSize); // Avoid reallocations
+            cache.reserve(expectedSize);
         }
         return cache;
     }
 
+    //MUST MAKE A WAY TO ADD WIDTH OR HEIGHT TO THIS
     template <typename T, typename Func = auto (*)(const T &)->bool>
     std::vector<T *> findNearbyEntities(const Grid &grid, size_t x, size_t y, size_t range, Func &&func = [](const T &)
                                                                                             { return true; })

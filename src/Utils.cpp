@@ -2,6 +2,7 @@
 #include "../include/Common.hpp"
 #include <print>
 #include <iostream>
+#include <raylib.h>
 
 static std::random_device rd;
 static std::mt19937 genForSeed(rd());
@@ -44,6 +45,18 @@ bool sas::areAlmostEqual(float a, float b, float epsilon) noexcept
 bool sas::checkBoundaries(const std::pair<size_t, size_t>& p1, size_t p1Size, const std::pair<size_t, size_t>& p2, size_t p2Size) noexcept
 {
     return euclidianDistance2D(p1.first, p1.second, p2.first, p2.second) > p1Size + p2Size;
+}
+
+
+//TODO: Maybe cosmin can make this with math such that we dont create 2 rectangles
+bool sas::checkBoundaries(const Position& pos1, const Position& pos2) noexcept
+{
+    Rectangle rec1{static_cast<float>(pos1.x), static_cast<float>(pos1.y), static_cast<float>(pos1.width), static_cast<float>(pos1.height)};
+    Rectangle rec2{static_cast<float>(pos2.x), static_cast<float>(pos2.y), static_cast<float>(pos2.width), static_cast<float>(pos2.height)};
+
+    // std::print("Pos1: x = {} y = {} w = {} h = {}\n", pos1.x, pos1.y, pos1.width, pos1.height);
+    // std::print("Pos2: x = {} y = {} w = {} h = {}\n", pos2.x, pos2.y, pos2.width, pos2.height);
+    return CheckCollisionRecs(rec1, rec2);
 }
 
 float sas::euclidianDistance2D(size_t x1, size_t y1, size_t x2, size_t y2) noexcept
