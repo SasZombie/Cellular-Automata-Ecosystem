@@ -158,5 +158,6 @@ int main()
 
         EndDrawing();
     }
+    
     CloseWindow();
 }
