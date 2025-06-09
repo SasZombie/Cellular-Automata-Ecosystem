@@ -4,8 +4,8 @@
 namespace sas
 {
 
-    //Can now define strategies to Draw ---> No need to change plant just to draw something
-    //We can alos overload to take different parameters
+    // Can now define strategies to Draw ---> No need to change plant just to draw something
+    // We can alos overload to take different parameters
     class DrawStrategy
     {
     public:

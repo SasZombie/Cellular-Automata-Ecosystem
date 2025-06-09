@@ -84,7 +84,7 @@ void sas::SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas:
     for (size_t i = 0; i < 100; ++i)
     {
         const auto [x, y] = sas::generateNextPos();
-        waters.push_back(sas::enviromentFactory(grid, {x, y}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
+        waters.push_back(sas::enviromentFactory(grid, {x, y, 20, 20}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
     }
 }
 

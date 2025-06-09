@@ -12,7 +12,7 @@
 #include "../include/Common.hpp"
 #include "../include/BoardOperations.hpp"
 
-void handleCameraControlls(Camera2D &camera)
+static void handleCameraControlls(Camera2D &camera)
 {
     if (IsKeyDown(KEY_D))
         camera.target.x += 2;
@@ -57,10 +57,14 @@ int main()
     plants.push_back(sas::plantFactory(grid, 100, 100, sas::PlantType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
     // plants.push_back(sas::plantFactory(grid, 150, 150, sas::PlantType::TREE, std::make_unique<sas::TreeDrawStrategy>()));
 
-    // sas::SetUpBoard(board);
-    sas::SetUpBoardPerlin(board, seed);
-    // sas::SetUpWater(enviroment, grid);
-    sas::SetUpWaterNoise(enviroment, grid, seed);
+    //TODO!!
+    //TREBUIE NEAPARAT DISCUTAT CU COSMIN DESPRE CUM FACEM ACCEEST PROIECT
+    //ESTE ESSENTIAL SA VEDEM DACA ARE SENS SA CONTINUAM CU GRIDUL ASTA ASA
+    //SAU PUR SI SIMPLU INGORAM ASTA
+    sas::SetUpBoard(board);
+    // sas::SetUpBoardPerlin(board, seed);
+    sas::SetUpWater(enviroment, grid);
+    // sas::SetUpWaterNoise(enviroment, grid, seed);
 
 
     Camera2D camera;
@@ -83,6 +87,15 @@ int main()
 
     while (!WindowShouldClose())
     {
+
+//On by default
+#ifdef ENABLE_CONFIG_RELOAD
+        if(IsKeyPressed(KEY_L))
+        {
+            reloadConfig();
+        }
+
+#endif
 
         float dt = GetFrameTime();
 

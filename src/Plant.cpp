@@ -14,7 +14,7 @@ static constexpr std::size_t WeedDaysAlive   = 3;
  
 static constexpr std::size_t FlowerRangeSeeds = 50;
 static constexpr std::size_t FlowerWaterRange = 25;
-static constexpr std::size_t FlowerSize = 5;
+static constexpr std::size_t FlowerSize = 20;
 static constexpr std::size_t FlowerNumberOfSeeds = 3;
 static constexpr std::size_t FlowerWaterConsumption = 10;
  
@@ -129,3 +129,4 @@ bool sas::Weed::willWither() const noexcept
 {
     return daysAlive >= WeedDaysAlive;
 }
+

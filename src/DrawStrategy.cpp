@@ -80,19 +80,24 @@ void sas::PlaceholderDrawStrategy::draw(const sas::Position &pos) const noexcept
 void sas::WaterDrawStrategy::draw(const sas::Position &pos) const noexcept
 {
     DrawRectangle(pos.x, pos.y, pos.width, pos.height, BLUE);
+    DrawRectangleLines(pos.x, pos.y, pos.width, pos.height, RED);
 }
 
 void sas::DesertDrawStrategy::draw(const sas::Position &pos) const noexcept
 {
     DrawRectangle(pos.x, pos.y, pos.width, pos.height, {170, 170, 0, 255});
+    DrawRectangleLines(pos.x, pos.y, pos.width, pos.height, RED);
+
 }
 
 void sas::SnowDrawStrategy::draw(const sas::Position &pos) const noexcept
 {
     DrawRectangle(pos.x, pos.y, pos.width, pos.height, {200, 200, 200, 255});
+    DrawRectangleLines(pos.x, pos.y, pos.width, pos.height, RED);
 }
 
 void sas::GrassDrawStrategy::draw(const sas::Position &pos) const noexcept
 {
     DrawRectangle(pos.x, pos.y, pos.width, pos.height, {0, 128, 0, 255});
+    DrawRectangleLines(pos.x, pos.y, pos.width, pos.height, RED);
 }

@@ -1,6 +1,9 @@
 #include "../include/Utils.hpp"
 #include "../include/Common.hpp"
+#include "../Extern/json.hpp"
+
 #include <print>
+#include <fstream>
 #include <iostream>
 #include <raylib.h>
 
@@ -91,7 +94,7 @@ std::unique_ptr<sas::Plant> sas::plantFactory(sas::Grid &grid, size_t x, size_t 
         plant = std::make_unique<sas::Tree>(x, y, strat);
         break;
     default:
-        std::cerr << "Unimplemented PlantType! Returning nullptr.\n";
+        std::cerr << "Warning! Unimplemented PlantType! Returning nullptr.\n";
         return nullptr;
     }
 
@@ -115,7 +118,7 @@ std::unique_ptr<sas::Enviroment> sas::enviromentFactory(Grid &grid, const Positi
         env = std::make_unique<sas::Water>();
         break;
     default:
-        std::cerr << "Unimplemented! Returning nothing instead!\n";
+        std::cerr << "Unimplemented! Returning nullptr instead!\n";
         break;
     }
 
@@ -151,4 +154,59 @@ std::vector<std::pair<size_t, size_t>> sas::chooseWeedCoords(const sas::Matrix<s
     }
     
     return elements;
+}
+
+struct PlantConfig {
+    int DaysAlive;
+    int RangeSeeds;
+    int WaterRange;
+    int Size;
+    int NumberOfSeeds;
+    int WaterConsumption;
+};
+
+struct Config {
+    PlantConfig Flower;
+    PlantConfig Tree;
+    PlantConfig Weed;
+    int ScreenWidth;
+    int ScreenHeight;
+    int CellSize;
+
+    int WidthCells;
+    int HeightCells;
+    int WidthHeightCells;
+
+    void calculateDerived() {
+        WidthCells = ScreenWidth / CellSize;
+        HeightCells = ScreenHeight / CellSize;
+        WidthHeightCells = WidthCells * HeightCells;
+    }
+};
+
+void from_json(const nlohmann::json& j, PlantConfig& p) {
+    j.at("DaysAlive").get_to(p.DaysAlive);
+    j.at("RangeSeeds").get_to(p.RangeSeeds);
+    j.at("WaterRange").get_to(p.WaterRange);
+    j.at("Size").get_to(p.Size);
+    j.at("NumberOfSeeds").get_to(p.NumberOfSeeds);
+    j.at("WaterConsumption").get_to(p.WaterConsumption);
+}
+
+Config loadConfig(const std::string& filename) {
+    using json = nlohmann::json;
+
+    std::ifstream file(filename);
+    json j;
+    file >> j;
+
+    Config config;
+    config.Flower = j["Flower"].get<PlantConfig>();
+    config.Tree = j["Tree"].get<PlantConfig>();
+    config.Weed = j["Weed"].get<PlantConfig>();
+    config.ScreenWidth = j["Screen"]["Width"];
+    config.ScreenHeight = j["Screen"]["Height"];
+    config.CellSize = j["Screen"]["CellSize"];
+    config.calculateDerived();
+    return config;
 }
