@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wformat-nonliteral -Wcast
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
 
-add_executable(main src/main.cpp src/Plant.cpp src/Tile.cpp src/Enviroment.cpp src/Utils.cpp src/Grid.cpp src/Entity.cpp src/DrawStrategy.cpp src/BoardOperations.cpp)
+add_executable(main src/main.cpp src/Plant.cpp src/Tile.cpp src/Enviroment.cpp src/Utils.cpp src/Grid.cpp src/Entity.cpp src/DrawStrategy.cpp src/BoardOperations.cpp src/ConfigManager.cpp)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)

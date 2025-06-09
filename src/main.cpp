@@ -11,6 +11,7 @@
 #include "../include/Utils.hpp"
 #include "../include/Common.hpp"
 #include "../include/BoardOperations.hpp"
+#include "../include/ConfigManager.hpp"
 
 static void handleCameraControlls(Camera2D &camera)
 {
@@ -50,10 +51,12 @@ int main()
     sas::Grid grid;
     std::vector<std::unique_ptr<sas::Plant>> plants;
     std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
+    
     // This uses std::vector underneath but when talking about tiles
     // It is easier to think about them based on a matrix
     sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
 
+    sas::ConfigManager::load("config.json");
     plants.push_back(sas::plantFactory(grid, 100, 100, sas::PlantType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
     // plants.push_back(sas::plantFactory(grid, 150, 150, sas::PlantType::TREE, std::make_unique<sas::TreeDrawStrategy>()));
 
@@ -92,7 +95,7 @@ int main()
 #ifdef ENABLE_CONFIG_RELOAD
         if(IsKeyPressed(KEY_L))
         {
-            reloadConfig();
+            // reloadConfig();
         }
 
 #endif
