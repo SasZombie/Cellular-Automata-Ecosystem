@@ -12,7 +12,7 @@ void sas::FlowerDrawStrategy::draw(const sas::Position &pos) const noexcept
 {
     const size_t x = pos.x, y = pos.y;
 
-    size_t plantSize = 3;
+    size_t plantSize = pos.height;
     float fx = static_cast<float>(x), fy = static_cast<float>(y);
 
 
@@ -70,10 +70,9 @@ void sas::PlaceholderDrawStrategy::draw(const sas::Position &pos) const noexcept
 {
     size_t x = pos.x, y = pos.y;
 
-    size_t plantSize = 5; // Impartire la 2
     float fx = static_cast<float>(x), fy = static_cast<float>(y);
 
-    DrawCircle(x, y, plantSize, RED);
+    DrawRectangle(x, y, pos.width, pos.height, RED);
 
 }
 

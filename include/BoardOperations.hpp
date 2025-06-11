@@ -10,11 +10,14 @@ namespace sas
     void SetUpBoard(Matrix<Tile> &board);
     void SetUpBoardPerlin(Matrix<Tile> &board, size_t seed);
 
-    void killPlants(Grid &grid, std::vector<std::unique_ptr<Plant>> &plants) noexcept;
-    void multiply(Grid &grid, std::vector<std::unique_ptr<Plant>> &plants) noexcept;
-    void spawnWeed(Grid &grid, const Matrix<Tile> &board, std::vector<std::unique_ptr<Plant>> &plants) noexcept;
-    void SetUpWater(std::vector<std::unique_ptr<Enviroment>> &waters, Grid &grid) noexcept;
-    void SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::Grid &grid, size_t seed) noexcept;
+    void killPlants(StaticGrid &grid, std::vector<std::unique_ptr<Plant>> &plants) noexcept;
+    void multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept;
+    void spawnWeed(StaticGrid &grid, const Matrix<Tile> &board, std::vector<std::unique_ptr<Plant>> &plants) noexcept;
+    void SetUpWater(std::vector<std::unique_ptr<Enviroment>> &waters, StaticGrid &grid) noexcept;
+    void SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::StaticGrid &grid, size_t seed) noexcept;
+    bool hasSpaceAgainstPlants(const Position &p, const std::vector<std::unique_ptr<Plant>> &plants, const DynamicGrid& plantGrid, const StaticGrid& envGrid) noexcept;
+
+    void AddPlant(std::unique_ptr<sas::Plant> plant, sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sas::Plant>>& plants, int spatialCellSize = 50);
 
 
 }

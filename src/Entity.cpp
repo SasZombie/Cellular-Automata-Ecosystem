@@ -15,10 +15,9 @@ void sas::Entity::draw() const noexcept
 }
 
 
-sas::Entity::Entity(size_t x, size_t y) noexcept
+sas::Entity::Entity(const Position& p) noexcept
 {
-    pos.x = x;
-    pos.y = y;
+    this->pos = p;
 }
 
 void sas::Entity::setDrawStrategy(std::shared_ptr<DrawStrategy> strat) noexcept

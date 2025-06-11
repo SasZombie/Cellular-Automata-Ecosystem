@@ -10,8 +10,8 @@
 #include "Plant.hpp"
 
 
-sas::Plant::Plant(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat, size_t n_nrOfSeeds, size_t n_rangeSpreadingSeeds, size_t n_rangeWater, size_t n_size, size_t n_waterConsumption) noexcept
-    : Entity(x, y),
+sas::Plant::Plant(const Position &p, std::shared_ptr<DrawStrategy> strat, size_t n_nrOfSeeds, size_t n_rangeSpreadingSeeds, size_t n_rangeWater, size_t n_size, size_t n_waterConsumption) noexcept
+    : Entity(p),
       nrOfSeeds(n_nrOfSeeds),
       rangeSpreadingSeeds(n_rangeSpreadingSeeds),
       rangeWater(n_rangeWater),
@@ -25,6 +25,8 @@ std::vector<sas::Position> sas::Plant::reproduce() const noexcept
 {
 
     std::vector<Position> vecs;
+
+    std::cout << this->pos.width << '\n';
 
     for (size_t i = 0; i < this->nrOfSeeds; ++i)
     {
@@ -50,20 +52,20 @@ sas::PlantType sas::Weed::getPlantType() const noexcept
     return PlantType::WEED;
 }
 
-sas::Flower::Flower(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat) noexcept
-    : Plant(x, y, strat, ConfigManager::get().Flower.DaysAlive, ConfigManager::get().Flower.RangeSeeds, ConfigManager::get().Flower.WaterRange,
+sas::Flower::Flower(const Position& p, std::shared_ptr<DrawStrategy> strat) noexcept
+    : Plant(p, strat, ConfigManager::get().Flower.DaysAlive, ConfigManager::get().Flower.RangeSeeds, ConfigManager::get().Flower.WaterRange,
             ConfigManager::get().Flower.Size, ConfigManager::get().Flower.WaterConsumption)
 {
 }
 
-sas::Tree::Tree(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat) noexcept
-    : Plant(x, y, strat, ConfigManager::get().Tree.DaysAlive, ConfigManager::get().Tree.RangeSeeds, ConfigManager::get().Tree.WaterRange,
+sas::Tree::Tree(const Position& p, std::shared_ptr<DrawStrategy> strat) noexcept
+    : Plant(p, strat, ConfigManager::get().Tree.DaysAlive, ConfigManager::get().Tree.RangeSeeds, ConfigManager::get().Tree.WaterRange,
             ConfigManager::get().Tree.Size, ConfigManager::get().Tree.WaterConsumption)
 {
 }
 
-sas::Weed::Weed(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat) noexcept
-    : Plant(x, y, strat, ConfigManager::get().Weed.DaysAlive, ConfigManager::get().Weed.RangeSeeds, ConfigManager::get().Weed.WaterRange,
+sas::Weed::Weed(const Position& p, std::shared_ptr<DrawStrategy> strat) noexcept
+    : Plant(p, strat, ConfigManager::get().Weed.DaysAlive, ConfigManager::get().Weed.RangeSeeds, ConfigManager::get().Weed.WaterRange,
             ConfigManager::get().Weed.Size, ConfigManager::get().Weed.WaterConsumption)
 {
 }

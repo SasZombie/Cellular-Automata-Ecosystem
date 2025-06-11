@@ -25,10 +25,10 @@ namespace sas
     //If we add another parameter to the facory, I am chaning it
     //Enviroment
     // std::unique_ptr<sas::Enviroment> enviromentFactory(Grid &grid, size_t x, size_t y, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
-    std::unique_ptr<sas::Enviroment> enviromentFactory(Grid &grid, const Position& n_pos, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
+    std::unique_ptr<sas::Enviroment> enviromentFactory(StaticGrid &grid, const Position& n_pos, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
 
     //Plant
-    std::unique_ptr<sas::Plant> plantFactory(Grid &grid, const std::pair<size_t, size_t>& n_pos, sas::PlantType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;  
-    std::unique_ptr<sas::Plant> plantFactory(Grid &grid, size_t x, size_t y, sas::PlantType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
+    std::unique_ptr<sas::Plant> plantFactory(StaticGrid &grid, const std::pair<size_t, size_t>& n_pos, sas::PlantType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;  
+    std::unique_ptr<sas::Plant> plantFactory(StaticGrid &grid, size_t x, size_t y, sas::PlantType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
 
 } // namespace sas

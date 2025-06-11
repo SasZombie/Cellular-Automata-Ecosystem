@@ -8,6 +8,7 @@
 #include "BoardOperations.hpp"
 #include <raylib.h>
 #include "Utils.hpp"
+#include <assert.h>
 
 #include "../Extern/FastNoiseLite.h"
 
@@ -78,12 +79,10 @@ void sas::SetUpBoardPerlin(Matrix<Tile> &board, size_t seed)
         }
     }
 }
-void sas::SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::Grid &grid) noexcept
+void sas::SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::StaticGrid &grid) noexcept
 {
     // Random ahh value for wata
     waters.push_back(sas::enviromentFactory(grid, {40, 40, 20, 20}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
-
-    
 
     // for (size_t i = 0; i < 100; ++i)
     // {
@@ -92,7 +91,7 @@ void sas::SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas:
     // }
 }
 
-void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::Grid &grid, size_t seed) noexcept
+void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::StaticGrid &grid, size_t seed) noexcept
 {
     FastNoiseLite perlin;
     perlin.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
@@ -124,87 +123,97 @@ void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters,
     }
 }
 
-void sas::spawnWeed(sas::Grid &grid, const sas::Matrix<sas::Tile> &board, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
+void sas::spawnWeed(sas::StaticGrid &grid, const sas::Matrix<sas::Tile> &board, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
 {
-    const auto &elems = sas::chooseWeedCoords(board);
+    assert(false && "TODO: Spawn Weeds");
+    // const auto &elems = sas::chooseWeedCoords(board);
 
-    static std::deque<std::unique_ptr<sas::Plant>> newPlants;
-    newPlants.clear();
+    // static std::deque<std::unique_ptr<sas::Plant>> newPlants;
+    // newPlants.clear();
 
-    // static to initialize only once
-    static sas::Weed defaultWeed(0, 0, nullptr);
+    // // static to initialize only once
+    // static sas::Weed defaultWeed(0, 0, nullptr);
 
-    for (const auto &sp : elems)
-    {
-        bool canPlant = true;
+    // for (const auto &sp : elems)
+    // {
+    //     bool canPlant = true;
 
-        const auto &neighbours = sas::findNearbyEntities<sas::Entity>(grid, sp.first, sp.second, cellSize - defaultWeed.size);
+    //     const auto &neighbours = sas::findNearbyEntities<sas::Entity>(grid, sp.first, sp.second, cellSize - defaultWeed.size);
 
-        for (const auto &neighbour : neighbours)
-        {
-            if (!sas::checkBoundaries(sp, defaultWeed.size, neighbour->getPosition(), defaultWeed.size)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
-            {                                                                                            // not proud of this one tbh
-                canPlant = false;
-                break;
-            }
-        }
+    //     for (const auto &neighbour : neighbours)
+    //     {
+    //         if (!sas::checkBoundaries(sp, defaultWeed.size, neighbour->getPosition(), defaultWeed.size)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
+    //         {                                                                                            // not proud of this one tbh
+    //             canPlant = false;
+    //             break;
+    //         }
+    //     }
 
-        if (canPlant)
-        {
-            newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlantType::WEED, std::make_shared<sas::WeedDrawStrategy>()));
-        }
-    }
+    //     if (canPlant)
+    //     {
+    //         newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlantType::WEED, std::make_shared<sas::WeedDrawStrategy>()));
+    //     }
+    // }
 
-    std::move(newPlants.begin(), newPlants.end(), std::back_inserter(plants));
+    // std::move(newPlants.begin(), newPlants.end(), std::back_inserter(plants));
 }
 
-void sas::multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
+bool sas::hasSpaceAgainstPlants(const Position &p, const std::vector<std::unique_ptr<Plant>> &plants, const DynamicGrid &plantGrid, const StaticGrid &envGrid) noexcept
+{
+    return !collides(p, envGrid) && !collides(p, plants, plantGrid);
+}
+
+void sas::AddPlant(std::unique_ptr<sas::Plant> plant, sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sas::Plant>> &plants, int spatialCellSize)
+{
+
+    int left = plant->pos.x / spatialCellSize;
+    int right = (plant->pos.x + plant->pos.width) / spatialCellSize;
+    int top = plant->pos.y / spatialCellSize;
+    int bottom = (plant->pos.y + plant->pos.height) / spatialCellSize;
+
+    plants.push_back(std::move(plant));
+
+    for (int gx = left; gx <= right; ++gx)
+    {
+        for (int gy = top; gy <= bottom; ++gy)
+        {
+            plantGrid[{gx, gy}].push_back(plants.size() - 1);
+        }
+    }
+}
+
+void sas::multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
 {
     static std::deque<std::unique_ptr<sas::Plant>> newPlants;
     newPlants.clear();
-
     for (const auto &plt : plants)
     {
+        std::cout << "Multiply!\n";
         const auto &spawnPoints = plt->reproduce();
         for (const auto &sp : spawnPoints)
         {
-            // std::print("Spawnpoint chose at: {}, {}\n", sp.x, sp.y);
+            std::print("Spawnpoint chose at: {}, {}\n", sp.x, sp.y);
 
-            bool canPlant = true;
-
-            auto waterSource = findNearestEntity<Water>(grid, sp.x, sp.y, plt->rangeWater,
-                                                        [&](Water &wat)
-                                                        {
-                                                            return (wat.capacity >= plt->getWaterConsumption());
-                                                        });
-
-            if (waterSource == nullptr)
+            //TODO: Add water checking!
+            if (hasSpaceAgainstPlants(sp, plants, plantGrid, enviromentGrid))
             {
-                continue;
-            }
+                std::print("I can plant here\n");
+                std::unique_ptr<sas::Flower> newPlant = std::make_unique<sas::Flower>(sp, std::make_unique<sas::PlaceholderDrawStrategy>());
 
-            //TODO:
-            //This is broken
-            //Size is too small to find it as neighbour
-            //Cell Size is too big
-            const auto &neighbours = findNearbyEntities<Water>(grid, sp.x, sp.y, cellSize);
+                int left = newPlant->pos.x / spatialCellSize;
+                int right = (newPlant->pos.x + newPlant->pos.width) / spatialCellSize;
+                int top = newPlant->pos.y / spatialCellSize;
+                int bottom = (newPlant->pos.y + newPlant->pos.height) / spatialCellSize;
 
-            for (const auto &neighbour : neighbours)
-            {
-                // std::print("Found water at: {}, {}\n", neighbour->pos.x, neighbour->pos.y);
-                // std::cout << "Found water at: " << neighbour->pos.x << ' ' << neighbour->pos.y << std::endl;
-                if (!sas::checkBoundaries(sp, neighbour->pos)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
-                {                                              // not proud of this one tbh
-                    canPlant = false;
-                    break;
+                newPlants.push_back(std::move(newPlant));
+
+                for (int gx = left; gx <= right; ++gx)
+                {
+                    for (int gy = top; gy <= bottom; ++gy)
+                    {
+                        plantGrid[{gx, gy}].push_back(plants.size() - 1);
+                    }
                 }
-            }
-
-            if (canPlant)
-            {
-                newPlants.push_back(sas::plantFactory(grid, sp.x, sp.y, plt->getPlantType(), plt->getDrawStartegy()));
-                waterSource->capacity = waterSource->capacity - plt->getWaterConsumption();
-                std::print("Planted at {}, {}\n", sp.x, sp.y);
             }
         }
     }
@@ -212,26 +221,28 @@ void sas::multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &pl
     std::move(newPlants.begin(), newPlants.end(), std::back_inserter(plants));
 }
 
-void sas::killPlants(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
+void sas::killPlants(sas::StaticGrid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
 {
-    for (size_t i = 0; i < plants.size();)
-    {
-        // O(1) removal
-        if (plants[i]->willWither())
-        {
-            // Remember this could return nullptr
-            auto closestWater = findNearestEntity<sas::Water>(grid, plants[i]->pos.x, plants[i]->pos.y, plants[i]->rangeWater);
-            if (closestWater)
-            {
-                closestWater->capacity = closestWater->capacity + plants[i]->waterConsumption;
-            }
-            sas::removeFromGrid(grid, plants.at(i).get());
-            std::swap(plants[i], plants.back());
-            plants.pop_back();
-        }
-        else
-        {
-            ++i;
-        }
-    }
+    assert(false && "TODO: Kill Plants");
+
+    // for (size_t i = 0; i < plants.size();)
+    // {
+    //     // O(1) removal
+    //     if (plants[i]->willWither())
+    //     {
+    //         // Remember this could return nullptr
+    //         auto closestWater = findNearestEntity<sas::Water>(grid, plants[i]->pos.x, plants[i]->pos.y, plants[i]->rangeWater);
+    //         if (closestWater)
+    //         {
+    //             closestWater->capacity = closestWater->capacity + plants[i]->waterConsumption;
+    //         }
+    //         sas::removeFromGrid(grid, plants.at(i).get());
+    //         std::swap(plants[i], plants.back());
+    //         plants.pop_back();
+    //     }
+    //     else
+    //     {
+    //         ++i;
+    //     }
+    // }
 }

@@ -20,7 +20,7 @@ namespace sas
     public:   
 
         Entity() noexcept = default;
-        Entity(size_t x, size_t y) noexcept;
+        Entity(const Position& pos) noexcept;
         void setDrawStrategy(std::shared_ptr<DrawStrategy> strat) noexcept;
 
         std::shared_ptr<DrawStrategy> getDrawStartegy() const noexcept;

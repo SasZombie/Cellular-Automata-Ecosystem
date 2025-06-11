@@ -23,7 +23,7 @@ namespace sas
         size_t waterConsumption;
         size_t daysAlive = 0;
 
-        Plant(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat,
+        Plant(const Position &p, std::shared_ptr<DrawStrategy> strat,
               size_t nrOfSeeds, size_t rangeSpreadingSeeds, size_t rangeWater, size_t size, size_t waterConsumption) noexcept;
 
         std::vector<sas::Position> reproduce() const noexcept;
@@ -39,7 +39,7 @@ namespace sas
     class Tree : public Plant
     {
     public:
-        Tree(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
+        Tree(const Position &p, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
 
         PlantType getPlantType() const noexcept;
 
@@ -51,7 +51,7 @@ namespace sas
     class Flower : public Plant
     {
     public:
-        Flower(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
+        Flower(const Position &p, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
         PlantType getPlantType() const noexcept;
 
         size_t range() const noexcept;
@@ -62,7 +62,7 @@ namespace sas
     class Weed : public Plant
     {
     public:
-        Weed(size_t x, size_t y, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
+        Weed(const Position &p, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
 
         PlantType getPlantType() const noexcept;
 

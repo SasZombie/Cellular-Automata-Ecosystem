@@ -1,19 +1,99 @@
 #include "../include/Grid.hpp"
-#include <algorithm>
+#include "../include/Common.hpp"
 
-void sas::addToGrid(Grid &grid, Entity *entity)
+#include <algorithm>
+#include <assert.h>
+#include <iostream>
+
+void sas::addToGrid(DynamicGrid &grid, const Entity *entity, size_t index) noexcept
 {
-    for (size_t dx = 0; dx < entity->pos.width; ++dx)
+    int left = entity->pos.x / spatialCellSize;
+    int right = (entity->pos.x + entity->pos.width) / spatialCellSize;
+    int top = entity->pos.y / spatialCellSize;
+    int bottom = (entity->pos.y + entity->pos.height) / spatialCellSize;
+
+    for (int gx = left; gx <= right; ++gx)
     {
-        for (size_t dy = 0; dy < entity->pos.height; ++dy)
+        for (int gy = top; gy <= bottom; ++gy)
         {
-            grid[{entity->pos.x + dx, entity->pos.y + dy}].push_back(entity);
+            grid[{static_cast<size_t>(gx), static_cast<size_t>(gy)}].push_back(index);
         }
     }
 }
 
-void sas::removeFromGrid(Grid &grid, Entity *entity)
+void sas::removeFromGrid(StaticGrid &grid, Entity *entity)
 {
-    auto &cell = grid[{entity->getPosition()}];
-    cell.erase(std::remove(cell.begin(), cell.end(), entity), cell.end());
+    assert(false && "TODO!");
+    // auto &cell = grid[{entity->getPosition()}];
+    // cell.erase(std::remove(cell.begin(), cell.end(), entity), cell.end());
+}
+
+bool sas::collides(const Position &entity, const StaticGrid &grid)
+{
+    int left = entity.x / cellSize;
+    int right = (entity.x + entity.width - 1) / cellSize;
+    int top = entity.y / cellSize;
+    int bottom = (entity.y + entity.height - 1) / cellSize;
+
+    for (int gx = left; gx <= right; ++gx)
+    {
+        for (int gy = top; gy <= bottom; ++gy)
+        {
+            if (grid.contains({gx, gy}))
+            {
+                std::cout << "Colides with water!\n";
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+bool sas::isNear(const Entity* entity, const StaticGrid &grid, int maxRange) noexcept
+{
+    int centerX = (entity->pos.x + entity->pos.width / 2) / cellSize;
+    int centerY = (entity->pos.y + entity->pos.height / 2) / cellSize;
+
+    for (int dx = -maxRange; dx <= maxRange; ++dx)
+    {
+        for (int dy = -maxRange; dy <= maxRange; ++dy)
+        {
+            if (abs(dx) + abs(dy) > maxRange)
+                continue;
+
+            if (grid.contains({centerX + dx, centerY + dy}))
+            {
+                return true;
+            }
+        }
+    }
+
+    std::cout << "Is not near water\n";
+    return false;
+}
+
+bool sas::isNear(const Entity* entity, const DynamicGrid &grid, int maxRange) noexcept
+{
+    assert(false && "TODO: is near with Dynamic!");
+    return false;
+    // int centerX = (entity->pos.x + entity->pos.width / 2) / cellSize;
+    // int centerY = (entity->pos.y + entity->pos.height / 2) / cellSize;
+
+    // for (int dx = -maxRange; dx <= maxRange; ++dx)
+    // {
+    //     for (int dy = -maxRange; dy <= maxRange; ++dy)
+    //     {
+    //         if (abs(dx) + abs(dy) > maxRange)
+    //             continue;
+
+    //         if (grid.contains({centerX + dx, centerY + dy}))
+    //         {
+    //             return true;
+    //         }
+    //     }
+    // }
+
+    // std::cout << "Is not near water\n";
+    // return false;
 }
