@@ -81,11 +81,15 @@ void sas::SetUpBoardPerlin(Matrix<Tile> &board, size_t seed)
 void sas::SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::Grid &grid) noexcept
 {
     // Random ahh value for wata
-    for (size_t i = 0; i < 100; ++i)
-    {
-        const auto [x, y] = sas::generateNextPos();
-        waters.push_back(sas::enviromentFactory(grid, {x, y, 20, 20}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
-    }
+    waters.push_back(sas::enviromentFactory(grid, {40, 40, 20, 20}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
+
+    
+
+    // for (size_t i = 0; i < 100; ++i)
+    // {
+    //     const auto [x, y] = sas::generateNextPos();
+    //     waters.push_back(sas::enviromentFactory(grid, {x, y, 20, 20}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
+    // }
 }
 
 void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::Grid &grid, size_t seed) noexcept
@@ -183,7 +187,7 @@ void sas::multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &pl
             //This is broken
             //Size is too small to find it as neighbour
             //Cell Size is too big
-            const auto &neighbours = findNearbyEntities<Water>(grid, sp.x, sp.y, cellSize);
+            const auto &neighbours = findNearbyEntities<Water>(grid, sp.x, sp.y, cellSize + cellSize / 2);
 
             for (const auto &neighbour : neighbours)
             {

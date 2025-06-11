@@ -80,7 +80,7 @@ void sas::PlaceholderDrawStrategy::draw(const sas::Position &pos) const noexcept
 void sas::WaterDrawStrategy::draw(const sas::Position &pos) const noexcept
 {
     DrawRectangle(pos.x, pos.y, pos.width, pos.height, BLUE);
-    DrawRectangleLines(pos.x, pos.y, pos.width, pos.height, RED);
+    DrawRectangleLines(pos.x, pos.y, pos.width, pos.height, BLACK);
 }
 
 void sas::DesertDrawStrategy::draw(const sas::Position &pos) const noexcept

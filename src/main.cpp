@@ -57,7 +57,7 @@ int main()
     sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
 
     sas::ConfigManager::load("config.json");
-    plants.push_back(sas::plantFactory(grid, 100, 100, sas::PlantType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
+    plants.push_back(sas::plantFactory(grid, 40, 20, sas::PlantType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
     // plants.push_back(sas::plantFactory(grid, 150, 150, sas::PlantType::TREE, std::make_unique<sas::TreeDrawStrategy>()));
 
     //TODO!!
@@ -133,7 +133,7 @@ int main()
 
             // TODO: Make zoom work...
             const float cz = camera.zoom;
-            const auto &elems = sas::findNearbyEntities<sas::Water>(grid, static_cast<size_t>(x), static_cast<size_t>(y), cellSize);
+            const auto &elems = sas::findNearbyEntities<sas::Water>(grid, static_cast<size_t>(x), static_cast<size_t>(y), cellSize + cellSize / 2);
 
             for (const auto &elem : elems)
             {
