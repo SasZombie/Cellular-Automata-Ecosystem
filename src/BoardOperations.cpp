@@ -187,7 +187,7 @@ void sas::multiply(sas::Grid &grid, std::vector<std::unique_ptr<sas::Plant>> &pl
             //This is broken
             //Size is too small to find it as neighbour
             //Cell Size is too big
-            const auto &neighbours = findNearbyEntities<Water>(grid, sp.x, sp.y, cellSize + cellSize / 2);
+            const auto &neighbours = findNearbyEntities<Water>(grid, sp.x, sp.y, cellSize);
 
             for (const auto &neighbour : neighbours)
             {

@@ -18,6 +18,8 @@ namespace sas
     };
 
     using Grid = std::unordered_map<std::pair<size_t, size_t>, std::vector<Entity *>, PairHash>;
+
+    
     void addToGrid(Grid &grid, Entity *entity);
     void removeFromGrid(Grid &grid, Entity *entity);
     // std::vector<sas::Entity *> findNearbyEntities(const Grid& grid, size_t x, size_t y);
