@@ -139,7 +139,7 @@ int main()
                 std::print("Position {}, {}, {}, {}\n", plt->pos.x, plt->pos.y, plt->pos.width, plt->pos.height);
             }
         }
-#if 0
+#if 1
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
             const auto [x, y] = GetMousePosition();
@@ -148,12 +148,12 @@ int main()
 
             // TODO: Make zoom work...
             const float cz = camera.zoom;
+            sas::Position flower{(size_t)x, (size_t)y, 20, 20};
 
-            if (!sas::collides(sas::Position{(size_t)x, (size_t)y, 20, 20}, plants, plantGrid))
+            if (sas::isNearWater(flower, enviromentGrid, sas::ConfigManager::get().Flower.WaterRange))
             {
                 size_t spatialCellSize = sas::spatialCellSize;
 
-                sas::Position flower{(size_t)x, (size_t)y, 20, 20};
                 
                 std::unique_ptr<sas::Flower> newPlant = std::make_unique<sas::Flower>(flower, std::make_unique<sas::PlaceholderDrawStrategy>());
                 plants.push_back(std::move(newPlant));

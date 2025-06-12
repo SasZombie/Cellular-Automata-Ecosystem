@@ -7,7 +7,7 @@ namespace sas
 
     Config ConfigManager::config;
 
-    void from_json(const nlohmann::json &j, PlantConfig &p)
+    static void from_json(const nlohmann::json &j, PlantConfig &p)
     {
         j.at("DaysAlive").get_to(p.DaysAlive);
         j.at("RangeSeeds").get_to(p.RangeSeeds);
