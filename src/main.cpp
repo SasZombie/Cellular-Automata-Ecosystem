@@ -42,16 +42,12 @@ static void handleCameraControlls(Camera2D &camera)
     }
 }
 
-void AddWater(int gridX, int gridY, std::vector<std::unique_ptr<sas::Enviroment>> &water, sas::StaticGrid &waterCells)
-{
-    std::unique_ptr<sas::Water> env = std::make_unique<sas::Water>();
 
-    env->pos = {static_cast<size_t>(gridX) * cellSize, static_cast<size_t>(gridY) * cellSize, cellSize, cellSize};
-    env->setDrawStrategy(std::make_unique<sas::WaterDrawStrategy>());
 
-    water.push_back(std::move(env));
-    waterCells.insert({gridX, gridY});
-}
+/// @brief 
+// board = background
+// enviroment = stuff that has collision such as water, needs a static grid
+// plant/rest = stuff that has collision but not necesarrly cellSize x cellSize, needs dynamic grid
 
 int main()
 {
@@ -61,35 +57,25 @@ int main()
     sas::ConfigManager::load("config.json");
 
     sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
-    sas::SetUpBoard(board);
+    sas::SetUpBoardPerlin(board, seed);
+    // sas::SetUpBoard(board);
 
+    //Since the grid only knows about some positions
     std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
     sas::StaticGrid enviromentGrid;
-    AddWater(0, 0, enviroment, enviromentGrid);
-    AddWater(0, 1, enviroment, enviromentGrid);
-    AddWater(1, 2, enviroment, enviromentGrid);
+    sas::SetUpWaterNoise(enviroment, enviromentGrid, seed);
+    // sas::SetUpWater(enviroment, enviromentGrid);
+
+
 
     std::vector<std::unique_ptr<sas::Plant>> plants;
     sas::DynamicGrid plantGrid;
     std::unique_ptr<sas::Flower> flower = std::make_unique<sas::Flower>(sas::Position{40, 40, 20, 20}, std::make_unique<sas::PlaceholderDrawStrategy>());
 
-    sas::AddPlant(std::move(flower), plantGrid, plants);
+    sas::addPlant(std::move(flower), plantGrid, plants);
 
-    // std::unique_ptr
-    // plants.push_back();
 
-    // This uses std::vector underneath but when talking about tiles
-    // It is easier to think about them based on a matrix
-
-    // plants.push_back(sas::plantFactory(grid, 40, 20, sas::PlantType::FLOWER, std::make_unique<sas::FlowerDrawStrategy>()));
-    // plants.push_back(sas::plantFactory(grid, 150, 150, sas::PlantType::TREE, std::make_unique<sas::TreeDrawStrategy>()));
-
-    // TODO!!
-    // TREBUIE NEAPARAT DISCUTAT CU COSMIN DESPRE CUM FACEM ACCEEST PROIECT
-    // ESTE ESSENTIAL SA VEDEM DACA ARE SENS SA CONTINUAM CU GRIDUL ASTA ASA
-    // SAU PUR SI SIMPLU INGORAM ASTA
-    //  sas::SetUpBoardPerlin(board, seed);
-    //  sas::SetUpWaterNoise(enviroment, grid, seed);
+    
 
     Camera2D camera;
     camera.target = {0.f, 0.f};
@@ -102,7 +88,7 @@ int main()
     SetTargetFPS(FPS);
 
     // Tick = day
-    // Season =
+    // Season = ??
     float tickAcc = 0.f;
     float seasonAcc = 0.f;
     constexpr float intervalTick = 10.f / FPS;
@@ -153,7 +139,7 @@ int main()
                 std::print("Position {}, {}, {}, {}\n", plt->pos.x, plt->pos.y, plt->pos.width, plt->pos.height);
             }
         }
-
+#if 0
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
             const auto [x, y] = GetMousePosition();
@@ -191,7 +177,7 @@ int main()
             // std::print("Found element at pos {{{}, {}}}, mouse is at coords({}, {})\n", elem->pos.x, elem->pos.y, x, y);
             // }
         }
-
+#endif
         BeginDrawing();
 
         ClearBackground(Color{18, 18, 18, 255});
@@ -203,16 +189,11 @@ int main()
         for (const auto &tile : board)
         {
             tile.draw();
-            // const auto [x, y, w, h] = tile.pos;
-            // DrawText((std::to_string(x) + ' ' + std::to_string(y)).c_str(), x, y, 10, RAYWHITE);
         }
 
         for (const auto &env : enviroment)
         {
             env->draw();
-            // const auto [x, y, w, h] = env->pos;
-
-            // DrawText((std::to_string(x) + ' ' + std::to_string(y)).c_str(), x, y, 10, RAYWHITE);
         }
 
         for (const auto &plt : plants)

@@ -31,6 +31,8 @@ namespace sas
         virtual size_t getWaterConsumption() const noexcept = 0;
         virtual size_t range() const noexcept = 0;
 
+        //Clonable ahh function
+        virtual std::unique_ptr<Plant> createOffspring(const Position& p) const noexcept = 0;
         virtual PlantType getPlantType() const noexcept = 0;
 
         virtual ~Plant() = default;
@@ -43,6 +45,9 @@ namespace sas
 
         PlantType getPlantType() const noexcept;
 
+        std::unique_ptr<Plant> createOffspring(const Position& p) const noexcept;
+
+
         size_t getWaterConsumption() const noexcept;
         bool willWither() const noexcept;
         size_t range() const noexcept;
@@ -53,6 +58,9 @@ namespace sas
     public:
         Flower(const Position &p, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
         PlantType getPlantType() const noexcept;
+
+        std::unique_ptr<Plant> createOffspring(const Position& p) const noexcept;
+
 
         size_t range() const noexcept;
         bool willWither() const noexcept;
@@ -67,6 +75,8 @@ namespace sas
         PlantType getPlantType() const noexcept;
 
         size_t range() const noexcept;
+        std::unique_ptr<Plant> createOffspring(const Position& p) const noexcept;
+
         bool willWither() const noexcept;
         size_t getWaterConsumption() const noexcept;
     };

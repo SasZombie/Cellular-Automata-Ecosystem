@@ -117,7 +117,7 @@ void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters,
 
             if (elevation < 0.3f || lakes < 0.25f /* || valleys > 0.6f */)
             {
-                waters.push_back(enviromentFactory(grid, {i * cellSize, j * cellSize, cellSize, cellSize}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
+                addWater(i, j , waters, grid);
             }
         }
     }
@@ -163,7 +163,7 @@ bool sas::hasSpaceAgainstPlants(const Position &p, const std::vector<std::unique
     return !collides(p, envGrid) && !collides(p, plants, plantGrid);
 }
 
-void sas::AddPlant(std::unique_ptr<sas::Plant> plant, sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sas::Plant>> &plants, int spatialCellSize)
+void sas::addPlant(std::unique_ptr<sas::Plant> plant, sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sas::Plant>> &plants, int spatialCellSize)
 {
 
     int left = plant->pos.x / spatialCellSize;
@@ -182,43 +182,62 @@ void sas::AddPlant(std::unique_ptr<sas::Plant> plant, sas::DynamicGrid &plantGri
     }
 }
 
+//TODO: Do this with threads (LOL)
 void sas::multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
 {
-    static std::deque<std::unique_ptr<sas::Plant>> newPlants;
-    newPlants.clear();
-    for (const auto &plt : plants)
+    size_t realSize = plants.size();
+
+    for(size_t i = 0; i < realSize; ++i)
     {
-        std::cout << "Multiply!\n";
-        const auto &spawnPoints = plt->reproduce();
-        for (const auto &sp : spawnPoints)
+        //Absolutlly under no circumstance do this:
+        //const auto &plt = plants[i];
+        //This ^ will be invalidated when the vector reallocs!!!
+        const auto &points = plants[i]->reproduce();
+        size_t plantWaterRange = plants[i]->rangeWater;
+        for(const auto& sp : points)
         {
-            std::print("Spawnpoint chose at: {}, {}\n", sp.x, sp.y);
-
-            //TODO: Add water checking!
-            if (hasSpaceAgainstPlants(sp, plants, plantGrid, enviromentGrid))
+            if(hasSpaceAgainstPlants(sp, plants, plantGrid, enviromentGrid) && isNearWater(sp, enviromentGrid, plantWaterRange))
             {
-                std::print("I can plant here\n");
-                std::unique_ptr<sas::Flower> newPlant = std::make_unique<sas::Flower>(sp, std::make_unique<sas::PlaceholderDrawStrategy>());
+                std::unique_ptr<sas::Plant> newPlant = plants[i]->createOffspring(sp);
+                addPlant(std::move(newPlant), plantGrid, plants);
+            }
+        }
+    }
+}
 
-                int left = newPlant->pos.x / spatialCellSize;
-                int right = (newPlant->pos.x + newPlant->pos.width) / spatialCellSize;
-                int top = newPlant->pos.y / spatialCellSize;
-                int bottom = (newPlant->pos.y + newPlant->pos.height) / spatialCellSize;
+bool sas::isNearWater(const Position &pos, const StaticGrid &waterCells, size_t maxRange) noexcept
+{
+    int centerX = (pos.x + pos.width / 2) / cellSize;
+    int centerY = (pos.y + pos.height / 2) / cellSize;
 
-                newPlants.push_back(std::move(newPlant));
+    for (int dx = -maxRange; dx <= maxRange; ++dx)
+    {
+        for (int dy = -maxRange; dy <= maxRange; ++dy)
+        {
+            if (abs(dx) + abs(dy) > maxRange)
+                continue;
 
-                for (int gx = left; gx <= right; ++gx)
-                {
-                    for (int gy = top; gy <= bottom; ++gy)
-                    {
-                        plantGrid[{gx, gy}].push_back(plants.size() - 1);
-                    }
-                }
+            if (waterCells.contains({centerX + dx, centerY + dy}))
+            {
+                return true;
             }
         }
     }
 
-    std::move(newPlants.begin(), newPlants.end(), std::back_inserter(plants));
+    // std::cout << "Is not near water\n";
+    return false;
+}
+
+
+void sas::addWater(int gridX, int gridY, std::vector<std::unique_ptr<sas::Enviroment>> &water, sas::StaticGrid &waterCells) noexcept
+{
+    std::unique_ptr<sas::Water> env = std::make_unique<sas::Water>();
+
+    env->pos = {static_cast<size_t>(gridX) * cellSize, static_cast<size_t>(gridY) * cellSize, cellSize, cellSize};
+    env->setDrawStrategy(std::make_unique<sas::WaterDrawStrategy>());
+
+    water.push_back(std::move(env));
+    waterCells.insert({gridX, gridY});
 }
 
 void sas::killPlants(sas::StaticGrid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
