@@ -23,7 +23,22 @@ namespace sas
 
     using GridPos = std::pair<size_t, size_t>;
 
-    using StaticGrid = std::unordered_set<std::pair<size_t, size_t>, PairHash>;
+    //Choices, choices...
+    //Fastest = grid has indicies in an vector 
+    //We have to pass the gird and the vector everywhere
+    //OR
+    //Not as fast = grid has a pointer to elements in vector
+    //Combination of shared_ptr + weak_ptr
+
+    //Prposal: do this for cache friendly:
+    /*
+        struct gridVector{
+            DynamicGrid d;
+            std::vector<..> elems;
+        };
+    */
+    
+    using StaticGrid = std::unordered_map<GridPos, size_t, PairHash>;
 
     using DynamicGrid = std::unordered_map<GridPos, std::vector<size_t>, PairHash>;
 

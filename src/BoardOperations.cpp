@@ -183,7 +183,7 @@ void sas::addPlant(std::unique_ptr<sas::Plant> plant, sas::DynamicGrid &plantGri
 }
 
 //TODO: Do this with threads (LOL)
-void sas::multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
+void sas::multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Enviroment>> &water, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
 {
     size_t realSize = plants.size();
 
@@ -193,22 +193,27 @@ void sas::multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromen
         //const auto &plt = plants[i];
         //This ^ will be invalidated when the vector reallocs!!!
         const auto &points = plants[i]->reproduce();
-        size_t plantWaterRange = plants[i]->rangeWater;
         for(const auto& sp : points)
         {
-            if(hasSpaceAgainstPlants(sp, plants, plantGrid, enviromentGrid) && isNearWater(sp, enviromentGrid, plantWaterRange))
+            if(hasSpaceAgainstPlants(sp, plants, plantGrid, enviromentGrid) )
             {
-                std::unique_ptr<sas::Plant> newPlant = plants[i]->createOffspring(sp);
-                addPlant(std::move(newPlant), plantGrid, plants);
+                std::optional<size_t> result = isNearWater(sp, enviromentGrid, water, plants[i].get());
+                if(result)
+                {
+                    std::unique_ptr<sas::Plant> newPlant = plants[i]->createOffspring(sp);
+                    water[*result]->capacity -= newPlant->waterConsumption;
+                    addPlant(std::move(newPlant), plantGrid, plants);
+                }
             }
         }
     }
 }
 
-bool sas::isNearWater(const Position &pos, const StaticGrid &waterCells, int maxRange) noexcept
+std::optional<size_t> sas::isNearWater(const Position &pos, const StaticGrid &waterCells, std::vector<std::unique_ptr<sas::Enviroment>> &water, const Plant* p) noexcept
 {
     int centerX = (pos.x + pos.width / 2) / cellSize;
     int centerY = (pos.y + pos.height / 2) / cellSize;
+    int maxRange = p->rangeWater;
 
     for (int dx = -maxRange; dx <= maxRange; ++dx)
     {
@@ -217,14 +222,21 @@ bool sas::isNearWater(const Position &pos, const StaticGrid &waterCells, int max
             if (abs(dx) + abs(dy) > maxRange)
                 continue;
 
-            if (waterCells.contains({centerX + dx, centerY + dy}))
+            GridPos neighbor = {centerX + dx, centerY + dy};
+            auto it = waterCells.find(neighbor);
+            
+            if (it != waterCells.end())
             {
-                return true;
+                size_t index = it->second;
+                if(water[index]->capacity >= p->getWaterConsumption())
+                {
+                    return index;
+                }
             }
         }
     }
 
-    return false;
+    return std::nullopt;
 }
 
 
@@ -236,7 +248,7 @@ void sas::addWater(int gridX, int gridY, std::vector<std::unique_ptr<sas::Enviro
     env->setDrawStrategy(std::make_unique<sas::WaterDrawStrategy>());
 
     water.push_back(std::move(env));
-    waterCells.insert({gridX, gridY});
+    waterCells[{gridX, gridY}] = water.size() - 1;
 }
 
 void sas::killPlants(sas::StaticGrid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept

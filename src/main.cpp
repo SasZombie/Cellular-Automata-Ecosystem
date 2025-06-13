@@ -42,26 +42,24 @@ static void handleCameraControlls(Camera2D &camera)
     }
 }
 
-
-
-/// @brief 
-// board = background
-// enviroment = stuff that has collision such as water, needs a static grid
-// plant/rest = stuff that has collision but not necesarrly cellSize x cellSize, needs dynamic grid
+/// @brief
+// board = background --> Fastest
+// enviroment = stuff that has collision such as water, needs a static grid --> Not as fast
+// plant/rest = stuff that has collision but not necesarrly cellSize x cellSize, needs dynamic grid --> still fast but slower than the others
 
 int main()
 {
 
     // size_t seed = sas::generateSeed();
     size_t seed = 18;
-    //All sizes are in cells
+    // All sizes are in cells
     sas::ConfigManager::load("config.json");
 
     sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
     sas::SetUpBoardPerlin(board, seed);
 
-    //Since the grid only knows about some positions
-    //We need to talk about different Enviroments
+    // Since the grid only knows about some positions
+    // We need to talk about different Enviroments
     std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
     sas::StaticGrid enviromentGrid;
     sas::SetUpWaterNoise(enviroment, enviromentGrid, seed);
@@ -97,8 +95,8 @@ int main()
 #ifdef ENABLE_CONFIG_RELOAD
         if (IsKeyPressed(KEY_L))
         {
-            //TODO:
-            // reloadConfig();
+            // TODO:
+            //  reloadConfig();
         }
 
 #endif
@@ -114,11 +112,11 @@ int main()
 
         if (IsKeyPressed(KEY_SPACE))
         {
-            sas::multiplyPlants(plantGrid, enviromentGrid, plants);
+            sas::multiplyPlants(plantGrid, enviromentGrid, enviroment, plants);
             // sas::spawnWeed(grid, board, plants);
 
-            // std::for_each(plants.begin(), plants.end(), [](std::unique_ptr<sas::Plant> &plt)
-            //               { plt->daysAlive++; });
+            std::for_each(plants.begin(), plants.end(), [](std::unique_ptr<sas::Plant> &plt)
+                          { plt->daysAlive++; });
 
             // sas::killPlants(grid, plants);
         }
