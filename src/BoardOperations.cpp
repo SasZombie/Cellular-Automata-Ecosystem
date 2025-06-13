@@ -9,6 +9,8 @@
 #include <raylib.h>
 #include "Utils.hpp"
 #include <assert.h>
+#include <queue>
+#include <unordered_set>
 
 #include "../Extern/FastNoiseLite.h"
 
@@ -117,7 +119,7 @@ void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters,
 
             if (elevation < 0.3f || lakes < 0.25f /* || valleys > 0.6f */)
             {
-                addWater(i, j , waters, grid);
+                addWater(i, j, waters, grid);
             }
         }
     }
@@ -182,23 +184,23 @@ void sas::addPlant(std::unique_ptr<sas::Plant> plant, sas::DynamicGrid &plantGri
     }
 }
 
-//TODO: Do this with threads (LOL)
+// TODO: Do this with threads (LOL)
 void sas::multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Enviroment>> &water, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
 {
     size_t realSize = plants.size();
 
-    for(size_t i = 0; i < realSize; ++i)
+    for (size_t i = 0; i < realSize; ++i)
     {
-        //Absolutlly under no circumstance do this:
-        //const auto &plt = plants[i];
-        //This ^ will be invalidated when the vector reallocs!!!
+        // Absolutlly under no circumstance do this:
+        // const auto &plt = plants[i];
+        // This ^ will be invalidated when the vector reallocs!!!
         const auto &points = plants[i]->reproduce();
-        for(const auto& sp : points)
+        for (const auto &sp : points)
         {
-            if(hasSpaceAgainstPlants(sp, plants, plantGrid, enviromentGrid) )
+            if (hasSpaceAgainstPlants(sp, plants, plantGrid, enviromentGrid))
             {
                 std::optional<size_t> result = isNearWater(sp, enviromentGrid, water, plants[i].get());
-                if(result)
+                if (result)
                 {
                     std::unique_ptr<sas::Plant> newPlant = plants[i]->createOffspring(sp);
                     water[*result]->capacity -= newPlant->waterConsumption;
@@ -209,7 +211,7 @@ void sas::multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromen
     }
 }
 
-std::optional<size_t> sas::isNearWater(const Position &pos, const StaticGrid &waterCells, std::vector<std::unique_ptr<sas::Enviroment>> &water, const Plant* p) noexcept
+std::optional<size_t> sas::isNearWater(const Position &pos, const StaticGrid &waterCells, std::vector<std::unique_ptr<sas::Enviroment>> &water, const Plant *p) noexcept
 {
     int centerX = (pos.x + pos.width / 2) / cellSize;
     int centerY = (pos.y + pos.height / 2) / cellSize;
@@ -224,11 +226,11 @@ std::optional<size_t> sas::isNearWater(const Position &pos, const StaticGrid &wa
 
             GridPos neighbor = {centerX + dx, centerY + dy};
             auto it = waterCells.find(neighbor);
-            
+
             if (it != waterCells.end())
             {
                 size_t index = it->second;
-                if(water[index]->capacity >= p->getWaterConsumption())
+                if (water[index]->capacity >= p->getWaterConsumption())
                 {
                     return index;
                 }
@@ -238,7 +240,6 @@ std::optional<size_t> sas::isNearWater(const Position &pos, const StaticGrid &wa
 
     return std::nullopt;
 }
-
 
 void sas::addWater(int gridX, int gridY, std::vector<std::unique_ptr<sas::Enviroment>> &water, sas::StaticGrid &waterCells) noexcept
 {
@@ -253,7 +254,7 @@ void sas::addWater(int gridX, int gridY, std::vector<std::unique_ptr<sas::Enviro
 
 void sas::killPlants(sas::StaticGrid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
 {
-    assert(false && "TODO: Kill Plants");
+    // assert(false && "TODO: Kill Plants");
 
     // for (size_t i = 0; i < plants.size();)
     // {
@@ -275,4 +276,51 @@ void sas::killPlants(sas::StaticGrid &grid, std::vector<std::unique_ptr<sas::Pla
     //         ++i;
     //     }
     // }
+}
+
+std::optional<size_t> sas::getClosestWaterCell(const Position &pos, const StaticGrid &waterCells, std::vector<std::unique_ptr<sas::Enviroment>> &water, const Plant *p) noexcept
+{
+    int gridX = pos.x / cellSize, gridY = pos.y / cellSize;
+    std::queue<GridPos> q;
+    std::unordered_set<GridPos, PairHash> visited;
+    int maxRange = p->rangeWater;
+
+    q.push({gridX, gridY});
+    visited.insert({gridX, gridY});
+
+    const std::vector<GridPos> directions = {
+        {0, 1}, {1, 0}, {0, -1}, {-1, 0}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1} // Up, Right, Down, Left (BFS in 4 directions)
+    };
+
+    while (!q.empty())
+    {
+        auto [x, y] = q.front();
+        q.pop();
+
+        if (waterCells.contains({x, y}))
+        {
+            return {waterCells.at({x, y})};
+        }
+
+        for (const auto &[dx, dy] : directions)
+        {
+            int nx = x + dx;
+            int ny = y + dy;
+
+            // Respect maxRange
+            //Chebyshev Distance
+            if (std::max(std::abs(nx - gridX), std::abs(ny - gridY)) > maxRange)
+                continue;
+
+            GridPos next = {nx, ny};
+
+            if (visited.count(next))
+                continue;
+            visited.insert(next);
+            q.push(next);
+        }
+    }
+
+    // No water found within maxRange
+    return std::nullopt;
 }

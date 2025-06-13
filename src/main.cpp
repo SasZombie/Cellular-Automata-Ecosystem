@@ -118,7 +118,7 @@ int main()
             std::for_each(plants.begin(), plants.end(), [](std::unique_ptr<sas::Plant> &plt)
                           { plt->daysAlive++; });
 
-            // sas::killPlants(grid, plants);
+            sas::killPlants(enviromentGrid, plants);
         }
 
         if (IsKeyPressed(KEY_R))
