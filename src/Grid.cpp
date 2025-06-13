@@ -41,7 +41,6 @@ bool sas::collides(const Position &entity, const StaticGrid &grid)
         {
             if (grid.contains({gx, gy}))
             {
-                std::cout << "Colides with water!\n";
                 return true;
             }
         }

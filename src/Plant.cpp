@@ -26,8 +26,6 @@ std::vector<sas::Position> sas::Plant::reproduce() const noexcept
     vecs.reserve(this->nrOfSeeds);
     size_t range = this->rangeSpreadingSeeds * cellSize;
 
-    std::cout << "Range is: " << range << '\n';
-
     for (size_t i = 0; i < this->nrOfSeeds; ++i)
     {
         const auto [x, y] = generateNextPos(pos.x, pos.y, range);

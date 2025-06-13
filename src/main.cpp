@@ -54,28 +54,23 @@ int main()
 
     // size_t seed = sas::generateSeed();
     size_t seed = 18;
+    //All sizes are in cells
     sas::ConfigManager::load("config.json");
 
     sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
     sas::SetUpBoardPerlin(board, seed);
-    // sas::SetUpBoard(board);
 
     //Since the grid only knows about some positions
+    //We need to talk about different Enviroments
     std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
     sas::StaticGrid enviromentGrid;
     sas::SetUpWaterNoise(enviroment, enviromentGrid, seed);
-    // sas::SetUpWater(enviroment, enviromentGrid);
-
-
 
     std::vector<std::unique_ptr<sas::Plant>> plants;
     sas::DynamicGrid plantGrid;
     std::unique_ptr<sas::Flower> flower = std::make_unique<sas::Flower>(sas::Position{40, 40, 20, 20}, std::make_unique<sas::PlaceholderDrawStrategy>());
 
     sas::addPlant(std::move(flower), plantGrid, plants);
-
-
-    
 
     Camera2D camera;
     camera.target = {0.f, 0.f};
@@ -102,6 +97,7 @@ int main()
 #ifdef ENABLE_CONFIG_RELOAD
         if (IsKeyPressed(KEY_L))
         {
+            //TODO:
             // reloadConfig();
         }
 
@@ -139,7 +135,7 @@ int main()
                 std::print("Position {}, {}, {}, {}\n", plt->pos.x, plt->pos.y, plt->pos.width, plt->pos.height);
             }
         }
-#if 1
+#if 0
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
             const auto [x, y] = GetMousePosition();

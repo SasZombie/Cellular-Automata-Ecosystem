@@ -65,7 +65,6 @@ namespace sas
 
                     if (overlap)
                     {
-                        std::cout << "Colides with flower number " << other << '\n';
                         return true;
                     }
                 }

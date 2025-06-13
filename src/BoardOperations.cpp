@@ -210,8 +210,6 @@ bool sas::isNearWater(const Position &pos, const StaticGrid &waterCells, int max
     int centerX = (pos.x + pos.width / 2) / cellSize;
     int centerY = (pos.y + pos.height / 2) / cellSize;
 
-    std::cout << centerX << ' ' << centerY << '\n';
-
     for (int dx = -maxRange; dx <= maxRange; ++dx)
     {
         for (int dy = -maxRange; dy <= maxRange; ++dy)
@@ -221,13 +219,11 @@ bool sas::isNearWater(const Position &pos, const StaticGrid &waterCells, int max
 
             if (waterCells.contains({centerX + dx, centerY + dy}))
             {
-                std::cout << "Is near water\n";
                 return true;
             }
         }
     }
 
-    std::cout << "Is not near water\n";
     return false;
 }
 
