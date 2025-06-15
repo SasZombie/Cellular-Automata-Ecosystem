@@ -46,6 +46,7 @@ static void handleCameraControlls(Camera2D &camera)
 // board = background --> Fastest
 // enviroment = stuff that has collision such as water, needs a static grid --> Not as fast
 // plant/rest = stuff that has collision but not necesarrly cellSize x cellSize, needs dynamic grid --> still fast but slower than the others
+// This ^ also takes into account multiple entities on the same cell: 2 plants on the same cell, extra memory for this
 
 int main()
 {
@@ -67,7 +68,9 @@ int main()
     std::vector<std::unique_ptr<sas::Plant>> plants;
     sas::DynamicGrid plantGrid;
     std::unique_ptr<sas::Flower> flower = std::make_unique<sas::Flower>(sas::Position{40, 40, 20, 20}, std::make_unique<sas::PlaceholderDrawStrategy>());
-
+    
+    //Primul index de la Enviroment
+    flower->waterSourceIndex = 0;
     sas::addPlant(std::move(flower), plantGrid, plants);
 
     Camera2D camera;
@@ -118,7 +121,7 @@ int main()
             std::for_each(plants.begin(), plants.end(), [](std::unique_ptr<sas::Plant> &plt)
                           { plt->daysAlive++; });
 
-            sas::killPlants(enviromentGrid, plants);
+            sas::killPlants(plantGrid, plants, enviroment);
         }
 
         if (IsKeyPressed(KEY_R))

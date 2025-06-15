@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <iostream>
 
-void sas::addToGrid(DynamicGrid &grid, const Entity *entity, size_t index) noexcept
+void sas::addToGrid(DynamicGrid &grid, Entity *entity, size_t index) noexcept
 {
     int left = entity->pos.x / spatialCellSize;
     int right = (entity->pos.x + entity->pos.width) / spatialCellSize;
@@ -16,15 +16,35 @@ void sas::addToGrid(DynamicGrid &grid, const Entity *entity, size_t index) noexc
     {
         for (int gy = top; gy <= bottom; ++gy)
         {
-            grid[{static_cast<size_t>(gx), static_cast<size_t>(gy)}].push_back(index);
+            grid[{static_cast<size_t>(gx), static_cast<size_t>(gy)}].push_back(entity);
         }
     }
 }
 
-void sas::removeFromGrid(DynamicGrid &grid, Entity *entity)
+void sas::removeFromGrid(DynamicGrid& grid, Entity* entity) noexcept
 {
-  
+    int left = entity->pos.x / spatialCellSize;
+    int right = (entity->pos.x + entity->pos.width) / spatialCellSize;
+    int top = entity->pos.y / spatialCellSize;
+    int bottom = (entity->pos.y + entity->pos.height) / spatialCellSize;
+
+    for (int gx = left; gx <= right; ++gx)
+    {
+        for (int gy = top; gy <= bottom; ++gy)
+        {
+            GridPos pos{static_cast<size_t>(gx), static_cast<size_t>(gy)};
+            auto& cell = grid[pos];
+            cell.erase(std::remove(cell.begin(), cell.end(), entity), cell.end());
+
+            if (cell.empty()) {
+                grid.erase(pos);
+            }
+
+            
+        }
+    }
 }
+
 
 bool sas::collides(const Position &entity, const StaticGrid &grid)
 {

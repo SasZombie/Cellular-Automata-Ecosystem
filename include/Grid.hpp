@@ -40,9 +40,9 @@ namespace sas
     
     using StaticGrid = std::unordered_map<GridPos, size_t, PairHash>;
 
-    using DynamicGrid = std::unordered_map<GridPos, std::vector<size_t>, PairHash>;
+    using DynamicGrid = std::unordered_map<GridPos, std::vector<Entity *>, PairHash>;
 
-    void addToGrid(DynamicGrid &grid, const Entity *entity, size_t index) noexcept;
+    void addToGrid(DynamicGrid &grid, Entity *entity, size_t index) noexcept;
     void removeFromGrid(DynamicGrid &grid, Entity *entity) noexcept;
 
     // Entity <-> Enviroment
@@ -64,19 +64,18 @@ namespace sas
                 if (it == grid.end())
                     continue;
 
-                for (const size_t other : it->second)
+                for (const Entity* other : it->second)
                 {
                     // Skip self
-                    if (entities[other]->pos == entity)
+                    if (other->pos == entity)
                         continue; 
 
-                    const Entity *f2 = entities[other].get();
 
                     bool overlap =
-                        entity.x < f2->pos.x + f2->pos.width &&
-                        entity.x + entity.width > f2->pos.x &&
-                        entity.y < f2->pos.y + f2->pos.height &&
-                        entity.y + entity.height > f2->pos.y;
+                        entity.x < other->pos.x + other->pos.width &&
+                        entity.x + entity.width > other->pos.x &&
+                        entity.y < other->pos.y + other->pos.height &&
+                        entity.y + entity.height > other->pos.y;
 
                     if (overlap)
                     {

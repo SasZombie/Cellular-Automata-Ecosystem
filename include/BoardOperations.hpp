@@ -10,7 +10,7 @@ namespace sas
     void SetUpBoard(Matrix<Tile> &board);
     void SetUpBoardPerlin(Matrix<Tile> &board, size_t seed);
 
-    void killPlants(StaticGrid &grid, std::vector<std::unique_ptr<Plant>> &plants) noexcept;
+    void killPlants(sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sas::Plant>> &plants, std::vector<std::unique_ptr<sas::Enviroment>> &water) noexcept;
     void multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Enviroment>> &water, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept;
     void spawnWeed(StaticGrid &grid, const Matrix<Tile> &board, std::vector<std::unique_ptr<Plant>> &plants) noexcept;
     bool hasSpaceAgainstPlants(const Position &p, const std::vector<std::unique_ptr<Plant>> &plants, const DynamicGrid& plantGrid, const StaticGrid& envGrid) noexcept;

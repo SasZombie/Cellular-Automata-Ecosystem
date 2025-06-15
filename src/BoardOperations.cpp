@@ -85,12 +85,6 @@ void sas::SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas:
 {
     // Random ahh value for wata
     waters.push_back(sas::enviromentFactory(grid, {40, 40, 20, 20}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
-
-    // for (size_t i = 0; i < 100; ++i)
-    // {
-    //     const auto [x, y] = sas::generateNextPos();
-    //     waters.push_back(sas::enviromentFactory(grid, {x, y, 20, 20}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
-    // }
 }
 
 void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::StaticGrid &grid, size_t seed) noexcept
@@ -173,15 +167,15 @@ void sas::addPlant(std::unique_ptr<sas::Plant> plant, sas::DynamicGrid &plantGri
     int top = plant->pos.y / spatialCellSize;
     int bottom = (plant->pos.y + plant->pos.height) / spatialCellSize;
 
-    plants.push_back(std::move(plant));
-
+    
     for (int gx = left; gx <= right; ++gx)
     {
         for (int gy = top; gy <= bottom; ++gy)
         {
-            plantGrid[{gx, gy}].push_back(plants.size() - 1);
+            plantGrid[{gx, gy}].push_back(plant.get());
         }
     }
+    plants.push_back(std::move(plant));
 }
 
 // TODO: Do this with threads (LOL)
@@ -260,10 +254,9 @@ void sas::killPlants(sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sa
         // O(1) removal
         if (plants[i]->willWither())
         {
-            // Remember this could return nullptr
             water[plants[i]->waterSourceIndex]->capacity += plants[i]->waterConsumption;
             
-            sas::removeFromGrid(plantGrid, plants.at(i).get());
+            sas::removeFromGrid(plantGrid, plants[i].get());
             std::swap(plants[i], plants.back());
             plants.pop_back();
         }
