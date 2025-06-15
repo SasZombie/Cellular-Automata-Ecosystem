@@ -68,8 +68,8 @@ int main()
     std::vector<std::unique_ptr<sas::Plant>> plants;
     sas::DynamicGrid plantGrid;
     std::unique_ptr<sas::Flower> flower = std::make_unique<sas::Flower>(sas::Position{40, 40, 20, 20}, std::make_unique<sas::PlaceholderDrawStrategy>());
-    
-    //Primul index de la Enviroment
+
+    // Primul index de la Enviroment
     flower->waterSourceIndex = 0;
     sas::addPlant(std::move(flower), plantGrid, plants);
 
@@ -93,16 +93,6 @@ int main()
 
     while (!WindowShouldClose())
     {
-
-// On by default
-#ifdef ENABLE_CONFIG_RELOAD
-        if (IsKeyPressed(KEY_L))
-        {
-            // TODO:
-            //  reloadConfig();
-        }
-
-#endif
 
         float dt = GetFrameTime();
 
