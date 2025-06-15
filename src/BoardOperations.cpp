@@ -199,11 +199,12 @@ void sas::multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromen
         {
             if (hasSpaceAgainstPlants(sp, plants, plantGrid, enviromentGrid))
             {
-                std::optional<size_t> result = isNearWater(sp, enviromentGrid, water, plants[i].get());
+                std::optional<size_t> result = getClosestWaterCell(sp, enviromentGrid, water, plants[i].get());
                 if (result)
                 {
                     std::unique_ptr<sas::Plant> newPlant = plants[i]->createOffspring(sp);
                     water[*result]->capacity -= newPlant->waterConsumption;
+                    newPlant->waterSourceIndex = *result;
                     addPlant(std::move(newPlant), plantGrid, plants);
                 }
             }
@@ -252,30 +253,25 @@ void sas::addWater(int gridX, int gridY, std::vector<std::unique_ptr<sas::Enviro
     waterCells[{gridX, gridY}] = water.size() - 1;
 }
 
-void sas::killPlants(sas::StaticGrid &grid, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
+void sas::killPlants(sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sas::Plant>> &plants, std::vector<std::unique_ptr<sas::Enviroment>> &water) noexcept
 {
-    // assert(false && "TODO: Kill Plants");
-
-    // for (size_t i = 0; i < plants.size();)
-    // {
-    //     // O(1) removal
-    //     if (plants[i]->willWither())
-    //     {
-    //         // Remember this could return nullptr
-    //         auto closestWater = findNearestEntity<sas::Water>(grid, plants[i]->pos.x, plants[i]->pos.y, plants[i]->rangeWater);
-    //         if (closestWater)
-    //         {
-    //             closestWater->capacity = closestWater->capacity + plants[i]->waterConsumption;
-    //         }
-    //         sas::removeFromGrid(grid, plants.at(i).get());
-    //         std::swap(plants[i], plants.back());
-    //         plants.pop_back();
-    //     }
-    //     else
-    //     {
-    //         ++i;
-    //     }
-    // }
+    for (size_t i = 0; i < plants.size();)
+    {
+        // O(1) removal
+        if (plants[i]->willWither())
+        {
+            // Remember this could return nullptr
+            water[plants[i]->waterSourceIndex]->capacity += plants[i]->waterConsumption;
+            
+            sas::removeFromGrid(plantGrid, plants.at(i).get());
+            std::swap(plants[i], plants.back());
+            plants.pop_back();
+        }
+        else
+        {
+            ++i;
+        }
+    }
 }
 
 std::optional<size_t> sas::getClosestWaterCell(const Position &pos, const StaticGrid &waterCells, std::vector<std::unique_ptr<sas::Enviroment>> &water, const Plant *p) noexcept
@@ -289,7 +285,7 @@ std::optional<size_t> sas::getClosestWaterCell(const Position &pos, const Static
     visited.insert({gridX, gridY});
 
     const std::vector<GridPos> directions = {
-        {0, 1}, {1, 0}, {0, -1}, {-1, 0}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1} // Up, Right, Down, Left (BFS in 4 directions)
+        {0, 1}, {1, 0}, {0, -1}, {-1, 0}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1} 
     };
 
     while (!q.empty())
@@ -307,7 +303,7 @@ std::optional<size_t> sas::getClosestWaterCell(const Position &pos, const Static
             int nx = x + dx;
             int ny = y + dy;
 
-            // Respect maxRange
+            //Respect maxRange
             //Chebyshev Distance
             if (std::max(std::abs(nx - gridX), std::abs(ny - gridY)) > maxRange)
                 continue;

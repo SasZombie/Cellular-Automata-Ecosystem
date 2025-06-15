@@ -21,11 +21,9 @@ void sas::addToGrid(DynamicGrid &grid, const Entity *entity, size_t index) noexc
     }
 }
 
-void sas::removeFromGrid(StaticGrid &grid, Entity *entity)
+void sas::removeFromGrid(DynamicGrid &grid, Entity *entity)
 {
-    assert(false && "TODO!");
-    // auto &cell = grid[{entity->getPosition()}];
-    // cell.erase(std::remove(cell.begin(), cell.end(), entity), cell.end());
+  
 }
 
 bool sas::collides(const Position &entity, const StaticGrid &grid)

@@ -43,7 +43,7 @@ namespace sas
     using DynamicGrid = std::unordered_map<GridPos, std::vector<size_t>, PairHash>;
 
     void addToGrid(DynamicGrid &grid, const Entity *entity, size_t index) noexcept;
-    void removeFromGrid(StaticGrid &grid, Entity *entity);
+    void removeFromGrid(DynamicGrid &grid, Entity *entity) noexcept;
 
     // Entity <-> Enviroment
     bool collides(const Position &entity, const StaticGrid &grid);
