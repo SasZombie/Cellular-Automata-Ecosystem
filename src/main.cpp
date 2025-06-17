@@ -68,9 +68,9 @@ int main()
     std::vector<std::unique_ptr<sas::Plant>> plants;
     sas::DynamicGrid plantGrid;
     std::unique_ptr<sas::Flower> flower = std::make_unique<sas::Flower>(sas::Position{40, 40, sas::ConfigManager::get().Flower.Size, 
-        sas::ConfigManager::get().Flower.Size}, std::make_unique<sas::FlowerDrawStrategy>());
+        sas::ConfigManager::get().Flower.Size}, std::make_shared<sas::FlowerDrawStrategy>());
     std::unique_ptr<sas::Tree> tree = std::make_unique<sas::Tree>(sas::Position{240, 40, sas::ConfigManager::get().Tree.Size, 
-        sas::ConfigManager::get().Tree.Size}, std::make_unique<sas::TreeDrawStrategy>());
+        sas::ConfigManager::get().Tree.Size}, std::make_shared<sas::TreeDrawStrategy>());
 
     // Primul index de la Enviroment
     //These are complettly wrong btw...
