@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <raylib.h>
+#include <random>
 
 static std::random_device rd;
 static std::mt19937 genForSeed(rd());
@@ -16,6 +17,9 @@ static std::mt19937 genWithSeed;
 static std::uniform_int_distribution<size_t> distWidth(0, ScreenWidth);
 static std::uniform_int_distribution<size_t> distHeight(0, ScreenHeight);
 static std::uniform_int_distribution<size_t> distCellOffset(0, cellSize - 1);
+
+static std::uniform_int_distribution<size_t> plantXYDistribution;
+
 
 //0.06f = chance to spawn a random plant
 static constexpr float weedChance = 0.06f;
@@ -34,13 +38,19 @@ std::pair<size_t, size_t> sas::generateNextPos() noexcept
     return std::make_pair(distWidth(genWithSeed), distHeight(genWithSeed));
 }
 
-std::pair<size_t, size_t> sas::generateNextPos(size_t x, size_t y, size_t range) noexcept
+std::pair<size_t, size_t> sas::generateNextPos(size_t minX, size_t maxX, size_t minY, size_t maxY) noexcept
 {
-    std::uniform_int_distribution<size_t> distX(std::max(x, range) - range, x + range);
-    std::uniform_int_distribution<size_t> distY(std::max(y, range) - range, y + range);
+    
+    plantXYDistribution.param(std::uniform_int_distribution<size_t>::param_type(minX, maxX));
 
-    return std::make_pair(distX(genWithSeed), distY(genWithSeed));
+    size_t x = plantXYDistribution(genWithSeed);
+
+    plantXYDistribution.param(std::uniform_int_distribution<size_t>::param_type(minY, maxY));
+    size_t y = plantXYDistribution(genWithSeed);
+
+    return std::make_pair(x, y);
 }
+
 
 bool sas::areAlmostEqual(float a, float b, float epsilon) noexcept
 {

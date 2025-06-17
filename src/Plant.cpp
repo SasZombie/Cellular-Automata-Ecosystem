@@ -26,9 +26,14 @@ std::vector<sas::Position> sas::Plant::reproduce() const noexcept
     vecs.reserve(this->nrOfSeeds);
     size_t range = this->rangeSpreadingSeeds * cellSize;
 
+    size_t minX = (pos.x >= range) ? pos.x - range : 0;
+    size_t maxX = std::min(pos.x + range, ScreenWidth - 1);
+    size_t minY = (pos.y >= range) ? pos.y - range : 0;
+    size_t maxY = std::min(pos.y + range, ScreenHeight - 1);
+
     for (size_t i = 0; i < this->nrOfSeeds; ++i)
     {
-        const auto [x, y] = generateNextPos(pos.x, pos.y, range);
+        const auto [x, y] = generateNextPos(minX, maxX, minY, maxY);
         vecs.emplace_back(x, y, this->pos.width, this->pos.height);
     }
 

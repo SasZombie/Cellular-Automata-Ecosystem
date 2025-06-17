@@ -19,6 +19,6 @@ namespace sas
     float euclidianDistance2D(size_t x1, size_t y1, size_t x2, size_t y2) noexcept;
 
     std::pair<size_t, size_t> generateNextPos() noexcept;
-    std::pair<size_t, size_t> generateNextPos(size_t x, size_t y, size_t range) noexcept;
+    std::pair<size_t, size_t> generateNextPos(size_t minX, size_t maxX, size_t minY, size_t maxY) noexcept;
 
 } // namespace sas
