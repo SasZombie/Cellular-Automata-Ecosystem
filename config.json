@@ -2,7 +2,7 @@
   "Flower": {
     "DaysAlive": 5,
     "RangeSeeds": 4,
-    "WaterRange": 2,
+    "WaterRange": 100,
     "Size": 5,
     "NumberOfSeeds": 3,
     "WaterConsumption": 10
@@ -16,9 +16,9 @@
     "WaterConsumption": 25
   },
   "Weed": {
-    "DaysAlive": 3,
-    "RangeSeeds": 60,
-    "WaterRange": 15,
+    "DaysAlive": 2,
+    "RangeSeeds": 4,
+    "WaterRange": 1,
     "Size": 5,
     "NumberOfSeeds": 15,
     "WaterConsumption": 12

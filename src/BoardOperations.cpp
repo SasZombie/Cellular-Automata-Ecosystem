@@ -1,4 +1,5 @@
 #include "../include/BoardOperations.hpp"
+#include "ConfigManager.hpp"
 #include "Common.hpp"
 #include "Grid.hpp"
 #include "Utils.hpp"
@@ -11,6 +12,7 @@
 #include <assert.h>
 #include <queue>
 #include <unordered_set>
+
 
 #include "../Extern/FastNoiseLite.h"
 
@@ -84,7 +86,7 @@ void sas::SetUpBoardPerlin(Matrix<Tile> &board, size_t seed)
 void sas::SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::StaticGrid &grid) noexcept
 {
     // Random ahh value for wata
-    waters.push_back(sas::enviromentFactory(grid, {40, 40, 20, 20}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
+    // waters.push_back(sas::enviromentFactory(grid, {40, 40, 20, 20}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
 }
 
 void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::StaticGrid &grid, size_t seed) noexcept
@@ -119,40 +121,27 @@ void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters,
     }
 }
 
-void sas::spawnWeed(sas::StaticGrid &grid, const sas::Matrix<sas::Tile> &board, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
+void sas::spawnWeed(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Enviroment>> &water, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
 {
-    assert(false && "TODO: Spawn Weeds");
-    // const auto &elems = sas::chooseWeedCoords(board);
 
-    // static std::deque<std::unique_ptr<sas::Plant>> newPlants;
-    // newPlants.clear();
-
-    // // static to initialize only once
-    // static sas::Weed defaultWeed(0, 0, nullptr);
-
-    // for (const auto &sp : elems)
-    // {
-    //     bool canPlant = true;
-
-    //     const auto &neighbours = sas::findNearbyEntities<sas::Entity>(grid, sp.first, sp.second, cellSize - defaultWeed.size);
-
-    //     for (const auto &neighbour : neighbours)
-    //     {
-    //         if (!sas::checkBoundaries(sp, defaultWeed.size, neighbour->getPosition(), defaultWeed.size)) // am zis 17 ca 10sqrt(2) pt diagonala unui bloc de apa
-    //         {                                                                                            // not proud of this one tbh
-    //             canPlant = false;
-    //             break;
-    //         }
-    //     }
-
-    //     if (canPlant)
-    //     {
-    //         newPlants.push_back(sas::plantFactory(grid, sp.first, sp.second, sas::PlantType::WEED, std::make_shared<sas::WeedDrawStrategy>()));
-    //     }
-    // }
-
-    // std::move(newPlants.begin(), newPlants.end(), std::back_inserter(plants));
+    const static int rangeWater = ConfigManager::get().Weed.WaterRange;
+    const auto &points = chooseWeedCoords();
+    for (const auto &sp : points)
+    {
+        if (hasSpaceAgainstPlants(sp, plants, plantGrid, enviromentGrid))
+        {
+            std::optional<size_t> result = getClosestWaterCell(sp, enviromentGrid, water, rangeWater);
+            if (result)
+            {
+                std::unique_ptr<sas::Weed> newPlant = std::make_unique<Weed>(sp, std::make_unique<WeedDrawStrategy>());
+                water[*result]->capacity -= newPlant->waterConsumption;
+                newPlant->waterSourceIndex = *result;
+                addPlant(std::move(newPlant), plantGrid, plants);
+            }
+        }
+    }
 }
+
 
 bool sas::hasSpaceAgainstPlants(const Position &p, const std::vector<std::unique_ptr<Plant>> &plants, const DynamicGrid &plantGrid, const StaticGrid &envGrid) noexcept
 {
@@ -193,7 +182,7 @@ void sas::multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromen
         {
             if (hasSpaceAgainstPlants(sp, plants, plantGrid, enviromentGrid))
             {
-                std::optional<size_t> result = getClosestWaterCell(sp, enviromentGrid, water, plants[i].get());
+                std::optional<size_t> result = getClosestWaterCell(sp, enviromentGrid, water, static_cast<int>(plants[i]->rangeWater));
                 if (result)
                 {
                     std::unique_ptr<sas::Plant> newPlant = plants[i]->createOffspring(sp);
@@ -254,6 +243,9 @@ void sas::killPlants(sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sa
         // O(1) removal
         if (plants[i]->willWither())
         {
+            //No checking if water source is not nullptr...
+            //It should NEVER be nullptr, but if we encounter crashes
+            //We should add the check here to see if it solves it
             water[plants[i]->waterSourceIndex]->capacity += plants[i]->waterConsumption;
             
             sas::removeFromGrid(plantGrid, plants[i].get());
@@ -267,12 +259,11 @@ void sas::killPlants(sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sa
     }
 }
 
-std::optional<size_t> sas::getClosestWaterCell(const Position &pos, const StaticGrid &waterCells, std::vector<std::unique_ptr<sas::Enviroment>> &water, const Plant *p) noexcept
+std::optional<size_t> sas::getClosestWaterCell(const Position &pos, const StaticGrid &waterCells, std::vector<std::unique_ptr<sas::Enviroment>> &water, int maxRange) noexcept
 {
     int gridX = pos.x / cellSize, gridY = pos.y / cellSize;
     std::queue<GridPos> q;
     std::unordered_set<GridPos, PairHash> visited;
-    int maxRange = p->rangeWater;
 
     q.push({gridX, gridY});
     visited.insert({gridX, gridY});

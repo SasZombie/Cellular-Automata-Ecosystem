@@ -12,7 +12,7 @@ namespace sas
 
     void killPlants(sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sas::Plant>> &plants, std::vector<std::unique_ptr<sas::Enviroment>> &water) noexcept;
     void multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Enviroment>> &water, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept;
-    void spawnWeed(StaticGrid &grid, const Matrix<Tile> &board, std::vector<std::unique_ptr<Plant>> &plants) noexcept;
+    void spawnWeed(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Enviroment>> &water, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept;
     bool hasSpaceAgainstPlants(const Position &p, const std::vector<std::unique_ptr<Plant>> &plants, const DynamicGrid& plantGrid, const StaticGrid& envGrid) noexcept;
     std::optional<size_t> isNearWater(const Position &pos, const StaticGrid &waterCells, std::vector<std::unique_ptr<sas::Enviroment>> &water, const Plant* p) noexcept;
 
@@ -21,6 +21,6 @@ namespace sas
 
     void addPlant(std::unique_ptr<sas::Plant> plant, sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sas::Plant>>& plants, int spatialCellSize = 50);
     void addWater(int gridX, int gridY, std::vector<std::unique_ptr<sas::Enviroment>> &water, sas::StaticGrid &waterCells) noexcept;
-    std::optional<size_t> getClosestWaterCell(const Position &pos, const StaticGrid &waterCells, std::vector<std::unique_ptr<sas::Enviroment>> &water, const Plant* p) noexcept;
+    std::optional<size_t> getClosestWaterCell(const Position &pos, const StaticGrid &waterCells, std::vector<std::unique_ptr<sas::Enviroment>> &water, int maxRange) noexcept;
 
 }

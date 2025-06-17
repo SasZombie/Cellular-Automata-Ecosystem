@@ -12,6 +12,7 @@ namespace sas
     bool checkBoundaries(const Position& pos1, const Position& pos2) noexcept;
     bool checkBoundaries(const std::pair<size_t, size_t>& p1, size_t p1Size, const std::pair<size_t, size_t>& p2, size_t p2Size) noexcept;
 
+    std::vector<Position> chooseWeedCoords();
 
     size_t generateSeed() noexcept;
 
@@ -19,16 +20,5 @@ namespace sas
 
     std::pair<size_t, size_t> generateNextPos() noexcept;
     std::pair<size_t, size_t> generateNextPos(size_t x, size_t y, size_t range) noexcept;
-
-    std::vector<std::pair<size_t, size_t>> chooseWeedCoords(const sas::Matrix<sas::Tile>& board);
-
-    //If we add another parameter to the facory, I am chaning it
-    //Enviroment
-    // std::unique_ptr<sas::Enviroment> enviromentFactory(Grid &grid, size_t x, size_t y, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
-    std::unique_ptr<sas::Enviroment> enviromentFactory(StaticGrid &grid, const Position& n_pos, sas::EnviromentType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
-
-    //Plant
-    std::unique_ptr<sas::Plant> plantFactory(StaticGrid &grid, const std::pair<size_t, size_t>& n_pos, sas::PlantType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;  
-    std::unique_ptr<sas::Plant> plantFactory(StaticGrid &grid, size_t x, size_t y, sas::PlantType type, std::shared_ptr<DrawStrategy> strat = nullptr) noexcept;
 
 } // namespace sas

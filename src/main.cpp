@@ -43,7 +43,7 @@ static void handleCameraControlls(Camera2D &camera)
 }
 
 /// @brief
-// board = background --> Fastest
+// board = background, no effect on anything --> Fastest
 // enviroment = stuff that has collision such as water, needs a static grid --> Not as fast
 // plant/rest = stuff that has collision but not necesarrly cellSize x cellSize, needs dynamic grid --> still fast but slower than the others
 // This ^ also takes into account multiple entities on the same cell: 2 plants on the same cell, extra memory for this
@@ -52,7 +52,7 @@ int main()
 {
 
     // size_t seed = sas::generateSeed();
-    size_t seed = 18;
+    constexpr size_t seed = 18;
     // All sizes are in cells
     sas::ConfigManager::load("config.json");
 
@@ -106,10 +106,13 @@ int main()
         if (IsKeyPressed(KEY_SPACE))
         {
             sas::multiplyPlants(plantGrid, enviromentGrid, enviroment, plants);
-            // sas::spawnWeed(grid, board, plants);
+            // sas::spawnWeed(plantGrid, enviromentGrid, enviroment, plants);
 
-            std::for_each(plants.begin(), plants.end(), [](std::unique_ptr<sas::Plant> &plt)
-                          { plt->daysAlive++; });
+
+            for (auto &plt : plants)
+            {
+                plt->daysAlive++;
+            }
 
             sas::killPlants(plantGrid, plants, enviroment);
         }
