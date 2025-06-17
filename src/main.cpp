@@ -52,7 +52,7 @@ int main()
 {
 
     // size_t seed = sas::generateSeed();
-    constexpr size_t seed = 18;
+    constexpr size_t seed = 30;
     // All sizes are in cells
     sas::ConfigManager::load("config.json");
 
@@ -67,11 +67,17 @@ int main()
 
     std::vector<std::unique_ptr<sas::Plant>> plants;
     sas::DynamicGrid plantGrid;
-    std::unique_ptr<sas::Flower> flower = std::make_unique<sas::Flower>(sas::Position{40, 40, 20, 20}, std::make_unique<sas::PlaceholderDrawStrategy>());
+    std::unique_ptr<sas::Flower> flower = std::make_unique<sas::Flower>(sas::Position{40, 40, sas::ConfigManager::get().Flower.Size, 
+        sas::ConfigManager::get().Flower.Size}, std::make_unique<sas::FlowerDrawStrategy>());
+    std::unique_ptr<sas::Tree> tree = std::make_unique<sas::Tree>(sas::Position{240, 40, sas::ConfigManager::get().Tree.Size, 
+        sas::ConfigManager::get().Tree.Size}, std::make_unique<sas::TreeDrawStrategy>());
 
     // Primul index de la Enviroment
+    //These are complettly wrong btw...
     flower->waterSourceIndex = 0;
+    tree->waterSourceIndex = 0;
     sas::addPlant(std::move(flower), plantGrid, plants);
+    sas::addPlant(std::move(tree), plantGrid, plants);
 
     Camera2D camera;
     camera.target = {0.f, 0.f};
@@ -106,7 +112,7 @@ int main()
         if (IsKeyPressed(KEY_SPACE))
         {
             sas::multiplyPlants(plantGrid, enviromentGrid, enviroment, plants);
-            // sas::spawnWeed(plantGrid, enviromentGrid, enviroment, plants);
+            sas::spawnWeed(plantGrid, enviromentGrid, enviroment, plants);
 
 
             for (auto &plt : plants)

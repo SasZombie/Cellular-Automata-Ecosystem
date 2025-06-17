@@ -2,26 +2,26 @@
   "Flower": {
     "DaysAlive": 5,
     "RangeSeeds": 4,
-    "WaterRange": 100,
-    "Size": 5,
+    "WaterRange": 2,
+    "Size": 15,
     "NumberOfSeeds": 3,
     "WaterConsumption": 10
   },
   "Tree": {
     "DaysAlive": 10,
-    "RangeSeeds": 100,
-    "WaterRange": 40,
-    "Size": 50,
-    "NumberOfSeeds": 1,
+    "RangeSeeds": 3,
+    "WaterRange": 2,
+    "Size": 18,
+    "NumberOfSeeds": 4,
     "WaterConsumption": 25
   },
   "Weed": {
     "DaysAlive": 2,
     "RangeSeeds": 4,
-    "WaterRange": 1,
+    "WaterRange": 2,
     "Size": 5,
-    "NumberOfSeeds": 15,
-    "WaterConsumption": 12
+    "NumberOfSeeds": 2,
+    "WaterConsumption": 30
   },
   "Screen": {
     "Width": 800,

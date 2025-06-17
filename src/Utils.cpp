@@ -22,7 +22,7 @@ static std::uniform_int_distribution<size_t> plantXYDistribution;
 
 
 //0.06f = chance to spawn a random plant
-static constexpr float weedChance = 0.06f;
+static constexpr float weedChance = 0.001f;
 std::bernoulli_distribution weedDist(weedChance);
 
 size_t sas::generateSeed() noexcept
@@ -107,6 +107,11 @@ std::vector<sas::Position> sas::chooseWeedCoords()
                 size_t offsetY = distCellOffset(genWithSeed);
                 size_t posX = x * cellSize + offsetX;
                 size_t posY = y * cellSize + offsetY;
+
+                posX = std::min(posX, ScreenWidth - 1);
+                posY = std::min(posY, ScreenHeight - 1);
+
+
                 elements.emplace_back(Position{posX, posY, sizeWeed, sizeWeed});
             }
         }

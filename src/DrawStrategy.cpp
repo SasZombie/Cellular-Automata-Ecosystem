@@ -11,8 +11,8 @@ using std::size_t;
 void sas::FlowerDrawStrategy::draw(const sas::Position &pos) const noexcept
 {
     const size_t x = pos.x, y = pos.y;
-
-    size_t plantSize = pos.height;
+ 
+    size_t plantSize = pos.height / 3;
     float fx = static_cast<float>(x), fy = static_cast<float>(y);
 
 
@@ -48,7 +48,7 @@ void sas::FlowerDrawStrategy::draw(const sas::Position &pos) const noexcept
 
 void sas::TreeDrawStrategy::draw(const sas::Position &pos) const noexcept
 {
-    size_t plantSize = 10; // Impartire la 2
+    size_t plantSize = pos.height / 2; // Impartire la 2
     const size_t x = pos.x, y = pos.y;
 
     DrawCircle(x, y, plantSize, Color{30, 215, 80, 255});
@@ -60,7 +60,7 @@ void sas::WeedDrawStrategy::draw(const sas::Position &pos) const noexcept
 {
     size_t x = pos.x, y = pos.y;
 
-    size_t plantSize = 5; // Impartire la 2
+    size_t plantSize = pos.height; // Impartire la 2
     float fx = static_cast<float>(x), fy = static_cast<float>(y);
 
     DrawTriangle({fx + plantSize, fy + plantSize}, {fx + plantSize, fy - plantSize}, {fx, fy}, Color{80, 150, 80, 255});
