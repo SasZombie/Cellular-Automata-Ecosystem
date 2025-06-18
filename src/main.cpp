@@ -5,6 +5,19 @@
 #include <iostream>
 #include <print>
 #include <chrono>
+
+// This is to ignore warnings from raylib that I cant do anything about
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#pragma GCC diagnostic ignored "-Wmissing-declarations"
+#pragma GCC diagnostic ignored "-Wcast-qual"
+
+#define RAYGUI_IMPLEMENTATION
+#include "../Extern/raygui.h"
+
+#pragma GCC diagnostic pop
+
 #include "../include/Matrix.hpp"
 #include "../include/Tile.hpp"
 #include "../include/Grid.hpp"
@@ -12,6 +25,7 @@
 #include "../include/Common.hpp"
 #include "../include/BoardOperations.hpp"
 #include "../include/ConfigManager.hpp"
+#include "../include/GameState.hpp"
 
 static void handleCameraControlls(Camera2D &camera)
 {
@@ -42,6 +56,28 @@ static void handleCameraControlls(Camera2D &camera)
     }
 }
 
+static bool isValidInteger(const char *str, int &result)
+{
+    char *end;
+    errno = 0;
+    long val = std::strtol(str, &end, 10);
+
+    if (errno != 0 || *end != '\0')
+    {
+        return false; // Conversion error or extra characters after number
+    }
+
+    if (val < INT_MIN || val > INT_MAX)
+    {
+        return false; // Out of int range
+    }
+
+    result = static_cast<int>(val);
+    if (result > 500 || result < 0)
+        return false;
+    return true;
+}
+
 /// @brief
 // board = background, no effect on anything --> Fastest
 // enviroment = stuff that has collision such as water, needs a static grid --> Not as fast
@@ -52,29 +88,30 @@ int main()
 {
 
     // size_t seed = sas::generateSeed();
-    constexpr size_t seed = 30;
+    size_t seed = 30;
     // All sizes are in cells
     sas::ConfigManager::load("config.json");
+    
 
     sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
-    sas::setUpBoardPerlin(board, seed);
-
-    // Since the grid only knows about some positions
-    // We need to talk about different Enviroments
+    
     std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
     sas::StaticGrid enviromentGrid;
-    sas::setUpWaterNoise(enviroment, enviromentGrid, seed);
 
     std::vector<std::unique_ptr<sas::Plant>> plants;
     sas::DynamicGrid plantGrid;
-    
-    sas::setUpInitialPlants(plants, plantGrid, enviromentGrid, enviroment);
 
     Camera2D camera;
     camera.target = {0.f, 0.f};
     camera.offset = {0.f, 0.f};
     camera.zoom = -1.0f;
     camera.rotation = 180.0f;
+
+    // For the ESC button, state machine
+    const std::unordered_map<GameState, GameState> states = {
+        {GameState::MENU, GameState::GAME},
+        {GameState::GAME, GameState::MENU},
+    };
 
     constexpr size_t FPS = 60;
     InitWindow(ScreenWidth, ScreenHeight, "Celular Automata Ecosystem");
@@ -86,110 +123,161 @@ int main()
     float seasonAcc = 0.f;
     constexpr float intervalTick = 10.f / FPS;
     constexpr float intervalSeason = 16 * intervalTick;
-    const std::string text = "Plus si minus pt zoom\nWASD pentru movement Seed = " + std::to_string(seed);
+
+    GameState currentState = GameState::GAME;
+
+    char inputText[64] = "";
+
+    bool textBoxActive = false;
+    bool buttonClicked = false;
+    bool showError = false;
 
     while (!WindowShouldClose())
     {
 
-        float dt = GetFrameTime();
-
-        tickAcc = tickAcc + dt;
-
-        if (tickAcc >= intervalTick)
+        switch (currentState)
         {
-            tickAcc = 0;
-        }
-
-        if (IsKeyPressed(KEY_SPACE))
+        case GameState::MENU:
         {
-            sas::multiplyPlants(plantGrid, enviromentGrid, enviroment, plants);
-            sas::spawnWeed(plantGrid, enviromentGrid, enviroment, plants);
+            int screenWidth = GetScreenWidth();
+            int screenHeight = GetScreenHeight();
 
+            Rectangle buttonBounds = {
+                (screenWidth - 200) / 2.0f,
+                (screenHeight - 40) / 2.0f - 60,
+                200, 40};
 
-            for (auto &plt : plants)
+            Rectangle textBoxBounds = {
+                (screenWidth - 200) / 2.0f,
+                (screenHeight - 30) / 2.0f,
+                200, 30};
+
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
             {
-                plt->daysAlive++;
+                textBoxActive = CheckCollisionPointRec(GetMousePosition(), textBoxBounds);
             }
 
-            sas::killPlants(plantGrid, plants, enviroment);
-        }
+            BeginDrawing();
+            ClearBackground(DARKGRAY);
 
-        if (IsKeyPressed(KEY_R))
-        {
-            sas::setUpBoardPerlin(board, seed);
-        }
+            GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
+            GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, 0x5DADE2FF);
+            GuiSetStyle(DEFAULT, BASE_COLOR_FOCUSED, 0x3498DBFF);
+            GuiSetStyle(DEFAULT, BASE_COLOR_PRESSED, 0x2E86C1FF);
+            GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xFFFFFFFF);
 
-        if (IsKeyPressed(KEY_Q))
-        {
-            for (const auto &plt : plants)
+            if (GuiButton(buttonBounds, "Start"))
             {
-                std::print("Position {}, {}, {}, {}\n", plt->pos.x, plt->pos.y, plt->pos.width, plt->pos.height);
+                buttonClicked = true;
             }
-        }
-#if 0
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            const auto [x, y] = GetMousePosition();
 
-            const float cx = camera.target.x, cy = camera.target.y;
+            GuiTextBox(textBoxBounds, inputText, 64, textBoxActive);
 
-            // TODO: Make zoom work...
-            const float cz = camera.zoom;
-            sas::Position flower{(size_t)x, (size_t)y, 20, 20};
-
-            if (sas::isNearWater(flower, enviromentGrid, sas::ConfigManager::get().Flower.WaterRange))
+            if (buttonClicked)
             {
-                size_t spatialCellSize = sas::spatialCellSize;
-
-                
-                std::unique_ptr<sas::Flower> newPlant = std::make_unique<sas::Flower>(flower, std::make_unique<sas::PlaceholderDrawStrategy>());
-                plants.push_back(std::move(newPlant));
-
-                int left = flower.x / spatialCellSize;
-                int right = (flower.x + flower.width) / spatialCellSize;
-                int top = flower.y / spatialCellSize;
-                int bottom = (flower.y + flower.height) / spatialCellSize;
-
-                for (int gx = left; gx <= right; ++gx)
+                int value = 0;
+                buttonClicked = false;
+                if (strlen(inputText) > 0)
                 {
-                    for (int gy = top; gy <= bottom; ++gy)
+                    if (isValidInteger(inputText, value))
                     {
-                        plantGrid[{gx, gy}].push_back(plants.size() - 1);
+                        seed = static_cast<size_t>(value);
+                        currentState = GameState::GAME;
+
+                        sas::setUpBoardPerlin(board, seed);
+                        sas::setUpWaterNoise(enviroment, enviromentGrid, seed);
+                        sas::setUpInitialPlants(plants, plantGrid, enviromentGrid, enviroment);
                     }
+                    else
+                    {
+                        showError = true;
+                    }
+                }
+                else
+                {
+                    seed = sas::generateSeed();
+
+                    currentState = GameState::GAME;
+
+                    sas::setUpBoardPerlin(board, seed);
+                    sas::setUpWaterNoise(enviroment, enviromentGrid, seed);
+                    sas::setUpInitialPlants(plants, plantGrid, enviromentGrid, enviroment);
                 }
             }
 
-            // for (const auto &elem : elems)
-            // {
-            // std::print("Found element at pos {{{}, {}}}, mouse is at coords({}, {})\n", elem->pos.x, elem->pos.y, x, y);
-            // }
+            if (showError)
+            {
+                int textWidth = MeasureText("Input is not number between 0 and 500", 20);
+                DrawText("Input is not number 0 and 500",
+                         (screenWidth - textWidth) / 2,
+                         textBoxBounds.y + 50,
+                         20, RAYWHITE);
+            }
+
+            EndDrawing();
         }
-#endif
-        BeginDrawing();
+        break;
+        case GameState::GAME:
+            float dt = GetFrameTime();
 
+            tickAcc = tickAcc + dt;
 
-        BeginMode2D(camera);
+            if (tickAcc >= intervalTick)
+            {
+                tickAcc = 0;
+            }
 
-        handleCameraControlls(camera);
+            if (IsKeyPressed(KEY_SPACE))
+            {
+                sas::multiplyPlants(plantGrid, enviromentGrid, enviroment, plants);
+                sas::spawnWeed(plantGrid, enviromentGrid, enviroment, plants);
 
-        for (const auto &tile : board)
-        {
-            tile.draw();
+                for (auto &plt : plants)
+                {
+                    plt->daysAlive++;
+                }
+
+                sas::killPlants(plantGrid, plants, enviroment);
+            }
+
+            if (IsKeyPressed(KEY_R))
+            {
+                sas::setUpBoardPerlin(board, seed);
+            }
+
+            if (IsKeyPressed(KEY_Q))
+            {
+                for (const auto &plt : plants)
+                {
+                    std::print("Position {}, {}, {}, {}\n", plt->pos.x, plt->pos.y, plt->pos.width, plt->pos.height);
+                }
+            }
+            BeginDrawing();
+
+            BeginMode2D(camera);
+
+            handleCameraControlls(camera);
+
+            for (const auto &tile : board)
+            {
+                tile.draw();
+            }
+
+            for (const auto &env : enviroment)
+            {
+                env->draw();
+            }
+
+            for (const auto &plt : plants)
+            {
+                plt->draw();
+            }
+
+            // DrawText(text.c_str(), 0, 0, 20, WHITE);
+
+            EndDrawing();
+            break;
         }
-
-        for (const auto &env : enviroment)
-        {
-            env->draw();
-        }
-
-        for (const auto &plt : plants)
-        {
-            plt->draw();
-        }
-
-        DrawText(text.c_str(), 0, 0, 20, WHITE);
-
-        EndDrawing();
     }
 
     CloseWindow();
