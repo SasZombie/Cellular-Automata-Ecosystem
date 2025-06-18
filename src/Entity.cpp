@@ -14,7 +14,6 @@ void sas::Entity::draw() const noexcept
     }
 }
 
-
 sas::Entity::Entity(const Position& p) noexcept
 {
     this->pos = p;

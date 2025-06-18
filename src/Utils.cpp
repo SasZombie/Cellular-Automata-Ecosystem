@@ -9,6 +9,9 @@
 #include <raylib.h>
 #include <random>
 
+//It would be cool
+//If we use this: https://www.youtube.com/watch?v=xMdwK9p5qOw
+
 static std::random_device rd;
 static std::mt19937 genForSeed(rd());
 static std::uniform_int_distribution<size_t> seedDist(0, 501);

@@ -17,6 +17,7 @@ namespace sas
     {
         
     public:
+        //The MOMENT water source can move, this becomes a pointer, idgf
         size_t waterSourceIndex;
         size_t nrOfSeeds;
         size_t rangeSpreadingSeeds;

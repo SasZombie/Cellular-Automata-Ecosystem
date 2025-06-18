@@ -29,8 +29,9 @@ namespace sas
     //OR
     //Not as fast = grid has a pointer to elements in vector
     //Combination of shared_ptr + weak_ptr
+    //Or just a raw pointer
 
-    //Prposal: do this for cache friendly:
+    //We could this:
     /*
         struct gridVector{
             DynamicGrid d;

@@ -13,12 +13,11 @@
 #include <queue>
 #include <unordered_set>
 
-
 #include "../Extern/FastNoiseLite.h"
 
 // The grid does NOT know about the TILES!!
 // Not necesarry a bad thing
-void sas::SetUpBoard(sas::Matrix<sas::Tile> &board)
+void sas::setUpBoard(sas::Matrix<sas::Tile> &board) noexcept
 {
 
     for (size_t i = 0; i < WidthCells; ++i)
@@ -46,7 +45,7 @@ void sas::SetUpBoard(sas::Matrix<sas::Tile> &board)
     }
 }
 
-void sas::SetUpBoardPerlin(Matrix<Tile> &board, size_t seed)
+void sas::setUpBoardPerlin(Matrix<Tile> &board, size_t seed) noexcept
 {
     FastNoiseLite noise;
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
@@ -83,13 +82,13 @@ void sas::SetUpBoardPerlin(Matrix<Tile> &board, size_t seed)
         }
     }
 }
-void sas::SetUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::StaticGrid &grid) noexcept
+void sas::setUpWater(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::StaticGrid &grid) noexcept
 {
     // Random ahh value for wata
     // waters.push_back(sas::enviromentFactory(grid, {40, 40, 20, 20}, sas::EnviromentType::WATER, std::make_unique<sas::WaterDrawStrategy>()));
 }
 
-void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::StaticGrid &grid, size_t seed) noexcept
+void sas::setUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters, sas::StaticGrid &grid, size_t seed) noexcept
 {
     FastNoiseLite perlin;
     perlin.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
@@ -121,6 +120,53 @@ void sas::SetUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters,
     }
 }
 
+// This doesn't need to be efficient
+// It is called 1 single time at the begining
+void sas::setUpInitialPlants(std::vector<std::unique_ptr<Plant>> &plants, DynamicGrid &grid, const StaticGrid &waterCells, std::vector<std::unique_ptr<sas::Enviroment>> &water) noexcept
+{
+    // Create a flower
+    std::unique_ptr<sas::Flower> flower = std::make_unique<sas::Flower>(sas::Position{0, 0, sas::ConfigManager::get().Flower.Size,
+                                                                                      sas::ConfigManager::get().Flower.Size},
+                                                                        std::make_shared<sas::FlowerDrawStrategy>());
+
+    std::optional<size_t> waterSource;
+    do
+    {
+        const auto &[x, y] = generateNextPos();
+
+        flower->pos.x = x;
+        flower->pos.y = y;
+        waterSource = getClosestWaterCell(flower->pos, waterCells, water, flower->rangeWater);
+
+    } while (!waterSource || !hasSpaceAgainstPlants(flower->pos, plants, grid, waterCells));
+
+    water[*waterSource]->capacity -= flower->waterConsumption;
+    flower->waterSourceIndex = *waterSource;
+
+    addPlant(std::move(flower), grid, plants);
+
+    // Create a Tree
+    std::unique_ptr<sas::Tree> tree = std::make_unique<sas::Tree>(sas::Position{0, 0, sas::ConfigManager::get().Tree.Size,
+                                                                                sas::ConfigManager::get().Tree.Size},
+                                                                  std::make_shared<sas::TreeDrawStrategy>());
+
+    waterSource = std::nullopt;
+    do
+    {
+        const auto &[x, y] = generateNextPos();
+
+        tree->pos.x = x;
+        tree->pos.y = y;
+        waterSource = getClosestWaterCell(tree->pos, waterCells, water, tree->rangeWater);
+
+    } while (!waterSource && hasSpaceAgainstPlants(tree->pos, plants, grid, waterCells));
+
+    water[*waterSource]->capacity -= tree->waterConsumption;
+    tree->waterSourceIndex = *waterSource;
+
+    addPlant(std::move(tree), grid, plants);
+}
+
 void sas::spawnWeed(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Enviroment>> &water, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept
 {
 
@@ -142,7 +188,6 @@ void sas::spawnWeed(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid
     }
 }
 
-
 bool sas::hasSpaceAgainstPlants(const Position &p, const std::vector<std::unique_ptr<Plant>> &plants, const DynamicGrid &plantGrid, const StaticGrid &envGrid) noexcept
 {
     return !collides(p, envGrid) && !collides(p, plants, plantGrid);
@@ -156,7 +201,6 @@ void sas::addPlant(std::unique_ptr<sas::Plant> plant, sas::DynamicGrid &plantGri
     int top = plant->pos.y / spatialCellSize;
     int bottom = (plant->pos.y + plant->pos.height) / spatialCellSize;
 
-    
     for (int gx = left; gx <= right; ++gx)
     {
         for (int gy = top; gy <= bottom; ++gy)
@@ -243,11 +287,11 @@ void sas::killPlants(sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sa
         // O(1) removal
         if (plants[i]->willWither())
         {
-            //No checking if water source is not nullptr...
-            //It should NEVER be nullptr, but if we encounter crashes
-            //We should add the check here to see if it solves it
+            // No checking if water source is not nullptr...
+            // It should NEVER be nullptr, but if we encounter crashes
+            // We should add the check here to see if it solves it
             water[plants[i]->waterSourceIndex]->capacity += plants[i]->waterConsumption;
-            
+
             sas::removeFromGrid(plantGrid, plants[i].get());
             std::swap(plants[i], plants.back());
             plants.pop_back();
@@ -269,8 +313,7 @@ std::optional<size_t> sas::getClosestWaterCell(const Position &pos, const Static
     visited.insert({gridX, gridY});
 
     const std::vector<GridPos> directions = {
-        {0, 1}, {1, 0}, {0, -1}, {-1, 0}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1} 
-    };
+        {0, 1}, {1, 0}, {0, -1}, {-1, 0}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}};
 
     while (!q.empty())
     {
@@ -287,8 +330,8 @@ std::optional<size_t> sas::getClosestWaterCell(const Position &pos, const Static
             int nx = x + dx;
             int ny = y + dy;
 
-            //Respect maxRange
-            //Chebyshev Distance
+            // Respect maxRange
+            // Chebyshev Distance
             if (std::max(std::abs(nx - gridX), std::abs(ny - gridY)) > maxRange)
                 continue;
 

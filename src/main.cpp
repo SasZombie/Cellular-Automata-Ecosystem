@@ -57,27 +57,18 @@ int main()
     sas::ConfigManager::load("config.json");
 
     sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
-    sas::SetUpBoardPerlin(board, seed);
+    sas::setUpBoardPerlin(board, seed);
 
     // Since the grid only knows about some positions
     // We need to talk about different Enviroments
     std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
     sas::StaticGrid enviromentGrid;
-    sas::SetUpWaterNoise(enviroment, enviromentGrid, seed);
+    sas::setUpWaterNoise(enviroment, enviromentGrid, seed);
 
     std::vector<std::unique_ptr<sas::Plant>> plants;
     sas::DynamicGrid plantGrid;
-    std::unique_ptr<sas::Flower> flower = std::make_unique<sas::Flower>(sas::Position{40, 40, sas::ConfigManager::get().Flower.Size, 
-        sas::ConfigManager::get().Flower.Size}, std::make_shared<sas::FlowerDrawStrategy>());
-    std::unique_ptr<sas::Tree> tree = std::make_unique<sas::Tree>(sas::Position{240, 40, sas::ConfigManager::get().Tree.Size, 
-        sas::ConfigManager::get().Tree.Size}, std::make_shared<sas::TreeDrawStrategy>());
-
-    // Primul index de la Enviroment
-    //These are complettly wrong btw...
-    flower->waterSourceIndex = 0;
-    tree->waterSourceIndex = 0;
-    sas::addPlant(std::move(flower), plantGrid, plants);
-    sas::addPlant(std::move(tree), plantGrid, plants);
+    
+    sas::setUpInitialPlants(plants, plantGrid, enviromentGrid, enviroment);
 
     Camera2D camera;
     camera.target = {0.f, 0.f};
@@ -125,7 +116,7 @@ int main()
 
         if (IsKeyPressed(KEY_R))
         {
-            sas::SetUpBoardPerlin(board, seed);
+            sas::setUpBoardPerlin(board, seed);
         }
 
         if (IsKeyPressed(KEY_Q))
@@ -176,7 +167,6 @@ int main()
 #endif
         BeginDrawing();
 
-        ClearBackground(Color{18, 18, 18, 255});
 
         BeginMode2D(camera);
 
