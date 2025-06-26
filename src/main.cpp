@@ -91,10 +91,9 @@ int main()
     size_t seed = 30;
     // All sizes are in cells
     sas::ConfigManager::load("config.json");
-    
 
     sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
-    
+
     std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
     sas::StaticGrid enviromentGrid;
 
@@ -116,6 +115,12 @@ int main()
     constexpr size_t FPS = 60;
     InitWindow(ScreenWidth, ScreenHeight, "Celular Automata Ecosystem");
     SetTargetFPS(FPS);
+
+/////////////////////////////////
+    sas::setUpBoardPerlin(board, seed);
+    sas::setUpWaterNoise(enviroment, enviromentGrid, seed);
+    sas::setUpInitialPlants(plants, plantGrid, enviromentGrid, enviroment);
+////////////////////////////////
 
     // Tick = day
     // Season = ??
@@ -276,7 +281,6 @@ int main()
             // DrawText(text.c_str(), 0, 0, 20, WHITE);
 
             EndDrawing();
-            break;
         }
     }
 
