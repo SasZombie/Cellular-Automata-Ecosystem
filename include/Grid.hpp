@@ -71,7 +71,6 @@ namespace sas
                     if (other->pos == entity)
                         continue; 
 
-
                     bool overlap =
                         entity.x < other->pos.x + other->pos.width &&
                         entity.x + entity.width > other->pos.x &&
