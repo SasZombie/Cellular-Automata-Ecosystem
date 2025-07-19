@@ -20,14 +20,17 @@ sas::Plant::Plant(const Position &p, std::shared_ptr<DrawStrategy> strat, size_t
 // Δx ∼ N(μ, σ^2)
 // μ = 0 ---> mutation average out
 // σ = standard dev ---> how big/lagrge/impactful is mutation
-static size_t mutateGaussian(size_t original, double stdev, int minVal = 0, int maxVal = INT_MAX)
+static size_t mutateGaussian(size_t original, int minVal = 0, int maxVal = INT_MAX)
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
 
+    double stdev = std::max(original * 0.1, 1.0);
+
     std::normal_distribution d(0.0, stdev);
 
     //x' = x + round(Δx)
+
     int delta = static_cast<int>(std::round(d(gen)));
     int mutated = static_cast<int>(original) + delta;
 
@@ -56,11 +59,14 @@ std::vector<sas::Position> sas::Plant::reproduce() const noexcept
     return vecs;
 }
 
+//It would be cool to mutate the draw Strategy!
+//Maybe cosmin can do it
+//This is tho a bad way of doing it since it will converge
+//To higher and higher values
+//It should have a system where if one is increased, some other parts are decreased
 std::unique_ptr<sas::Plant> sas::Tree::createOffspring(const Position &p) const noexcept
 {
     std::unique_ptr<Tree> tree = std::make_unique<Tree>(p, getDrawStartegy());
-
-    tree->nrOfSeeds = mutateGaussian(this->nrOfSeeds, 1.5);
 
     return tree;
 }
