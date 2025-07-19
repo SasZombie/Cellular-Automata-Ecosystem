@@ -20,7 +20,7 @@ sas::Plant::Plant(const Position &p, std::shared_ptr<DrawStrategy> strat, size_t
 // Δx ∼ N(μ, σ^2)
 // μ = 0 ---> mutation average out
 // σ = standard dev ---> how big/lagrge/impactful is mutation
-static size_t mutateGaussian(size_t original, double stdev, size_t minVal, size_t maxVal)
+static size_t mutateGaussian(size_t original, double stdev, int minVal = 0, int maxVal = INT_MAX)
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
@@ -31,7 +31,7 @@ static size_t mutateGaussian(size_t original, double stdev, size_t minVal, size_
     int delta = static_cast<int>(std::round(d(gen)));
     int mutated = static_cast<int>(original) + delta;
 
-    mutated = std::clamp(mutated, static_cast<int>(minVal), static_cast<int>(maxVal));
+    mutated = std::clamp(mutated, minVal, maxVal);
 
     return static_cast<size_t>(mutated);
 }
@@ -60,7 +60,7 @@ std::unique_ptr<sas::Plant> sas::Tree::createOffspring(const Position &p) const 
 {
     std::unique_ptr<Tree> tree = std::make_unique<Tree>(p, getDrawStartegy());
 
-    tree->nrOfSeeds = 5;
+    tree->nrOfSeeds = mutateGaussian(this->nrOfSeeds, 1.5);
 
     return tree;
 }
