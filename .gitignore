@@ -2,7 +2,8 @@ build/*
 *.exe
 .vscode/*
 Makefile
-build
+build-debug
+build-release
 CMakeFiles/*
 cmake_install.cmake
 CMakeCache.txt

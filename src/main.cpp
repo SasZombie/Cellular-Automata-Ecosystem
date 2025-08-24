@@ -10,6 +10,8 @@
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #pragma GCC diagnostic ignored "-Wmissing-declarations"
 #pragma GCC diagnostic ignored "-Wcast-qual"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+
 
 #define RAYGUI_IMPLEMENTATION
 #include "../Extern/raygui.h"
