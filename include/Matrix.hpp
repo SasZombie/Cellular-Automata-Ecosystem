@@ -73,6 +73,7 @@ namespace sas
             }
         }
 
+        //Crash on out of bounds access
         T &operator()(size_t row, size_t col)
         {
             checkInsideBoundry(row, col);

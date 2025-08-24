@@ -90,6 +90,7 @@ bool sas::isNear(const Entity* entity, const StaticGrid &grid, int maxRange) noe
 
 bool sas::isNear(const Entity* entity, const DynamicGrid &grid, int maxRange) noexcept
 {
+    //So far this was not needed
     assert(false && "TODO: is near with Dynamic!");
     return false;
     // int centerX = (entity->pos.x + entity->pos.width / 2) / cellSize;

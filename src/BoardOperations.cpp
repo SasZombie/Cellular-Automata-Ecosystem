@@ -100,7 +100,7 @@ void sas::setUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters,
 
     constexpr float scaleElevation = 8; // Controls biome size (lower = bigger biomes)
     constexpr float scaleLakes = 8;     // Controls biome size (lower = bigger biomes)
-    constexpr float scaleVally = 10;    // Controls biome size (lower = bigger biomes)
+    //constexpr float scaleVally = 10;    // Controls biome size (lower = bigger biomes)
 
     for (size_t i = 0; i < WidthCells; ++i)
     {
@@ -108,9 +108,7 @@ void sas::setUpWaterNoise(std::vector<std::unique_ptr<sas::Enviroment>> &waters,
         {
             float elevation = (perlin.GetNoise(i * scaleElevation, j * scaleElevation) + 1.f) * 0.5;
             float lakes = (worley.GetNoise(i * scaleLakes, j * scaleLakes) + 1.0f) * 0.5f;
-            float valleys = 1.0f - abs(perlin.GetNoise(i * scaleVally, j * scaleVally) + 1.f) * 0.5f;
-
-            // std::print("Elevation = {}, lake = {}, vally = {}\n", elevation, lakes, valleys);
+            // float valleys = 1.0f - abs(perlin.GetNoise(i * scaleVally, j * scaleVally) + 1.f) * 0.5f;
 
             if (elevation < 0.3f || lakes < 0.25f /* || valleys > 0.6f */)
             {

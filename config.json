@@ -22,10 +22,5 @@
     "Size": 5,
     "NumberOfSeeds": 2,
     "WaterConsumption": 30
-  },
-  "Screen": {
-    "Width": 800,
-    "Height": 800,
-    "CellSize": 20
   }
 }

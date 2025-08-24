@@ -4,7 +4,7 @@
 
 namespace sas
 {
-    
+    //We could add more
     enum struct EnviromentType
     {
         WATER

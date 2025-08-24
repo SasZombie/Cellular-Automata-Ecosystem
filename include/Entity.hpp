@@ -12,7 +12,9 @@ namespace sas
     public:
         
         Position pos;
+        
         std::pair<size_t, size_t> getPosition() const noexcept;
+
 
     private:
         //This is private because we call move in the setter

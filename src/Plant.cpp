@@ -20,7 +20,8 @@ sas::Plant::Plant(const Position &p, std::shared_ptr<DrawStrategy> strat, size_t
 // Δx ∼ N(μ, σ^2)
 // μ = 0 ---> mutation average out
 // σ = standard dev ---> how big/lagrge/impactful is mutation
-static size_t mutateGaussian(size_t original, int minVal = 0, int maxVal = INT_MAX)
+// For now this is not used since it is very lame :3
+[[maybe_unused]]static size_t mutateGaussian(size_t original, int minVal = 0, int maxVal = INT_MAX)
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
