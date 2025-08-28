@@ -71,7 +71,7 @@ static bool isValidInteger(const char *str, int &result)
 
     if (val < INT_MIN || val > INT_MAX)
     {
-        return false; // Out of int range
+        return false;
     }
 
     result = static_cast<int>(val);
@@ -111,6 +111,16 @@ int main()
     bool buttonClicked = false;
     bool showError = false;
 
+    Rectangle buttonBounds = {
+        (ScreenWidth - 200) / 2.0f,
+        (ScreenHeight - 40) / 2.0f - 60,
+        200, 40};
+
+    Rectangle textBoxBounds = {
+        (ScreenWidth - 200) / 2.0f,
+        (ScreenHeight - 30) / 2.0f,
+        200, 30};
+
     while (!WindowShouldClose())
     {
 
@@ -118,19 +128,6 @@ int main()
         {
         case GameState::MENU:
         {
-            int screenWidth = GetScreenWidth();
-            int screenHeight = GetScreenHeight();
-
-            Rectangle buttonBounds = {
-                (screenWidth - 200) / 2.0f,
-                (screenHeight - 40) / 2.0f - 60,
-                200, 40};
-
-            Rectangle textBoxBounds = {
-                (screenWidth - 200) / 2.0f,
-                (screenHeight - 30) / 2.0f,
-                200, 30};
-
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
             {
                 textBoxActive = CheckCollisionPointRec(GetMousePosition(), textBoxBounds);
@@ -185,7 +182,7 @@ int main()
             {
                 int textWidth = MeasureText("Input is not number between 0 and 500", 20);
                 DrawText("Input is not number between 0 and 500",
-                         (screenWidth - textWidth) / 2,
+                         (ScreenWidth - textWidth) / 2,
                          textBoxBounds.y + 50,
                          20, RAYWHITE);
             }
@@ -209,7 +206,8 @@ int main()
             }
 
             BeginDrawing();
-
+            ClearBackground(GRAY);
+            
             BeginMode2D(camera);
 
             handleCameraControlls(camera);
@@ -232,6 +230,5 @@ int main()
             EndDrawing();
         }
     }
-
     CloseWindow();
 }

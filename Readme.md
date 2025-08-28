@@ -6,7 +6,7 @@ This is not under any circumstances a "realistic" description of the real life.
 ![Game SS]()
 
 The game is has a seed system that is between 0 and 500, this limit is arbitrary since it could have `max_int` number of seeds.
-To make the speed of the game manageble the "time" goes only on **space** key press. 
+To make the speed of the game manageble the "time" goes only on **space** key press. Each "day" all plants will throw seeds in random directions. If the seed lands in a place where it can grow and has enough water, then a new plant appears, otherwise the seed is discarded. At the same time, each plant ages 1 day and weed sprouts in random places. 
 <br>
 The project requires [raylib](https://github.com/raysan5/raylib) and comes with 2 other libraries:
 <br>
