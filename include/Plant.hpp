@@ -5,7 +5,7 @@
 
 namespace sas
 {
-    // This is bad if we want to have more than 10 plants btw
+    // This could be bad if we want to have more than 10 plants btw
     enum struct PlantType
     {
         TREE,
