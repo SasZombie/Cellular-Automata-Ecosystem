@@ -7,7 +7,7 @@
     "configurePresets": [
       {
         "name": "debug",
-        "description": "Debug build with sanitizers",
+        "description": "Debug build",
         "generator": "Unix Makefiles",
         "binaryDir": "build-debug",
         "cacheVariables": {
@@ -16,7 +16,7 @@
       },
       {
         "name": "release",
-        "description": "Release build with -O3",
+        "description": "Optimized build",
         "generator": "Unix Makefiles",
         "binaryDir": "build-release",
         "cacheVariables": {
