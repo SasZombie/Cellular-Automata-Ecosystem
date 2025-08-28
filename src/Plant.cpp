@@ -20,7 +20,7 @@ sas::Plant::Plant(const Position &p, std::shared_ptr<DrawStrategy> strat, size_t
 // Δx ∼ N(μ, σ^2)
 // μ = 0 ---> mutation average out
 // σ = standard dev ---> how big/lagrge/impactful is mutation
-// For now this is not used since it is very lame :3
+// For now this is not used since it is very lame :(
 [[maybe_unused]]static size_t mutateGaussian(size_t original, int minVal = 0, int maxVal = INT_MAX)
 {
     static std::random_device rd;
@@ -68,7 +68,7 @@ std::vector<sas::Position> sas::Plant::reproduce() const noexcept
 std::unique_ptr<sas::Plant> sas::Tree::createOffspring(const Position &p) const noexcept
 {
     std::unique_ptr<Tree> tree = std::make_unique<Tree>(p, getDrawStartegy());
-
+    //Mutate here... Research how to make it not lame first
     return tree;
 }
 

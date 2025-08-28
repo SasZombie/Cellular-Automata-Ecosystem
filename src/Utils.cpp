@@ -24,7 +24,7 @@ static std::uniform_int_distribution<size_t> distCellOffset(0, cellSize - 1);
 static std::uniform_int_distribution<size_t> plantXYDistribution;
 
 
-//0.06f = chance to spawn a random plant
+//0.001sf = chance to spawn a random plant
 static constexpr float weedChance = 0.001f;
 std::bernoulli_distribution weedDist(weedChance);
 
@@ -67,6 +67,7 @@ bool sas::checkBoundaries(const std::pair<size_t, size_t>& p1, size_t p1Size, co
 
 
 //TODO: Maybe cosmin can make this with math such that we dont create 2 rectangles
+//Depricated
 bool sas::checkBoundaries(const Position& pos1, const Position& pos2) noexcept
 {
     Rectangle rec1{static_cast<float>(pos1.x), static_cast<float>(pos1.y), static_cast<float>(pos1.width), static_cast<float>(pos1.height)};
