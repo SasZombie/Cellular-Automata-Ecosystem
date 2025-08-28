@@ -17,7 +17,7 @@ namespace sas
     void setUpInitialPlants(std::vector<std::unique_ptr<Plant>> &plants, DynamicGrid &grid, const StaticGrid &waterCells, std::vector<std::unique_ptr<sas::Enviroment>> &water) noexcept;
     
 
-
+    //these functions have too many damn params
     void killPlants(sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sas::Plant>> &plants, std::vector<std::unique_ptr<sas::Enviroment>> &water) noexcept;
     void multiplyPlants(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Enviroment>> &water, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept;
     void spawnWeed(sas::DynamicGrid &plantGrid, sas::StaticGrid &enviromentGrid, std::vector<std::unique_ptr<sas::Enviroment>> &water, std::vector<std::unique_ptr<sas::Plant>> &plants) noexcept;

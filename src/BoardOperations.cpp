@@ -291,7 +291,7 @@ void sas::killPlants(sas::DynamicGrid &plantGrid, std::vector<std::unique_ptr<sa
             water[plants[i]->waterSourceIndex]->capacity += plants[i]->waterConsumption;
 
             sas::removeFromGrid(plantGrid, plants[i].get());
-            std::swap(plants[i], plants.back());
+            plants[i] = std::move(plants.back());
             plants.pop_back();
         }
         else

@@ -58,25 +58,21 @@ static void handleCameraControlls(Camera2D &camera)
     }
 }
 
-static bool isValidInteger(const char *str, int &result)
+static bool isValidInteger(const char *str, size_t &result)
 {
     char *end;
     errno = 0;
-    long val = std::strtol(str, &end, 10);
+    size_t val = std::strtol(str, &end, 10);
 
     if (errno != 0 || *end != '\0')
     {
         return false; // Conversion error or extra characters after number
     }
 
-    if (val < INT_MIN || val > INT_MAX)
-    {
+    if (val > 500)
         return false;
-    }
 
-    result = static_cast<int>(val);
-    if (result > 500 || result < 0)
-        return false;
+    result = val;
     return true;
 }
 
@@ -150,7 +146,7 @@ int main()
 
             if (buttonClicked)
             {
-                int value = 0;
+                size_t value = 0;
                 buttonClicked = false;
                 if (strlen(inputText) > 0)
                 {
