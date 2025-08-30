@@ -12,7 +12,7 @@ The project requires [raylib](https://github.com/raysan5/raylib) and comes with 
 <br>
 [FastNoiseLite](https://github.com/Auburn/FastNoiseLite) and [json](https://github.com/nlohmann/json) 
 
-## Build
+## Build    
 There are 2 main build paths. Debug and Release. 
 
 1. For Debug:
