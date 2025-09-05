@@ -123,3 +123,22 @@ std::vector<sas::Position> sas::chooseWeedCoords()
 
     return elements;
 }
+
+
+bool sas::isValidInteger(const char *str, size_t &result) noexcept
+{
+    char *end;
+    errno = 0;
+    size_t val = std::strtol(str, &end, 10);
+
+    if (errno != 0 || *end != '\0')
+    {
+        return false; // Conversion error or extra characters after number
+    }
+
+    if (val > 500)
+        return false;
+
+    result = val;
+    return true;
+}

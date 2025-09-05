@@ -12,6 +12,8 @@ namespace sas
     bool checkBoundaries(const Position& pos1, const Position& pos2) noexcept;
     bool checkBoundaries(const std::pair<size_t, size_t>& p1, size_t p1Size, const std::pair<size_t, size_t>& p2, size_t p2Size) noexcept;
 
+    bool isValidInteger(const char *str, size_t &result) noexcept;
+
     std::vector<Position> chooseWeedCoords();
 
     size_t generateSeed() noexcept;

@@ -47,6 +47,7 @@ void sas::setUpBoard(sas::Matrix<sas::Tile> &board) noexcept
 
 void sas::setUpBoardPerlin(Matrix<Tile> &board, size_t seed) noexcept
 {
+    std::cout << seed << '\n';
     FastNoiseLite noise;
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     noise.SetSeed(seed);
@@ -344,4 +345,33 @@ std::optional<size_t> sas::getClosestWaterCell(const Position &pos, const Static
 
     // No water found within maxRange
     return std::nullopt;
+}
+
+void sas::handleCameraControlls(Camera2D &camera) noexcept
+{
+    if (IsKeyDown(KEY_D))
+        camera.target.x += 2;
+    else if (IsKeyDown(KEY_A) && camera.target.x > 0)
+        camera.target.x -= 2;
+    if (IsKeyDown(KEY_W) && camera.target.y > 0)
+        camera.target.y -= 2;
+    else if (IsKeyDown(KEY_S))
+        camera.target.y += 2;
+
+    // Camera zoom controls
+    if (IsKeyDown(KEY_ZERO))
+        camera.zoom = -1.f;
+    if (IsKeyDown(KEY_MINUS))
+        camera.zoom += 0.005f;
+    else if (IsKeyDown(KEY_EQUAL))
+        camera.zoom -= 0.005f;
+
+    camera.zoom += ((float)GetMouseWheelMove() * -0.05f);
+
+    // Camera reset (zoom and rotation)
+    if (IsKeyPressed(KEY_R))
+    {
+        camera.zoom = 1.0f;
+        camera.rotation = 0.0f;
+    }
 }

@@ -20,6 +20,7 @@
 
 #pragma GCC diagnostic pop
 
+#include "../include/Game.hpp"
 #include "../include/Matrix.hpp"
 #include "../include/Tile.hpp"
 #include "../include/Grid.hpp"
@@ -27,67 +28,86 @@
 #include "../include/Common.hpp"
 #include "../include/BoardOperations.hpp"
 #include "../include/ConfigManager.hpp"
-#include "../include/GameState.hpp"
 
-static void handleCameraControlls(Camera2D &camera)
+char inputText[64] = "";
+
+bool textBoxActive = false;
+bool buttonClicked = false;
+bool showError = false;
+
+Rectangle buttonBounds = {
+    (ScreenWidth - 200) / 2.0f,
+    (ScreenHeight - 40) / 2.0f - 60,
+    200, 40};
+
+Rectangle textBoxBounds = {
+    (ScreenWidth - 200) / 2.0f,
+    (ScreenHeight - 30) / 2.0f,
+    200, 30};
+
+static void showUi(sas::Game& game)
 {
-    if (IsKeyDown(KEY_D))
-        camera.target.x += 2;
-    else if (IsKeyDown(KEY_A) && camera.target.x > 0)
-        camera.target.x -= 2;
-    if (IsKeyDown(KEY_W) && camera.target.y > 0)
-        camera.target.y -= 2;
-    else if (IsKeyDown(KEY_S))
-        camera.target.y += 2;
-
-    // Camera zoom controls
-    if (IsKeyDown(KEY_ZERO))
-        camera.zoom = -1.f;
-    if (IsKeyDown(KEY_MINUS))
-        camera.zoom += 0.005f;
-    else if (IsKeyDown(KEY_EQUAL))
-        camera.zoom -= 0.005f;
-
-    camera.zoom += ((float)GetMouseWheelMove() * -0.05f);
-
-    // Camera reset (zoom and rotation)
-    if (IsKeyPressed(KEY_R))
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
-        camera.zoom = 1.0f;
-        camera.rotation = 0.0f;
-    }
-}
-
-static bool isValidInteger(const char *str, size_t &result)
-{
-    char *end;
-    errno = 0;
-    size_t val = std::strtol(str, &end, 10);
-
-    if (errno != 0 || *end != '\0')
-    {
-        return false; // Conversion error or extra characters after number
+        textBoxActive = CheckCollisionPointRec(GetMousePosition(), textBoxBounds);
     }
 
-    if (val > 500)
-        return false;
+    BeginDrawing();
+    ClearBackground(DARKGRAY);
 
-    result = val;
-    return true;
+    GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
+    GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, 0x5DADE2FF);
+    GuiSetStyle(DEFAULT, BASE_COLOR_PRESSED, 0x2E86C1FF);
+    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xFFFFFFFF);
+
+    if (GuiButton(buttonBounds, "Start"))
+    {
+        buttonClicked = true;
+    }
+
+    GuiTextBox(textBoxBounds, inputText, 64, textBoxActive);
+
+    if (buttonClicked)
+    {
+        size_t value = 0;
+        buttonClicked = false;
+        if (strlen(inputText) > 0)
+        {
+            if (sas::isValidInteger(inputText, value))
+            {
+                game.currentState = GameState::GAME;
+                game.setUp(value);
+            }
+            else
+            {
+                showError = true;
+            }
+        }
+        else
+        {
+            game.currentState = GameState::GAME;
+        }
+    }
+
+    if (showError)
+    {
+        int textWidth = MeasureText("Input is not number between 0 and 500", 20);
+        DrawText("Input is not number between 0 and 500",
+                 (ScreenWidth - textWidth) / 2,
+                 textBoxBounds.y + 50,
+                 20, RAYWHITE);
+    }
+
+    EndDrawing();
 }
+
 
 int main()
 {
     size_t seed = sas::generateSeed();
-    // All sizes are in cells
+    
     sas::ConfigManager::load("config.json");
-    sas::Matrix<sas::Tile> board(WidthCells, HeightCells);
-
-    std::vector<std::unique_ptr<sas::Enviroment>> enviroment;
-    sas::StaticGrid enviromentGrid;
-
-    std::vector<std::unique_ptr<sas::Plant>> plants;
-    sas::DynamicGrid plantGrid;
+    sas::Game game(seed);
 
     Camera2D camera;
     camera.target = {0.f, 0.f};
@@ -99,106 +119,21 @@ int main()
     InitWindow(ScreenWidth, ScreenHeight, "Celular Automata Ecosystem");
     SetTargetFPS(FPS);
 
-    GameState currentState = GameState::MENU;
-
-    char inputText[64] = "";
-
-    bool textBoxActive = false;
-    bool buttonClicked = false;
-    bool showError = false;
-
-    Rectangle buttonBounds = {
-        (ScreenWidth - 200) / 2.0f,
-        (ScreenHeight - 40) / 2.0f - 60,
-        200, 40};
-
-    Rectangle textBoxBounds = {
-        (ScreenWidth - 200) / 2.0f,
-        (ScreenHeight - 30) / 2.0f,
-        200, 30};
-
     while (!WindowShouldClose())
     {
 
-        switch (currentState)
+        switch (game.currentState)
         {
         case GameState::MENU:
         {
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-            {
-                textBoxActive = CheckCollisionPointRec(GetMousePosition(), textBoxBounds);
-            }
-
-            BeginDrawing();
-            ClearBackground(DARKGRAY);
-
-            GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
-            GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, 0x5DADE2FF);
-            GuiSetStyle(DEFAULT, BASE_COLOR_PRESSED, 0x2E86C1FF);
-            GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xFFFFFFFF);
-
-            if (GuiButton(buttonBounds, "Start"))
-            {
-                buttonClicked = true;
-            }
-
-            GuiTextBox(textBoxBounds, inputText, 64, textBoxActive);
-
-            if (buttonClicked)
-            {
-                size_t value = 0;
-                buttonClicked = false;
-                if (strlen(inputText) > 0)
-                {
-                    if (isValidInteger(inputText, value))
-                    {
-                        seed = static_cast<size_t>(value);
-                        currentState = GameState::GAME;
-
-                        sas::setUpBoardPerlin(board, seed);
-                        sas::setUpWaterNoise(enviroment, enviromentGrid, seed);
-                        sas::setUpInitialPlants(plants, plantGrid, enviromentGrid, enviroment);
-                    }
-                    else
-                    {
-                        showError = true;
-                    }
-                }
-                else
-                {
-                    currentState = GameState::GAME;
-
-                    sas::setUpBoardPerlin(board, seed);
-                    sas::setUpWaterNoise(enviroment, enviromentGrid, seed);
-                    sas::setUpInitialPlants(plants, plantGrid, enviromentGrid, enviroment);
-                }
-            }
-
-            if (showError)
-            {
-                int textWidth = MeasureText("Input is not number between 0 and 500", 20);
-                DrawText("Input is not number between 0 and 500",
-                         (ScreenWidth - textWidth) / 2,
-                         textBoxBounds.y + 50,
-                         20, RAYWHITE);
-            }
-
-            EndDrawing();
+            showUi(game);
         }
         break;
         case GameState::GAME:
 
             if (IsKeyPressed(KEY_SPACE))
             {
-                sas::multiplyPlants(plantGrid, enviromentGrid, enviroment, plants);
-                sas::spawnWeed(plantGrid, enviromentGrid, enviroment, plants);
-
-                for (auto &plt : plants)
-                {
-                    plt->daysAlive++;
-                }
-
-                sas::killPlants(plantGrid, plants, enviroment);
+                game.passTime();
             }
 
             BeginDrawing();
@@ -206,19 +141,22 @@ int main()
             
             BeginMode2D(camera);
 
-            handleCameraControlls(camera);
+            sas::handleCameraControlls(camera);
 
-            for (const auto &tile : board)
+            //I like doing the drawing in here
+            //Rather than abstracting this to a 
+            //Draw all function
+            for (const auto &tile : game.boardRef())
             {
                 tile.draw();
             }
 
-            for (const auto &env : enviroment)
+            for (const auto &env : game.enviromentRef())
             {
                 env->draw();
             }
 
-            for (const auto &plt : plants)
+            for (const auto &plt : game.plantsRef())
             {
                 plt->draw();
             }

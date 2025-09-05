@@ -1,3 +1,4 @@
+#pragma once
 #include <cctype>
 
 constexpr std::size_t ScreenWidth = 800;

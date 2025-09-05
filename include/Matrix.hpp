@@ -28,14 +28,14 @@ namespace sas
 
         bool checkInsideBoundry(size_t index) const noexcept
         {
-            if(data.size() > index)
+            if (data.size() > index)
                 return true;
             return false;
         }
 
         std::optional<T> getElem(size_t row, size_t col) const noexcept
         {
-            if(row >= data.size() || col >= data.size() || row >= rows || col >= cols)
+            if (row >= data.size() || col >= data.size() || row >= rows || col >= cols)
                 return std::nullopt;
             size_t index = getIndex(row, col);
 
@@ -73,7 +73,7 @@ namespace sas
             }
         }
 
-        //Crash on out of bounds access
+        // Crash on out of bounds access
         T &operator()(size_t row, size_t col)
         {
             checkInsideBoundry(row, col);
@@ -178,6 +178,20 @@ namespace sas
             return *this;
         }
 
+        void reset() noexcept
+        {
+            data.clear();
+            rows = 0;
+            cols = 0;
+        }
+
+        // Keeps the allocated memory
+        void clear() noexcept
+        {
+            static_assert(std::is_default_constructible<T>::value,
+                          "Type must be default-constructible to use clear, use reset instead");
+            std::fill(data.begin(), data.end(), T{});
+        }
         // Returns tuple of Nighbours excluding oneself
         // The order is clockwise starting from North-West: NW,N,NE,E,SE,S,SW,W
         // To verify which neighbour was returned, this returns an optional

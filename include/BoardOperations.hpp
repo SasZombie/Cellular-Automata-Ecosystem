@@ -1,4 +1,6 @@
 #pragma once
+#include <raylib.h>
+
 #include "Matrix.hpp"
 #include "Tile.hpp"
 #include "Grid.hpp"
@@ -6,6 +8,8 @@
 
 namespace sas
 {
+    void handleCameraControlls(Camera2D &camera) noexcept;
+
 
     void setUpBoard(Matrix<Tile> &board) noexcept;
     void setUpBoardPerlin(Matrix<Tile> &board, size_t seed) noexcept;
