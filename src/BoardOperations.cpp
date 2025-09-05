@@ -1,18 +1,17 @@
+#include <deque>
+#include <random>
+#include "Utils.hpp"
+#include <raylib.h>
+#include <assert.h>
+#include <queue>
+#include <unordered_set>
+
 #include "../include/BoardOperations.hpp"
 #include "ConfigManager.hpp"
 #include "Common.hpp"
 #include "Grid.hpp"
 #include "Utils.hpp"
-#include <deque>
-#include <random>
-#include <iostream>
 #include "BoardOperations.hpp"
-#include <raylib.h>
-#include "Utils.hpp"
-#include <assert.h>
-#include <queue>
-#include <unordered_set>
-
 #include "../Extern/FastNoiseLite.h"
 
 // The grid does NOT know about the TILES!!
@@ -47,7 +46,6 @@ void sas::setUpBoard(sas::Matrix<sas::Tile> &board) noexcept
 
 void sas::setUpBoardPerlin(Matrix<Tile> &board, size_t seed) noexcept
 {
-    std::cout << seed << '\n';
     FastNoiseLite noise;
     noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     noise.SetSeed(seed);
